@@ -36,16 +36,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile="./bin/lightopcD.dll"
+				OutputFile="./lib/lightopcD.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\lightopc.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\bin\lightopcD.pdb"
+				ProgramDatabaseFile=".\lib\lightopcD.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName=".\bin\lightopcD.map"
+				MapFileName=".\lib\lightopcD.map"
 				SubSystem="2"
-				ImportLibrary=".\bin\lightopcD.lib"
+				ImportLibrary=".\lib\lightopcD.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -104,15 +104,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile="./bin/lightopc.dll"
+				OutputFile="./lib/lightopc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\lightopc.def"
-				ProgramDatabaseFile=".\bin\lightopc.pdb"
+				ProgramDatabaseFile=".\lib\lightopc.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName=".\bin\lightopc.map"
+				MapFileName=".\lib\lightopc.map"
 				SubSystem="2"
-				ImportLibrary=".\bin\lightopc.lib"
+				ImportLibrary=".\lib\lightopc.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
