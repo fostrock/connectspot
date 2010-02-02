@@ -1,5 +1,5 @@
-LIBRARY         LightOPC.dll
-DESCRIPTION     'LightOPC Server DLL'
+LIBRARY         LO.dll
+;DESCRIPTION     'LightOPC Server DLL'
 
 EXPORTS
 ;    DllGetClassObject       @1 PRIVATE

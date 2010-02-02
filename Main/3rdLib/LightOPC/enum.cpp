@@ -200,7 +200,7 @@ STDMETHODIMP loEnum<BASE,ITEM,IFACE>::Clone(BASE **ppenum)
 /******************************************************************************************/
 
 template <class BASE, class ITEM, const IID *IFACE>
-loEnumIface<BASE,ITEM,IFACE>::~loEnumIface<BASE,ITEM,IFACE>()
+loEnumIface<BASE,ITEM,IFACE>::~loEnumIface()
 {
  UL_TRACE((LOGID, "loEnumIface::~%p", this));
  destroy_list();
