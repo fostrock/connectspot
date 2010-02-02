@@ -1,5 +1,5 @@
 LIBRARY unilog.dll
-DESCRIPTION 'unilog.dll - Multipurpose logger'
+;DESCRIPTION 'unilog.dll - Multipurpose logger'
 EXPORTS
 unilog_v
 unilog_l

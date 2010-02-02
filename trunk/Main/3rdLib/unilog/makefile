@@ -2,7 +2,7 @@
 # Select the *SINGLE* path
 ###################################################
 
-MSDIR="C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7"
+MSDIR="F:\Microsoft Visual Studio 9.0\VC"
 
 ###################################################
 
