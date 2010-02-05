@@ -1,0 +1,36 @@
+// opcspot.idl : IDL source for opcspot
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (opcspot.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(1282BD55-B53A-4C3C-9379-1B594EA8C495),
+	dual,
+	nonextensible,
+	helpstring("IDAServer Interface"),
+	pointer_default(unique)
+]
+interface IDAServer : IDispatch{
+};
+[
+	uuid(90647597-626D-4D4E-8F4F-8D6AD3750ACC),
+	version(1.0),
+	helpstring("opcspot 1.0 Type Library")
+]
+library opcspotLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(551CCA22-A6D4-42F1-8FBC-5A75FE24B01D),
+		helpstring("DAServer Class")
+	]
+	coclass DAServer
+	{
+		[default] interface IDAServer;
+	};
+};
