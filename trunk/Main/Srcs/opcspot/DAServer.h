@@ -18,6 +18,9 @@ class MyClassFactory;
 // {63D5F432-CFE4-11d1-B2C8-0060083BA1FB}
 static const GUID CATID_OPCDAServer20 = {0x63D5F432, 0xCFE4, 0x11d1, {0xB2, 0xC8, 0x00, 
 0x60, 0x08, 0x3B, 0xA1, 0xFB}};
+// {63D5F430-CFE4-11d1-B2C8-0060083BA1FB}
+static const GUID CATID_OPCDAServer10 = {0x63D5F430, 0xCFE4, 0x11d1, {0xB2, 0xC8, 0x00, 
+0x60, 0x08, 0x3B, 0xA1, 0xFB}};
 // DAServer
 
 class ATL_NO_VTABLE DAServer :
@@ -47,6 +50,7 @@ public:
 	//	}
 	// in DAServer.rgs is redundant.
 	BEGIN_CATEGORY_MAP(DAServer)
+		IMPLEMENTED_CATEGORY(CATID_OPCDAServer10)
 		IMPLEMENTED_CATEGORY(CATID_OPCDAServer20)
 	END_CATEGORY_MAP()
 
