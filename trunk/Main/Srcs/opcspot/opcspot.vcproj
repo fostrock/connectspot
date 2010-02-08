@@ -53,6 +53,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -76,8 +77,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="lo.lib"
 				OutputFile="..\..\bin\$(ProjectName)D.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\3rdLib\lightopc\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -210,6 +213,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DataService.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MyClassFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\opcspot.cpp"
 				>
 			</File>
@@ -237,6 +248,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\ZSDriver.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -245,6 +260,14 @@
 			>
 			<File
 				RelativePath=".\DAServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DataService.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyClassFactory.h"
 				>
 			</File>
 			<File
@@ -257,6 +280,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ZSDriver.h"
 				>
 			</File>
 		</Filter>

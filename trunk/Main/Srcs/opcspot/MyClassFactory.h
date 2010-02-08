@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------
 // File: <MyClassFactory.h>
-// Purpose: implement <Self-defined class factory to create the opc server object.>
+// Purpose: declare <Self-defined class factory to create the opc server object.>
 //
 // @author <Yun Hua>
 // @version 1.0 2010/01/05
@@ -17,7 +17,7 @@ class MyClassFactory :
 {
 public:
 	MyClassFactory(void);
-	virtual ~MyClassFactory(void);
+	~MyClassFactory(void); // The class can not be used as a base.
 
 	STDMETHOD(CreateInstance)(LPUNKNOWN pUnkOuter, REFIID riid, void** ppvObj);
 };

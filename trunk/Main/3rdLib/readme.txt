@@ -8,8 +8,8 @@ note: you shall extract the boost library package into the directory self
 
 OPCClientToolKit v0.3 http://sourceforge.net/projects/opcclient/
 
-libxml++ v2.26.1 http://libxmlplusplus.sourceforge.net/
-libxml2 v2.7.6  http://www.xmlsoft.org/downloads.html
+libxml++ v2.26.0 http://libxmlplusplus.sourceforge.net/
+vc9.0±‡“Î∞Ê±æ http://www.gtkmm.org/index.shtml
 
 
 
