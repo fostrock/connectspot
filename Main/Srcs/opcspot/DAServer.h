@@ -1,10 +1,19 @@
-// DAServer.h : Declaration of the DAServer
+//------------------------------------------------------------------------------------------
+// File: <DAServer.h>
+// Purpose: declare <OPC da class object>
+//
+// @author <Yun Hua>
+// @version 1.0 2010/01/04
+// 
+// Copyright (C) 2010, Yun Hua
+//-----------------------------------------------------------------------------------------//
 
 #pragma once
 #include "resource.h"       // main symbols
 
 #include "opcspot_i.h"
 
+class MyClassFactory;
 
 // {63D5F432-CFE4-11d1-B2C8-0060083BA1FB}
 static const GUID CATID_OPCDAServer20 = {0x63D5F432, 0xCFE4, 0x11d1, {0xB2, 0xC8, 0x00, 
@@ -22,6 +31,8 @@ public:
 	}
 
 	DECLARE_REGISTRY_RESOURCEID(IDR_DASERVER)
+
+	DECLARE_CLASSFACTORY_EX(MyClassFactory)
 
 	
 	BEGIN_COM_MAP(DAServer)

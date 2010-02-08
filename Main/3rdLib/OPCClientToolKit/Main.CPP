@@ -104,7 +104,7 @@ void main(void)
 	}
 
 	// connect to OPC
-	CString serverName = "Matrikon.OPC.Simulation.1";//"CAEN.HVOPCServer.1";
+	CString serverName = "opcspot.DAServer.1";//"CAEN.HVOPCServer.1";
 	COPCServer *opcServer = host->connectDAServer(serverName);
 
 	// Check status

@@ -6,7 +6,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0500 */
-/* at Fri Feb 05 17:06:02 2010
+/* at Mon Feb 08 17:09:02 2010
  */
 /* Compiler settings for .\opcspot.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)
