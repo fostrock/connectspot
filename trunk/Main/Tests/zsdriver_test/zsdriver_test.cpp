@@ -26,14 +26,36 @@ public:
 
 BOOST_AUTO_TEST_CASE(zsserial_constructors_test)
 {
-	ZSSerial zs("COM4", 9600);
+	ZSSerial zs("COM3", 9600);
 	BOOST_CHECK(zs.IsOpened());
+}
+
+BOOST_AUTO_TEST_CASE(zsserial_calcBCDsum_test)
+{
+	std::vector<unsigned char> bcdVec;
+	bcdVec.push_back(0x29);
+	bcdVec.push_back(0x45);
+	BOOST_CHECK_EQUAL(ZSSerial::CalculateBCDSum(bcdVec), 0x74);
+
+	// the high part is discarded
+	bcdVec.push_back(0x46);
+	BOOST_CHECK_EQUAL(ZSSerial::CalculateBCDSum(bcdVec), 0x20);
+
+	bcdVec.push_back(0x80);
+	BOOST_CHECK_EQUAL(ZSSerial::CalculateBCDSum(bcdVec), 0x00);
+}
+
+BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
+{
+	ZSSerial zs("COM3", 9600);
+	zs.ReadData(ZSSerial::one);
+	zs.ReadData(ZSSerial::two);
 }
 
 BOOST_FIXTURE_TEST_SUITE(suiteName, TestFixture)
 
 BOOST_AUTO_TEST_CASE(test_case1) {
-	BOOST_CHECK(fixtureCount == 1);
+	BOOST_CHECK(fixtureCount == 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_case2) {
