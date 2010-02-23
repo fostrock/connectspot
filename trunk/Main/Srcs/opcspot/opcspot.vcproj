@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Patterns.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -275,6 +279,10 @@
 			</File>
 			<File
 				RelativePath=".\MyClassFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Patterns.h"
 				>
 			</File>
 			<File
