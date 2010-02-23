@@ -137,9 +137,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="xml++-vc90-2_6.lib glibmm-vc90-2_4.lib"
 				OutputFile="../../bin/$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;"
+				AdditionalLibraryDirectories="&quot;../../3rdlib/libxml++/v_2_26/lib&quot;;../../3rdlib/boost/v_1_41/lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -178,10 +179,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\Srcs\opcspot\Patterns.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -202,15 +199,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xmlreader_test.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\zsdriver_test.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\zsprotocol_test.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Srcs\opcspot\ZSSerial.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\zsserial_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Srcs\opcspot\ZSSerialProtocol.cpp"
 				>
 			</File>
 		</Filter>
