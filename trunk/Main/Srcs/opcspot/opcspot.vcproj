@@ -263,6 +263,10 @@
 				RelativePath=".\ZSSerial.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\ZSSerialProtocol.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -303,6 +307,10 @@
 			</File>
 			<File
 				RelativePath=".\ZSSerial.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ZSSerialProtocol.h"
 				>
 			</File>
 		</Filter>
