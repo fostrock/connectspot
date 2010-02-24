@@ -10,16 +10,72 @@
 
 #pragma once
 
-#include "boost/utility.hpp"
+#include "boost/noncopyable.hpp"
 #include "libxml++/libxml++.h"
+#include <map>
+#include "boost/tuple/tuple.hpp"
+
+struct ZSReadDataCmd 
+{
+	unsigned char cmd;
+	int refresh; // ms
+	typedef std::map<unsigned short/*mapping id*/, unsigned short/*offset*/> OffsetDef;
+	OffsetDef offset;
+};
+
+struct ZSWriteDataCmd 
+{
+	unsigned char cmd;
+	typedef std::map<unsigned short/*mapping id*/, unsigned short/*param*/> ParamDef;
+	ParamDef param;
+};
 
 class ZSSerialProtocol : 
 	public boost::noncopyable
 {
 public:
+	typedef std::map<int, boost::tuple<std::string, std::string, unsigned short, bool> > DataSetDef;
+	typedef std::map<unsigned short/*mapping id*/, unsigned char/*cmd*/> CommonCmdDef;
+
 	ZSSerialProtocol(const std::string& cfgFile);
 	~ZSSerialProtocol(void);
 
+	// Parse protocol using the DOM parser
+	// @return true if the operation succeeded, otherwise false
+	bool Parse();
+
+	// Get the data set containing some information
+	// @return the reference to the data set
+	const DataSetDef& GetDataSetInfo()
+	{
+		return dataset;
+	}
+
+	// Get the command and the parsing protocol for the reading data
+	// @return the reference to the reading data protocol
+	const std::vector<ZSReadDataCmd>& GetReadDataCmd()
+	{
+		return vecReadDataCmd;
+	}
+
+	// Get the command and the parsing protocol for the writing data
+	// @return the reference to the writing data protocol
+	const ZSWriteDataCmd& GetWriteDataCmd()
+	{
+		return writeDataCmd;
+	}
+
+	// Get the common commands for controlling the device
+	// @return the reference to the common commands
+	const CommonCmdDef& GetCommonCmd()
+	{
+		return commonCmd;
+	}
+
 private:
 	xmlpp::DomParser parser;
+	DataSetDef dataset;
+	std::vector<ZSReadDataCmd> vecReadDataCmd;
+	ZSWriteDataCmd writeDataCmd;
+	CommonCmdDef commonCmd;
 };
