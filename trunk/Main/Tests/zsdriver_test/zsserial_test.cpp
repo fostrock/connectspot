@@ -12,9 +12,12 @@
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerial.h"
 
+const std::string zs_protocol_file = "E:\\My Projects\\connectspot\\Main\\bin\\config\\zsdriver.xml";
+
 BOOST_AUTO_TEST_CASE(zsserial_constructors_test)
 {
-	ZSSerial zs("COM3", 9600);
+	ZSSerialProtocol protocol(zs_protocol_file);
+	ZSSerial zs("COM3", 9600, protocol);
 	BOOST_CHECK(zs.IsOpened());
 }
 
@@ -35,7 +38,8 @@ BOOST_AUTO_TEST_CASE(zsserial_calcBCDsum_test)
 
 BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 {
-	ZSSerial zs("COM3", 9600);
-	zs.ReadData(ZSSerial::one);
-	zs.ReadData(ZSSerial::two);
+	ZSSerialProtocol protocol(zs_protocol_file);
+	ZSSerial zs("COM3", 9600, protocol);
+	std::vector<ZSDataItem> items = zs.ReadData(ZSSerial::one, 1);
+	BOOST_CHECK_EQUAL(items.size(), 12);
 }

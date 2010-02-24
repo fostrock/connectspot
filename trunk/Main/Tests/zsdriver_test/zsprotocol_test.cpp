@@ -16,7 +16,7 @@ const std::string zs_protocol_file = "E:\\My Projects\\connectspot\\Main\\bin\\c
 
 BOOST_AUTO_TEST_CASE(zsprotocol_constructors_test)
 {
-	//ZSSerialProtocol protocol(zs_protocol_file);
+	ZSSerialProtocol protocol(zs_protocol_file);
 }
 
 BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
