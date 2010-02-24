@@ -17,18 +17,25 @@
 #define BOOST_DATE_TIME_DYN_LINK
 #include "boost/asio/serial_port.hpp"
 #include "boost/variant.hpp"
+#include "ZSSerialProtocol.h"
+
+struct ZSDataItem 
+{
+	unsigned short index;
+	boost::variant<int, float> variant;
+};
 
 class ZSSerial
 {
 public:
 	enum DataGroup { one, two };
-	typedef boost::variant<int, float> ZSVariant;
 
 	// Constructor.
 	// @param <port> device name, example "/dev/ttyUSB0" or "COM4"
 	// @param <baudRate> communication speed, example 9600 or 115200
+	// @param <protocol> the serial communication protocol
 	// @throws boost::system::system_error if cannot open the serial device
-	ZSSerial(std::string port, unsigned int baudRate);
+	ZSSerial(std::string port, unsigned int baudRate, const ZSSerialProtocol& protocol);
 	~ZSSerial(void);
 
 public:
@@ -42,20 +49,22 @@ public:
 	// Read data from the device.
 	// @param <group> one represents the frequent access data set,
 	//				two represents the less frequent access data set
+	// @param <station> RS-485 station No.
 	// @return a vector containing the safe and generic union
 	// @throws boost::system::system_error on failure
-	std::vector<ZSVariant> ReadData(DataGroup group);
+	std::vector<ZSDataItem> ReadData(DataGroup group, unsigned char station);
 
 	// Write data to the device
-	// @param <dataID> the data ID
-	// @param <data> the data content represented by a safe union
+	// @param <item> the data item will be write to the device
+	// @param <station> RS-485 station No.
 	// @throws boost::system::system_error on failure
-	void WriteData(int dataID, const ZSVariant& data);
+	void WriteData(const ZSDataItem& item, unsigned char station);
 
 	// Write command to the device
 	// @param <commandID> command ID
+	// @param <station> RS-485 station No.
 	// @throws boost::system::system_error on failure
-	void WriteCommand(int commandID);
+	void WriteCommand(int commandID, unsigned char station);
 
 	// Calculate the sum of BCD codes
 	// @param <bcdVec> the given BCD vector
@@ -74,4 +83,6 @@ private:
 	boost::asio::serial_port serial;
 	static const unsigned char begin;
 	static const unsigned char end;
+
+	const ZSSerialProtocol& protocol;
 };
