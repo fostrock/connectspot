@@ -29,15 +29,34 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	BOOST_CHECK(it != dataset.end());
 
 	// test read data cmd part
-	const std::vector<ZSReadDataCmd>& readDataCmd = protocol.GetReadDataCmd();
-	BOOST_CHECK(2 == readDataCmd.size());
-	ZSReadDataCmd::OffsetDef::const_iterator itRead = readDataCmd.at(1).offset.find(21);
-	BOOST_CHECK(itRead != readDataCmd.at(1).offset.end());
-	BOOST_CHECK_EQUAL(itRead->second, 0);
+	const std::vector<ZSReadDataCmd>& readDataCmds = protocol.GetReadDataCmd();
+	BOOST_CHECK(2 == readDataCmds.size());
 
-	itRead = readDataCmd.at(1).offset.find(42);
-	BOOST_CHECK(itRead != readDataCmd.at(1).offset.end());
-	BOOST_CHECK_EQUAL(itRead->second, 62);
+	ZSReadDataCmd readDataCmd = readDataCmds.at(0);
+	std::size_t findIndex = 0;
+	for (; findIndex < readDataCmd.info.size(); ++findIndex)
+	{
+		if (7 == readDataCmd.info.at(findIndex).index)	// "当前累计总量" 
+		{
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).length, 5);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).offset, 18);
+			break;
+		}
+	}
+	BOOST_CHECK(findIndex != readDataCmd.info.size());
+
+	findIndex = 0;
+	readDataCmd = readDataCmds.at(1);
+	for (; findIndex < readDataCmd.info.size(); ++findIndex)
+	{
+		if (38 == readDataCmd.info.at(findIndex).index)	// "缺料报警阀值" 
+		{
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).length, 4);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).offset, 46);
+			break;
+		}
+	}
+	BOOST_CHECK(findIndex != readDataCmd.info.size());
 
 	// test write data cmd part
 	const ZSWriteDataCmd& writeDataCmd = protocol.GetWriteDataCmd();
