@@ -62,9 +62,19 @@ bool ZSSerialProtocol::Parse()
 				for (xmlpp::Node::NodeList::const_iterator it = children.begin(); it != children.end(); ++it)
 				{
 					const xmlpp::Element* child = static_cast<const xmlpp::Element*>(*it);
-					unsigned short matchID = boost::lexical_cast<unsigned short>(child->get_attribute("match_id")->get_value());
+					int matchID = boost::lexical_cast<int>(child->get_attribute("match_id")->get_value());
 					unsigned short offset = boost::lexical_cast<unsigned short>(child->get_attribute("offset")->get_value());
-					vecReadDataCmd.at(i).offset.insert(std::make_pair(matchID, offset));
+					// search the parsed data set
+					DataSetDef::iterator itData = dataset.find(matchID);
+					_ASSERTE(itData != dataset.end());
+					if (itData != dataset.end())
+					{
+						ZSReadDataInfo readDataInfo;
+						readDataInfo.index = matchID;
+						readDataInfo.offset = offset;
+						readDataInfo.length = (*itData).second.get<2>();
+						vecReadDataCmd.at(i).info.push_back(readDataInfo);
+					}		
 				}
 			}
 

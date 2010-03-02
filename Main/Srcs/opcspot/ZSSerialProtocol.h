@@ -15,12 +15,18 @@
 #include <map>
 #include "boost/tuple/tuple.hpp"
 
+struct ZSReadDataInfo
+{
+	int index;
+	unsigned short offset;
+	unsigned short length;
+};
+
 struct ZSReadDataCmd 
 {
 	unsigned char cmd;
 	int refresh; // ms
-	typedef std::map<unsigned short/*mapping id*/, unsigned short/*offset*/> OffsetDef;
-	OffsetDef offset;
+	std::vector<ZSReadDataInfo> info;
 };
 
 struct ZSWriteDataCmd 
@@ -53,7 +59,7 @@ public:
 
 	// Get the command and the parsing protocol for the reading data
 	// @return the reference to the reading data protocol
-	const std::vector<ZSReadDataCmd>& GetReadDataCmd()
+	const std::vector<ZSReadDataCmd>& GetReadDataCmd() const
 	{
 		return vecReadDataCmd;
 	}
