@@ -13,9 +13,6 @@
 
 using namespace boost;
 
-const unsigned char ZSSerial::begin = 0xbb;
-const unsigned char ZSSerial::end = 0xee;
-
 ZSSerial::ZSSerial(std::string port, unsigned int baudRate, const ZSSerialProtocol& protocol) : 
 io(), serial(io, port), protocol(protocol)
 {
@@ -29,7 +26,15 @@ ZSSerial::~ZSSerial(void)
 // Read data from the device.
 std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char station)
 {
+	_ASSERT(station <= 99);
 	std::vector<ZSDataItem> vec;
+	if (station > 99 || !serial.is_open())
+	{
+		return vec;
+	}
+
+	std::string readCmd = MakeReadCmd(group, station);
+	boost::asio::write(serial, boost::asio::buffer(readCmd.c_str(), readCmd.size()));
 	return vec;
 }
 
@@ -57,6 +62,45 @@ unsigned char ZSSerial::CalculateBCDSum(const std::vector<unsigned char>& bcdVec
 		result = ((inc / 10) << 4) | (inc % 10);
 	}
 	return result;
+}
+
+// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
+unsigned char ZSSerial::Dec2BCD(unsigned char dec)
+{
+	_ASSERT(dec <= 99);
+	if (dec > 99)
+	{
+		return 0;
+	}
+	return ((dec / 10) << 4) | (dec % 10);
+}
+
+// Make a read data command
+std::string ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
+{
+	_ASSERT(station <= 99);
+	std::string readCmd;
+	if (station > 99)
+	{
+		return readCmd;
+	}
+
+	const std::vector<ZSReadDataCmd>& vecCmd = protocol.GetReadDataCmd();
+	readCmd += begin;
+	readCmd += Dec2BCD(station);
+	readCmd += 0x4;
+	if (one == group)
+	{
+		readCmd += vecCmd.at(0).cmd;
+	}
+	else if (two == group)
+	{
+		readCmd += vecCmd.at(1).cmd;
+	}
+	readCmd += CalculateBCDSum(readCmd.substr(1, 3));
+	readCmd += end;
+
+	return readCmd;
 }
 
 // Check BCD code sum

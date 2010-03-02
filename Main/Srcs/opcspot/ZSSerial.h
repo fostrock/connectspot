@@ -15,7 +15,7 @@
 
 #define BOOST_SYSTEM_DYN_LINK
 #define BOOST_DATE_TIME_DYN_LINK
-#include "boost/asio/serial_port.hpp"
+#include "boost/asio.hpp"
 #include "boost/variant.hpp"
 #include "ZSSerialProtocol.h"
 
@@ -66,10 +66,22 @@ public:
 	// @throws boost::system::system_error on failure
 	void WriteCommand(int commandID, unsigned char station);
 
+	// Make a read data command
+	// @param <group> one represents the frequent access data set,
+	//				two represents the less frequent access data set
+	// @param <station> RS-485 station No.
+	// @return command string
+	std::string MakeReadCmd(DataGroup group, unsigned char station);
+
 	// Calculate the sum of BCD codes
 	// @param <bcdVec> the given BCD vector
 	// @return the sum
 	static unsigned char CalculateBCDSum(const std::vector<unsigned char>& bcdVec);
+
+	// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
+	// @param <dec> a decimal code, it shall not larger than 99
+	// @return a BCD code
+	static unsigned char Dec2BCD(unsigned char dec);
 
 private:
 	// Check BCD code sum
@@ -81,8 +93,9 @@ private:
 private:
 	boost::asio::io_service io;
 	boost::asio::serial_port serial;
-	static const unsigned char begin;
-	static const unsigned char end;
+
+	static const unsigned char begin = 0xbb;
+	static const unsigned char end = 0xee;
 
 	const ZSSerialProtocol& protocol;
 };
