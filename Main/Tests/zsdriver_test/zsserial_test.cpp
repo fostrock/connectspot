@@ -36,6 +36,12 @@ BOOST_AUTO_TEST_CASE(zsserial_calcBCDsum_test)
 	BOOST_CHECK_EQUAL(ZSSerial::CalculateBCDSum(bcdVec), 0x00);
 }
 
+BOOST_AUTO_TEST_CASE(zsserial_Dec2BCD_test)
+{
+	BOOST_CHECK(0x99 == ZSSerial::Dec2BCD(99));
+	BOOST_CHECK(0x09 == ZSSerial::Dec2BCD(9));
+}
+
 BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 {
 	ZSSerialProtocol protocol(zs_protocol_file);
