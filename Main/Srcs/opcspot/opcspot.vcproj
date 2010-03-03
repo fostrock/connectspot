@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -77,10 +77,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="lo.lib"
+				AdditionalDependencies="lo.lib xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib"
 				OutputFile="..\..\bin\$(ProjectName)D.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib"
+				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -168,10 +168,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="lo.lib"
+				AdditionalDependencies="lo.lib xml++-vc90-2_6.lib glibmm-vc90-2_4.lib"
 				OutputFile="..\..\bin\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib"
+				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -252,6 +252,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\commonlib\TimeoutSerial.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ZSDriver.cpp"
 				>
 			</File>
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\commonlib\TimeoutSerial.h"
 				>
 			</File>
 			<File
