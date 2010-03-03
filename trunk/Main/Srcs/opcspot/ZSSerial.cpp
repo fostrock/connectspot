@@ -13,10 +13,19 @@
 
 using namespace boost;
 
-ZSSerial::ZSSerial(std::string port, unsigned int baudRate, const ZSSerialProtocol& protocol) : 
-io(), serial(io, port), protocol(protocol)
+ZSSerial::ZSSerial(const std::string& port, unsigned int baudRate, const ZSSerialProtocol& protocol,
+				   asio::serial_port_base::parity opt_parity,
+				   asio::serial_port_base::character_size opt_csize,
+				   asio::serial_port_base::flow_control opt_flow,
+				   asio::serial_port_base::stop_bits opt_stop
+				   ) : 
+io(), serial(io, port), protocol(protocol), timeout(posix_time::seconds(0))
 {
 	serial.set_option(asio::serial_port_base::baud_rate(baudRate));
+	serial.set_option(opt_parity);
+	serial.set_option(opt_csize);
+	serial.set_option(opt_flow);
+	serial.set_option(opt_stop);
 }
 
 ZSSerial::~ZSSerial(void)
@@ -34,7 +43,19 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 	}
 
 	std::string readCmd = MakeReadCmd(group, station);
-	boost::asio::write(serial, boost::asio::buffer(readCmd.c_str(), readCmd.size()));
+	asio::write(serial, asio::buffer(readCmd.c_str(), readCmd.size()));
+	std::string result;
+	char c;
+	for(;;)
+	{
+		asio::read(serial, asio::buffer(&c, 1));
+		result += c;
+		if (end == c)
+		{
+			break;
+		}
+	}
+
 	return vec;
 }
 
@@ -97,7 +118,9 @@ std::string ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
 	{
 		readCmd += vecCmd.at(1).cmd;
 	}
-	readCmd += CalculateBCDSum(readCmd.substr(1, 3));
+	
+	std::string sumPart = readCmd.substr(1, 3);
+	readCmd += CalculateBCDSum(std::vector<unsigned char>(sumPart.begin(), sumPart.end()));
 	readCmd += end;
 
 	return readCmd;
