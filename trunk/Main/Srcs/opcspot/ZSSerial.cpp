@@ -13,19 +13,10 @@
 
 using namespace boost;
 
-ZSSerial::ZSSerial(const std::string& port, unsigned int baudRate, const ZSSerialProtocol& protocol,
-				   asio::serial_port_base::parity opt_parity,
-				   asio::serial_port_base::character_size opt_csize,
-				   asio::serial_port_base::flow_control opt_flow,
-				   asio::serial_port_base::stop_bits opt_stop
-				   ) : 
-io(), serial(io, port), protocol(protocol), timeout(posix_time::seconds(0))
+ZSSerial::ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol) : 
+protocol(protocol), port(devName, 9600)
 {
-	serial.set_option(asio::serial_port_base::baud_rate(baudRate));
-	serial.set_option(opt_parity);
-	serial.set_option(opt_csize);
-	serial.set_option(opt_flow);
-	serial.set_option(opt_stop);
+
 }
 
 ZSSerial::~ZSSerial(void)
@@ -37,24 +28,24 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 {
 	_ASSERT(station <= 99);
 	std::vector<ZSDataItem> vec;
-	if (station > 99 || !serial.is_open())
-	{
-		return vec;
-	}
+	//if (station > 99 || !serial.is_open())
+	//{
+	//	return vec;
+	//}
 
 	std::string readCmd = MakeReadCmd(group, station);
-	asio::write(serial, asio::buffer(readCmd.c_str(), readCmd.size()));
-	std::string result;
-	char c;
-	for(;;)
-	{
-		asio::read(serial, asio::buffer(&c, 1));
-		result += c;
-		if (end == c)
-		{
-			break;
-		}
-	}
+	//asio::write(serial, asio::buffer(readCmd.c_str(), readCmd.size()));
+	//std::string result;
+	//char c;
+	//for(;;)
+	//{
+	//	asio::read(serial, asio::buffer(&c, 1));
+	//	result += c;
+	//	if (end == c)
+	//	{
+	//		break;
+	//	}
+	//}
 
 	return vec;
 }
