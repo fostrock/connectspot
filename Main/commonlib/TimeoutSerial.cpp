@@ -72,26 +72,26 @@ void TimeoutSerial::SetTimeout(const posix_time::time_duration& t)
 
 void TimeoutSerial::Write(const char *data, size_t size)
 {
-	asio::write(port,asio::buffer(data,size));
+	asio::write(port, asio::buffer(data, size));
 }
 
 void TimeoutSerial::Write(const std::vector<char>& data)
 {
-	asio::write(port,asio::buffer(&data[0],data.size()));
+	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void TimeoutSerial::WriteString(const std::string& s)
 {
-	asio::write(port,asio::buffer(s.c_str(),s.size()));
+	asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
 
 void TimeoutSerial::Read(char *data, size_t size)
 {
-	if(readData.size()>0)//If there is some data from a previous read
+	if(readData.size() > 0)//If there is some data from a previous read
 	{
 		istream is(&readData);
-		size_t toRead = min(readData.size(),size);//How many bytes to read?
-		is.read(data,toRead);
+		size_t toRead = min(readData.size(), size);//How many bytes to read?
+		is.read(data, toRead);
 		data += toRead;
 		size -= toRead;
 		if(size == 0) return;//If read data was enough, just return
@@ -100,13 +100,15 @@ void TimeoutSerial::Read(char *data, size_t size)
 	if(timeout != posix_time::seconds(0)) //If timeout is set, start timer
 	{
 		timer.expires_from_now(timeout);
-		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired,this,
+		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired, this,
 			asio::placeholders::error));
 	}
 
-	asio::async_read(port,asio::buffer(data,size),boost::bind(
-		&TimeoutSerial::ReadCompleted,this,asio::placeholders::error,
-		asio::placeholders::bytes_transferred));
+	asio::async_read(port, asio::buffer(data, size), 
+		boost::bind(
+		&TimeoutSerial::ReadCompleted, this, asio::placeholders::error,
+		asio::placeholders::bytes_transferred)
+		);
 
 	result = resultInProgress;
 	bytesTransferred = 0;
@@ -127,21 +129,23 @@ void TimeoutSerial::Read(char *data, size_t size)
 			throw(boost::system::system_error(boost::system::error_code(),
 				"Error while reading"));
 			//if resultInProgress remain in the loop
+		default:
+			break;
 		}
 	}
 }
 
 std::vector<char> TimeoutSerial::Read(size_t size)
 {
-	vector<char> result(size,'\0');//Allocate a vector with the desired size
-	Read(&result[0],size);//Fill it with values
+	vector<char> result(size, '\0');	//Allocate a vector with the desired size
+	Read(&result[0], size);	//Fill it with values
 	return result;
 }
 
 std::string TimeoutSerial::ReadString(size_t size)
 {
-	string result(size,'\0');//Allocate a string with the desired size
-	Read(&result[0],size);//Fill it with values
+	string result(size, '\0');//Allocate a string with the desired size
+	Read(&result[0], size);//Fill it with values
 	return result;
 }
 
@@ -150,12 +154,12 @@ std::string TimeoutSerial::ReadStringUntil(const std::string& delim)
 	if(timeout != posix_time::seconds(0)) //If timeout is set, start timer
 	{
 		timer.expires_from_now(timeout);
-		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired,this,
+		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired, this,
 			asio::placeholders::error));
 	}
 
-	asio::async_read_until(port,readData,delim,boost::bind(
-		&TimeoutSerial::ReadCompleted,this,asio::placeholders::error,
+	asio::async_read_until(port, readData, delim, boost::bind(
+		&TimeoutSerial::ReadCompleted, this, asio::placeholders::error,
 		asio::placeholders::bytes_transferred));
 
 	result = resultInProgress;
@@ -170,8 +174,8 @@ std::string TimeoutSerial::ReadStringUntil(const std::string& delim)
 				timer.cancel();
 				bytesTransferred -= delim.size();//Don't count delim
 				istream is(&readData);
-				string result(bytesTransferred,'\0');//Alloc string
-				is.read(&result[0],bytesTransferred);//Fill values
+				string result(bytesTransferred, '\0');//Alloc string
+				is.read(&result[0], bytesTransferred);//Fill values
 				is.ignore(delim.size());//Remove delimiter from stream
 				return result;
 			}
@@ -184,6 +188,8 @@ std::string TimeoutSerial::ReadStringUntil(const std::string& delim)
 			throw(boost::system::system_error(boost::system::error_code(),
 				"Error while reading"));
 			//if resultInProgress remain in the loop
+		default:
+			break;
 		}
 	}
 }
@@ -202,8 +208,13 @@ void TimeoutSerial::ReadCompleted(const boost::system::error_code& error,
 {
 	if(error)
 	{
-		if(error != asio::error::operation_aborted) result = resultError;
-	} else {
+		if(error != asio::error::operation_aborted)
+		{
+			result = resultError;
+		}
+	} 
+	else 
+	{
 		if(result != resultInProgress) return;
 		result = resultSuccess;
 		this->bytesTransferred = bytesTransferred;
