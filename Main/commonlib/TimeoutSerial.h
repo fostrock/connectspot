@@ -33,7 +33,7 @@ class TimeoutSerial: private boost::noncopyable
 {
 public:
 	TimeoutSerial();
-	virtual ~TimeoutSerial();
+	~TimeoutSerial();
 
 
 	// Opens a serial device. By default timeout is disabled.
