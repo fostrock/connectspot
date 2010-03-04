@@ -31,6 +31,13 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	BOOST_CHECK_EQUAL(settings.at(0).parity, none);
 	BOOST_CHECK_EQUAL(settings.at(0).csize, 8);
 	BOOST_CHECK_EQUAL(settings.at(0).stopBits, one);
+	const std::vector<std::pair<unsigned short, unsigned short> >& stations =
+		settings.at(0).stations;
+	BOOST_CHECK_EQUAL(stations.size(), 2);
+	BOOST_CHECK_EQUAL(stations.at(0).first, 1);
+	BOOST_CHECK_EQUAL(stations.at(0).second, 1);
+	BOOST_CHECK_EQUAL(stations.at(0).second, 8);
+	BOOST_CHECK_EQUAL(stations.at(0).second, 0);
 
     // Dataset
 	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
