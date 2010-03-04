@@ -38,7 +38,7 @@ BOOST_FIXTURE_TEST_SUITE(zsserial_suite, TestFixture)
 
 BOOST_AUTO_TEST_CASE(zsserial_constructors_test)
 {
-	ZSSerial zs("COM3", 9600, protocol);
+	ZSSerial zs("COM3", protocol);
 	BOOST_CHECK(zs.IsOpened());
 }
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(zsserial_Dec2BCD_test)
 
 BOOST_AUTO_TEST_CASE(zsserial_MakeReadCmd_test)
 {
-	ZSSerial zs("COM3", 9600, protocol);
+	ZSSerial zs("COM3", protocol);
 	std::string readCmd;
 	
 	readCmd += 0xbb;
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(zsserial_MakeReadCmd_test)
 
 BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 {
-	ZSSerial zs("COM3", 9600, protocol);
+	ZSSerial zs("COM3", protocol);
 	std::vector<ZSDataItem> items = zs.ReadData(ZSSerial::one, 1);
 	BOOST_CHECK_EQUAL(items.size(), 12);
 }

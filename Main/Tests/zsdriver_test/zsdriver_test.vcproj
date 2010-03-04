@@ -199,6 +199,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\commonlib\stringstext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\commonlib\TimeoutSerial.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\zsdriver_test.cpp"
 				>
 			</File>
