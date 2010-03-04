@@ -12,11 +12,6 @@
 
 #include <string>
 #include <vector>
-
-#define BOOST_SYSTEM_DYN_LINK
-#define BOOST_DATE_TIME_DYN_LINK
-#define BOOST_REGEX_DYN_LINK
-#include "boost/asio.hpp"
 #include "boost/variant.hpp"
 #include "ZSSerialProtocol.h"
 #include "commonlib/timeoutserial.h"
@@ -33,27 +28,10 @@ public:
 	enum DataGroup { one, two };
 
 	// Constructor.
-	// @param <port> device name, example "/dev/ttyUSB0" or "COM4"
-	// @param <baudRate> communication speed, example 9600 or 115200
+	// @param <devName> device name, example "/dev/ttyUSB0" or "COM4"
 	// @param <protocol> the serial communication protocol
-	// @param <opt_parity> serial parity, default none
-	// @param <opt_csize> serial character size, default 8bit
-	// @param <opt_flow> serial flow control, default none
-	// @param <opt_stop> serial stop bits, default 1
 	// @throws boost::system::system_error if cannot open the serial device
-	ZSSerial(const std::string& port, unsigned int baudRate, const ZSSerialProtocol& protocol,
-		boost::asio::serial_port_base::parity opt_parity=
-		boost::asio::serial_port_base::parity(
-		boost::asio::serial_port_base::parity::none),
-		boost::asio::serial_port_base::character_size opt_csize=
-		boost::asio::serial_port_base::character_size(8),
-		boost::asio::serial_port_base::flow_control opt_flow=
-		boost::asio::serial_port_base::flow_control(
-		boost::asio::serial_port_base::flow_control::none),
-		boost::asio::serial_port_base::stop_bits opt_stop=
-		boost::asio::serial_port_base::stop_bits(
-		boost::asio::serial_port_base::stop_bits::one)
-		);
+	ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol);
 	~ZSSerial(void);
 
 public:
@@ -61,15 +39,25 @@ public:
 	// @return true if the serial is opened, otherwise false
 	bool IsOpened() const
 	{
-		return serial.is_open();
+		return port.IsOpen();
 	}
 
-	//  Set the timeout on read/write operations.
-	//  To disable the timeout, call setTimeout(boost::posix_time::seconds(0));
+	// Set the timeout on read/write operations.
+	// To disable the timeout, call setTimeout(boost::posix_time::seconds(0));
 	// @param <t> timeout duration 
 	void SetTimeout(const boost::posix_time::time_duration& t)
 	{
-		timeout = t;
+		port.SetTimeout(t);
+	}
+
+	void Open()
+	{
+		
+	}
+
+	void Close()
+	{
+		port.Close();
 	}
 
 	// Read data from the device.
@@ -117,12 +105,9 @@ private:
 	bool CheckSumEqual(const std::vector<unsigned char>& bcdVec, unsigned char expected);
 
 private:
-	boost::asio::io_service io;
-	boost::asio::serial_port serial;
-	boost::posix_time::time_duration timeout; // Read/write timeout
-
 	static const unsigned char begin = 0xbb;
 	static const unsigned char end = 0xee;
 
 	const ZSSerialProtocol& protocol;
+	TimeoutSerial port;
 };

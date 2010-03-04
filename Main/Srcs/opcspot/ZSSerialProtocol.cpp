@@ -11,7 +11,12 @@
 #include "StdAfx.h"
 #include "ZSSerialProtocol.h"
 #include "boost/lexical_cast.hpp"
+#include "boost/tokenizer.hpp"
 #include <iostream>
+#include <algorithm>
+#include "commonlib/stringstext.h"
+
+using namespace CommonLib;
 
 ZSSerialProtocol::ZSSerialProtocol(const std::string& cfgFile) : parser(cfgFile)
 {
@@ -30,7 +35,83 @@ bool ZSSerialProtocol::Parse()
 		const xmlpp::Node* root = parser.get_document()->get_root_node();
 		if(root)
 		{
-			xmlpp::NodeSet set = root->find("//zsdriver/protocol/dataset/data");
+			// device setting
+			xmlpp::NodeSet set = root->find("//zsdriver/serialport");
+			if (set.empty())
+			{
+				return false;
+			}
+
+			for (std::size_t i = 0; i < set.size(); ++i)
+			{
+				const xmlpp::Element* dataItem = static_cast<const xmlpp::Element*>(set.at(i));
+				_ASSERTE(dataItem != NULL);
+
+				ZSSerialSetting setting;
+				setting.devName = dataItem->get_attribute("port")->get_value();
+
+
+				std::string strSetting = dataItem->get_attribute("setting")->get_value();
+				boost::char_separator<char> sep(",");
+				typedef boost::tokenizer<boost::char_separator<char> >  tokenizer;
+				tokenizer tokSetting(strSetting, sep);
+
+				_ASSERTE(4 == std::distance(tokSetting.begin(), tokSetting.end()));
+				if (4 != std::distance(tokSetting.begin(), tokSetting.end()))
+				{
+					throw std::runtime_error("serial device setting error");
+				}
+				tokenizer::iterator itSetting = tokSetting.begin();
+				setting.baudRate = boost::lexical_cast<unsigned int>(*itSetting);
+				++itSetting;
+				setting.csize = boost::lexical_cast<unsigned short>(*itSetting);
+				++itSetting;
+				if (StringsText::CaseInsCompare("E", *itSetting))	// setting.parity's default value is none
+				{
+					setting.parity = even;
+				}
+				else if (StringsText::CaseInsCompare("O", *itSetting))
+				{
+					setting.parity = odd;
+				}
+				++itSetting;	// setting.stopBits' default value is one
+				unsigned int stopBits = boost::lexical_cast<unsigned int>(*itSetting);
+				if (1.5 == stopBits)
+				{
+					setting.stopBits = onepointfive;
+				}
+				else if (2 == stopBits)
+				{
+					setting.stopBits = two;
+				}
+
+				// check R485 stations
+				std::string strStations = dataItem->get_attribute("stations")->get_value();
+				tokenizer tokStation(strStations, sep);
+				_ASSERTE(0 == (std::distance(tokStation.begin(), tokStation.end()) % 2));
+				if (0 != (std::distance(tokStation.begin(), tokStation.end()) % 2))
+				{
+					throw std::runtime_error("RS485 station config error");
+				}
+				for (tokenizer::iterator itStation = tokStation.begin(); itStation != tokStation.end();
+					++itStation)
+				{
+					unsigned short station = boost::lexical_cast<unsigned short>(*itStation);
+					unsigned short enable = 0;
+					++itStation;
+					if (StringsText::CaseInsCompare("Y", *itStation))
+					{
+						enable = 1;
+					}
+					setting.stations.push_back(std::make_pair(station, enable));
+				}
+
+				// add setting
+				vecSetting.push_back(setting);
+			}
+
+			// device data
+			set = root->find("//zsdriver/protocol/dataset/data");
 			for (std::size_t i = 0; i < set.size(); ++i)
 			{	
 				const xmlpp::Element* dataItem = static_cast<const xmlpp::Element*>(set.at(i));

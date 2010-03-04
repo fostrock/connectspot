@@ -15,6 +15,28 @@
 #include <map>
 #include "boost/tuple/tuple.hpp"
 
+
+enum ZSSerialParity
+{ none, odd, even };
+
+enum ZSSerialStopBits
+{ one, onepointfive, two };
+
+struct ZSSerialSetting
+{
+	ZSSerialSetting() : csize(8), stopBits(one), parity(none)
+	{
+
+	}
+
+	std::string devName;
+	unsigned short csize;
+	ZSSerialStopBits stopBits; 
+	ZSSerialParity parity; 
+	unsigned int baudRate;
+	std::vector<std::pair<unsigned short/*station No.*/, unsigned short/*1:enable, 0:disable*/> > stations;
+};
+
 struct ZSReadDataInfo
 {
 	int index;
@@ -50,6 +72,13 @@ public:
 	// @return true if the operation succeeded, otherwise false
 	bool Parse();
 
+	// Get the serial port setting
+	// @return the reference to the serial port setting
+	const std::vector<ZSSerialSetting>& GetPortSetting()
+	{
+		return vecSetting;
+	}
+
 	// Get the data set containing some information
 	// @return the reference to the data set
 	const DataSetDef& GetDataSetInfo()
@@ -84,4 +113,5 @@ private:
 	std::vector<ZSReadDataCmd> vecReadDataCmd;
 	ZSWriteDataCmd writeDataCmd;
 	CommonCmdDef commonCmd;
+	std::vector<ZSSerialSetting> vecSetting;
 };
