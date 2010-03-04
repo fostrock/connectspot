@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--  ZS driver description file, created by YunHua  on 2010.2.20 -->
 <zsdriver>
-	<serialport port="COM1" baud="19200" stations="1,8"/>
-	<serialport port="COM3" baud="19200" stations="1,8"/>
+	<serialport port="COM1" setting="19200,8,N,1" stations="1,8"/>
+	<serialport port="COM3" setting="19200,8,N,1" stations="1,8"/>
 	<protocol>
 		<dataset>
 			<data id="1" name_chs="流速设定量" name_eng="a1" length="4" float="TRUE"/>
