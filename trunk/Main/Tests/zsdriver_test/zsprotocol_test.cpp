@@ -24,6 +24,15 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	ZSSerialProtocol protocol(zs_protocol_file);
 	BOOST_CHECK_EQUAL(protocol.Parse(), true);
 
+	// Port setting
+	const std::vector<ZSSerialSetting>& settings = protocol.GetPortSetting();
+	BOOST_CHECK_EQUAL(settings.size(), 2);
+	BOOST_CHECK("COM1" == settings.at(0).devName);
+	BOOST_CHECK_EQUAL(settings.at(0).parity, none);
+	BOOST_CHECK_EQUAL(settings.at(0).csize, 8);
+	BOOST_CHECK_EQUAL(settings.at(0).stopBits, one);
+
+    // Dataset
 	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
 	ZSSerialProtocol::DataSetDef::const_iterator it = dataset.find(1);
 	BOOST_CHECK(it != dataset.end());
