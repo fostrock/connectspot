@@ -9,6 +9,7 @@
 //-----------------------------------------------------------------------------------------//
 
 #include "stdafx.h"
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerial.h"
 
@@ -63,23 +64,31 @@ BOOST_AUTO_TEST_CASE(zsserial_Dec2BCD_test)
 	BOOST_CHECK(0x09 == ZSSerial::Dec2BCD(9));
 }
 
+BOOST_AUTO_TEST_CASE(zsserial_BCD2Int_test)
+{
+	unsigned char bcd[] = {0x21, 0x43, 0x65, 0x87};
+	std::vector<unsigned char> a(bcd, bcd + 4);
+	BOOST_CHECK_EQUAL(ZSSerial::BCD2Int(bcd, bcd + 4), 87654321);
+}
+
+BOOST_AUTO_TEST_CASE(zsserial_BCD2Float_test)
+{
+    unsigned char bcd[] = {0x21, 0x43, 0x65, 0x87};
+	BOOST_CHECK_EQUAL(ZSSerial::BCD2Float(bcd, bcd + 4, 4), 8765.4321f);
+	BOOST_CHECK_EQUAL(ZSSerial::BCD2Float(bcd, bcd + 4, 3), 87654.321f);
+}
+
 BOOST_AUTO_TEST_CASE(zsserial_MakeReadCmd_test)
 {
 	ZSSerial zs("COM3", protocol);
-	std::string readCmd;
-	
-	readCmd += 0xbb;
-	readCmd += 0x21;
-	readCmd += 0x04;
-	readCmd += 0x51;
-	readCmd += 0x76;
-	readCmd += 0xee;
-	BOOST_CHECK(readCmd == zs.MakeReadCmd(ZSSerial::one, 21));
+	char readCmd[] = {0xbb, 0x21, 0x04, 0x51, 0x76, 0xee};
+	BOOST_CHECK(std::equal(readCmd, readCmd + 6, zs.MakeReadCmd(ZSSerial::one, 21).begin()));
 }
 
 BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 {
 	ZSSerial zs("COM3", protocol);
+	zs.SetTimeout(boost::posix_time::seconds(3));
 	std::vector<ZSDataItem> items = zs.ReadData(ZSSerial::one, 1);
 	BOOST_CHECK_EQUAL(items.size(), 12);
 }
