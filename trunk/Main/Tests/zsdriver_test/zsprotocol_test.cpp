@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	BOOST_CHECK_EQUAL(stations.size(), 2);
 	BOOST_CHECK_EQUAL(stations.at(0).first, 1);
 	BOOST_CHECK_EQUAL(stations.at(0).second, 1);
-	BOOST_CHECK_EQUAL(stations.at(0).second, 8);
-	BOOST_CHECK_EQUAL(stations.at(0).second, 0);
+	BOOST_CHECK_EQUAL(stations.at(1).first, 8);
+	BOOST_CHECK_EQUAL(stations.at(1).second, 0);
 
     // Dataset
 	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
