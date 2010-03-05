@@ -74,14 +74,14 @@ public:
 
 	// Get the serial port setting
 	// @return the reference to the serial port setting
-	const std::vector<ZSSerialSetting>& GetPortSetting()
+	const std::vector<ZSSerialSetting>& GetPortSetting() const
 	{
 		return vecSetting;
 	}
 
 	// Get the data set containing some information
 	// @return the reference to the data set
-	const DataSetDef& GetDataSetInfo()
+	const DataSetDef& GetDataSetInfo() const
 	{
 		return dataset;
 	}
@@ -95,14 +95,14 @@ public:
 
 	// Get the command and the parsing protocol for the writing data
 	// @return the reference to the writing data protocol
-	const ZSWriteDataCmd& GetWriteDataCmd()
+	const ZSWriteDataCmd& GetWriteDataCmd() const
 	{
 		return writeDataCmd;
 	}
 
 	// Get the common commands for controlling the device
 	// @return the reference to the common commands
-	const CommonCmdDef& GetCommonCmd()
+	const CommonCmdDef& GetCommonCmd() const
 	{
 		return commonCmd;
 	}
