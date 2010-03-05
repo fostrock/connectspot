@@ -27,6 +27,8 @@ class ZSSerial
 public:
 	enum DataGroup { one, two };
 
+	typedef std::vector<unsigned char> ByteStream;
+
 	// Constructor.
 	// @param <devName> device name, example "/dev/ttyUSB0" or "COM4"
 	// @param <protocol> the serial communication protocol
@@ -66,6 +68,7 @@ public:
 	// @param <station> RS-485 station No.
 	// @return a vector containing the safe and generic union
 	// @throws boost::system::system_error on failure
+	// @throws timeout_exception in case of timeout
 	std::vector<ZSDataItem> ReadData(DataGroup group, unsigned char station);
 
 	// Write data to the device
@@ -84,8 +87,8 @@ public:
 	// @param <group> one represents the frequent access data set,
 	//				two represents the less frequent access data set
 	// @param <station> RS-485 station No.
-	// @return command string
-	std::string MakeReadCmd(DataGroup group, unsigned char station);
+	// @return command byte vector
+	std::vector<char> MakeReadCmd(DataGroup group, unsigned char station);
 
 	// Calculate the sum of BCD codes
 	// @param <bcdVec> the given BCD vector
@@ -96,6 +99,23 @@ public:
 	// @param <dec> a decimal code, it shall not larger than 99
 	// @return a BCD code
 	static unsigned char Dec2BCD(unsigned char dec);
+
+	// Convert a BCD stream to a float. The stream is big-endian.
+	// @param <begin> the stream's begin iterator
+	// @param <end> the stream's end iterator
+	// @param <digitNum> the number of digit. It can not exceed 6.
+	// @return the converted unsigned integer
+	static float BCD2Float(ByteStream::const_iterator begin, 
+		ByteStream::const_iterator end, unsigned int digitNum = 4);
+
+	// Convert a BCD stream to an integer. The stream is big-endian.
+	// @param <begin> the stream's begin iterator
+	// @param <end> the stream's end iterator
+	// @return the converted unsigned integer
+	static unsigned int BCD2Int(ByteStream::iterator begin, 
+		ByteStream::iterator end);
+
+
 
 private:
 	// Check BCD code sum
