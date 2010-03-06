@@ -12,6 +12,7 @@
 #include "ZSSerial.h"
 #include "commonlib/stringstext.h"
 #include <cmath>
+#include <iostream>
 
 using namespace boost;
 using namespace CommonLib;
@@ -80,21 +81,61 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 
 	std::vector<char> readCmd = MakeReadCmd(group, station);
 	port.Write(readCmd);
-	std::string endString(1, '\xee');
-	std::string retString = port.ReadStringUntil(endString);
+	std::string beginStr(1, begin);
+	port.ReadStringUntil(beginStr);
+	std::string endStr(1, end);
+	std::string dataStr = port.ReadStringUntil(endStr);	// The return string excludes the END char
+	_ASSERTE(dataStr.size() > 3);
 
-	//asio::write(serial, asio::buffer(readCmd.c_str(), readCmd.size()));
-	//std::string result;
-	//char c;
-	//for(;;)
-	//{
-	//	asio::read(serial, asio::buffer(&c, 1));
-	//	result += c;
-	//	if (end == c)
-	//	{
-	//		break;
-	//	}
-	//}
+	// Check the station No.
+	if (ZSSerial::BCD2Int(&(dataStr.at(0)), &(dataStr.at(1))) != station)
+	{
+		_ASSERTE(!"Check station No. error");
+		return vec;
+	}
+
+	// Check the data stream's length
+	if (ZSSerial::BCD2Int(&(dataStr.at(1)), &(dataStr.at(2))) != dataStr.size())
+	{
+		_ASSERTE(!"Check data length error");
+		return vec;
+	}
+
+	// Check the BCD sum
+    std::vector<unsigned char> vecTemp(&(dataStr.at(0)), &(dataStr.at(dataStr.size() - 1)));
+	if (!ZSSerial::CheckSumEqual(vecTemp, *(dataStr.rbegin())))
+	{
+		return vec;
+	}
+
+	// Parse data
+	const std::vector<ZSReadDataInfo>& vecCmd = protocol.GetReadDataCmd().at(0).info;
+	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
+	ZSSerialProtocol::DataSetDef::const_iterator itDef;
+	for (std::size_t i = 0; i < vecCmd.size(); ++i)
+	{
+		itDef = dataset.find(vecCmd.at(i).index);
+		if (itDef != dataset.end())
+		{
+			ZSDataItem item;
+			item.index = vecCmd.at(i).index;
+
+			bool isFloat = (*itDef).second.get<3>();
+			unsigned short lenDataItem = (*itDef).second.get<2>();
+
+			if (isFloat)
+			{
+				//item.variant = ZSSerial::BCD2Float(dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset - vecCmd.at(i).length,
+				//	dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset);
+			}
+			else
+			{
+				//item.variant = ZSSerial::BCD2Int(dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset - vecCmd.at(i).length,
+				//	dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset);
+			}
+			vec.push_back(item);
+		}
+	}
 
 	return vec;
 }
@@ -134,78 +175,6 @@ unsigned char ZSSerial::Dec2BCD(unsigned char dec)
 		return 0;
 	}
 	return ((dec / 10) << 4) | (dec % 10);
-}
-
-// Convert a BCD stream to a float
-float ZSSerial::BCD2Float(ZSSerial::ByteStream::const_iterator begin, 
-						  ZSSerial::ByteStream::const_iterator end, unsigned int digitNum)
-{
-	std::size_t len = std::distance(begin, end);
-	_ASSERTE(len > 0 && digitNum < 7);
-	if (0 == len || digitNum > 6)
-	{
-		throw std::invalid_argument("Empty BCD stream or the digit number exceeds 6");
-	}
-
-	float value = 0.0f;
-	float base = 1.0f;
-	float baseDigit = powf(0.1, digitNum);
-	bool isEven = (0 == (digitNum / 2)) ? true : false;
-	ByteStream::const_iterator itStream = begin;
-	unsigned int digitIndex = 0;
-
-	if (digitNum > 0)
-	{
-		for (; itStream != end, digitIndex < digitNum - 1; itStream++, digitIndex++)
-		{
-			value += baseDigit * ((*itStream) & 0x0f);
-			baseDigit *= 10.0f;
-			value += baseDigit * ((*itStream) >> 4);
-			baseDigit *= 10.0f;
-		}
-	}
-	if (!isEven)
-	{
-		value += baseDigit * ((*itStream) & 0x0f);
-		value += base * ((*itStream) >> 4);
-		base *= 10.0f;
-		itStream++;
-	}
-
-	for (; itStream != end; itStream++)
-	{
-
-		value += base * ((*itStream) & 0x0f);
-		base *= 10.0f;
-		value += base * ((*itStream) >> 4);
-		base *= 10.0f;
-	}
-	
-	return 0.0f;
-}
-
-// Convert a BCD stream to an integer
-unsigned int ZSSerial::BCD2Int(ZSSerial::ByteStream::iterator begin, 
-					 ZSSerial::ByteStream::iterator end)
-{
-	std::size_t len = std::distance(begin, end);
-	_ASSERTE(len > 0 && len < 6);
-	if (0 == len || len > 5)
-	{
-		throw std::invalid_argument("Empty BCD stream or the stream length is two long.");
-	}
-
-	unsigned int value = 0;
-	unsigned int base = 1;
-	
-	for (ByteStream::iterator itStream = begin; itStream != end; itStream++)
-	{
-		value += base * ((*itStream) & 0x0f);
-		base *= 10;
-		value += base * ((*itStream) >> 4);
-		base *= 10;
-	}
-	return value;
 }
 
 // Make a read data command
