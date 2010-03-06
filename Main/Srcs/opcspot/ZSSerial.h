@@ -105,15 +105,81 @@ public:
 	// @param <end> the stream's end iterator
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	static float BCD2Float(ByteStream::const_iterator begin, 
-		ByteStream::const_iterator end, unsigned int digitNum = 4);
+	template<class RandomIterator>
+	static float BCD2Float(RandomIterator begin, RandomIterator end, 
+		unsigned short digitNum = 4)
+	{
+		std::size_t len = std::distance(begin, end);
+		_ASSERTE(len > 0 && digitNum < 7);
+		if (0 == len || digitNum > 6)
+		{
+			throw std::invalid_argument("Empty BCD stream or the digit number exceeds 6");
+		}
+
+		float value = 0.0f;
+		float base = 1.0f;
+		float baseDigit = powf(0.1f, digitNum);
+		bool isEven = (0 == (digitNum % 2)) ? true : false;
+		RandomIterator itStream = begin;
+		unsigned int digitIndex = 0;
+
+		if (digitNum > 0)
+		{
+			for (; itStream != end, digitIndex < digitNum / 2; itStream++, digitIndex++)
+			{
+				value += baseDigit * ((*itStream) & 0x0f);
+				baseDigit *= 10.0f;
+				value += baseDigit * ((*itStream) >> 4);
+				baseDigit *= 10.0f;
+			}
+			if (!isEven)
+			{
+				value += baseDigit * ((*itStream) & 0x0f);
+				value += base * ((*itStream) >> 4);
+				base *= 10.0f;
+				itStream++;
+			}
+		}
+
+		for (; itStream != end; itStream++)
+		{
+
+			value += base * ((*itStream) & 0x0f);
+			base *= 10.0f;
+			value += base * ((*itStream) >> 4);
+			base *= 10.0f;
+		}
+
+		return value;
+	}
 
 	// Convert a BCD stream to an integer. The stream is big-endian.
 	// @param <begin> the stream's begin iterator
 	// @param <end> the stream's end iterator
 	// @return the converted unsigned integer
-	static unsigned int BCD2Int(ByteStream::iterator begin, 
-		ByteStream::iterator end);
+	template<class RandomIterator>
+	static unsigned int BCD2Int(RandomIterator begin, 
+		RandomIterator/*ByteStream::iterator*/ end)
+	{
+		std::size_t len = std::distance(begin, end);
+		_ASSERTE(len > 0 && len < 6);
+		if (0 == len || len > 5)
+		{
+			throw std::invalid_argument("Empty BCD stream or the stream length is too long.");
+		}
+
+		unsigned int value = 0;
+		unsigned int base = 1;
+
+		for (RandomIterator itStream = begin; itStream != end; itStream++)
+		{
+			value += base * ((*itStream) & 0x0f);
+			base *= 10;
+			value += base * ((*itStream) >> 4);
+			base *= 10;
+		}
+		return value;
+	}
 
 
 
