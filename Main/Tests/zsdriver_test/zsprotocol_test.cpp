@@ -12,7 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerialProtocol.h"
 
-const std::string zs_protocol_file = "E:\\My Projects\\connectspot\\Main\\bin\\config\\zsdriver.xml";
+const std::string zs_protocol_file = "D:\\zsdriver.xml";
 
 BOOST_AUTO_TEST_CASE(zsprotocol_constructors_test)
 {
