@@ -102,14 +102,12 @@ public:
 
 	// Convert a BCD stream to a float. The stream is big-endian.
 	// @param <begin> the stream's begin iterator
-	// @param <end> the stream's end iterator
+	// @param <len> the stream's length
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	template<class RandomIterator>
-	static float BCD2Float(RandomIterator begin, RandomIterator end, 
+	static float BCD2Float(unsigned char* begin, unsigned short len, 
 		unsigned short digitNum = 4)
 	{
-		std::size_t len = std::distance(begin, end);
 		_ASSERTE(len > 0 && digitNum < 7);
 		if (0 == len || digitNum > 6)
 		{
@@ -120,17 +118,19 @@ public:
 		float base = 1.0f;
 		float baseDigit = powf(0.1f, digitNum);
 		bool isEven = (0 == (digitNum % 2)) ? true : false;
-		RandomIterator itStream = begin;
+		unsigned char* itStream = begin;
 		unsigned int digitIndex = 0;
 
 		if (digitNum > 0)
 		{
-			for (; itStream != end, digitIndex < digitNum / 2; itStream++, digitIndex++)
+			while ((digitIndex < digitNum / 2) && (len--))//; itStream != end, digitIndex < digitNum / 2; itStream++, digitIndex++)
 			{
 				value += baseDigit * ((*itStream) & 0x0f);
 				baseDigit *= 10.0f;
 				value += baseDigit * ((*itStream) >> 4);
 				baseDigit *= 10.0f;
+				itStream++;
+				digitIndex++;
 			}
 			if (!isEven)
 			{
@@ -141,27 +141,24 @@ public:
 			}
 		}
 
-		for (; itStream != end; itStream++)
+		while (len--)// (; itStream != end; itStream++)
 		{
-
 			value += base * ((*itStream) & 0x0f);
 			base *= 10.0f;
 			value += base * ((*itStream) >> 4);
 			base *= 10.0f;
+			itStream++;
 		}
 
 		return value;
 	}
 
-	// Convert a BCD stream to an integer. The stream is big-endian.
+	// Convert a BCD stream to an integer. The begin iterator represents the lowest digit
 	// @param <begin> the stream's begin iterator
-	// @param <end> the stream's end iterator
+	// @param <len> the stream's length
 	// @return the converted unsigned integer
-	template<class RandomIterator>
-	static unsigned int BCD2Int(RandomIterator begin, 
-		RandomIterator/*ByteStream::iterator*/ end)
+	static unsigned int BCD2Int(unsigned char* begin, unsigned short len)
 	{
-		std::size_t len = std::distance(begin, end);
 		_ASSERTE(len > 0 && len < 6);
 		if (0 == len || len > 5)
 		{
@@ -171,16 +168,46 @@ public:
 		unsigned int value = 0;
 		unsigned int base = 1;
 
-		for (RandomIterator itStream = begin; itStream != end; itStream++)
+		unsigned char* itStream = begin;
+		while (len--)
 		{
 			value += base * ((*itStream) & 0x0f);
 			base *= 10;
 			value += base * ((*itStream) >> 4);
 			base *= 10;
+			itStream++;
 		}
 		return value;
 	}
 
+	// Convert a BCD stream to an integer. The begin iterator represents the highest digit
+	// It is a Reverse function to BCD2Int
+	// @param <begin> the stream's begin iterator
+	// @param <len> the stream's length in bytes
+	// @return the converted unsigned integer
+	static unsigned int BCD2IntR(unsigned char* begin, unsigned short len)
+	{
+		_ASSERTE(len > 0 && len < 6);
+		if (0 == len || len > 5)
+		{
+			throw std::invalid_argument("Empty BCD stream or the stream length is too long.");
+		}
+
+		unsigned int value = 0;
+		unsigned int base = 1;
+
+		unsigned char* itStream = begin + len - 1;
+		while (len--)
+		{
+			value += base * ((*itStream) & 0x0f);
+			base *= 10;
+			value += base * ((*itStream) >> 4);
+			base *= 10;
+			itStream--;
+		}
+
+		return value;
+	}
 
 
 private:
