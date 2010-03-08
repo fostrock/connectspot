@@ -42,6 +42,7 @@ struct ZSReadDataInfo
 	int index;
 	unsigned short offset;
 	unsigned short length;
+	bool isFloat;
 };
 
 struct ZSReadDataCmd 
