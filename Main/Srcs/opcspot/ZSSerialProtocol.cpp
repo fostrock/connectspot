@@ -16,6 +16,9 @@
 #include <algorithm>
 #include "commonlib/stringstext.h"
 
+static const unsigned short ZS_DATA_LENGTH_INDEX = 2;
+static const unsigned short ZS_DATA_TYPE_INDEX = 3;
+
 using namespace CommonLib;
 
 ZSSerialProtocol::ZSSerialProtocol(const std::string& cfgFile) : parser(cfgFile)
@@ -121,11 +124,11 @@ bool ZSSerialProtocol::Parse()
 				std::string chsName = boost::lexical_cast<std::string>(dataItem->get_attribute("name_chs")->get_value());
 				std::string engName = dataItem->get_attribute("name_eng")->get_value();
 				unsigned short length = boost::lexical_cast<unsigned short>(dataItem->get_attribute("length")->get_value());			
-				bool isFloat = (dataItem->get_attribute("length")->get_value().uppercase() == "TRUE");
-
+				bool isFloat = StringsText::CaseInsCompare("TRUE", dataItem->get_attribute("float")->get_value());
 				dataset.insert(std::make_pair(dataID, boost::make_tuple(chsName, engName , length, isFloat)));
 			}
 
+			// read commands
 			set = root->find("//zsdriver/protocol/read");
 			for (std::size_t i = 0; i < set.size(); ++i)
 			{
@@ -153,12 +156,14 @@ bool ZSSerialProtocol::Parse()
 						ZSReadDataInfo readDataInfo;
 						readDataInfo.index = matchID;
 						readDataInfo.offset = offset;
-						readDataInfo.length = (*itData).second.get<2>();
+						readDataInfo.length = (*itData).second.get<ZS_DATA_LENGTH_INDEX>();
+						readDataInfo.isFloat = (*itData).second.get<ZS_DATA_TYPE_INDEX>();
 						vecReadDataCmd.at(i).info.push_back(readDataInfo);
 					}		
 				}
 			}
 
+			// write commands
 			set = root->find("//zsdriver/protocol/write");
 			_ASSERTE(set.size() == 1);
 			{
@@ -178,6 +183,7 @@ bool ZSSerialProtocol::Parse()
 				}
 			}
 
+			// common commands
 			set = root->find("//zsdriver/protocol/command/data");
 			for (std::size_t i = 0; i < set.size(); ++i)
 			{	
