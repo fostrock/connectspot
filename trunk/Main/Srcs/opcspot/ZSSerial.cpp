@@ -192,7 +192,31 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 		return writeCmd;
 	}
 
-	writeCmd.resize(6, 0x0);
+	const ZSWriteDataCmd& cmdDef = protocol.GetWriteDataCmd();
+	ZSWriteDataCmd::ParamDef::const_iterator iter = cmdDef.param.find(dataID);
+	_ASSERTE(iter != cmdDef.param.end());
+	if (cmdDef.param.end() == iter)
+	{
+		return writeCmd;
+	}
+	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
+	ZSSerialProtocol::DataSetDef::const_iterator itData = dataset.find(dataID);
+	_ASSERTE(itData != dataset.end());
+	if (dataset.end() == itData)
+	{
+		return writeCmd;
+	}
+	unsigned short len = (*itData).second.get<2>();
+
+	writeCmd.resize(len + 7, 0x0);
+	writeCmd.at(0) = begin;
+	writeCmd.at(1) = Dec2BCD(station);
+	writeCmd.at(2) = Dec2BCD(len + 5);
+	writeCmd.at(3) = cmdDef.cmd;
+	writeCmd.at(4) = Dec2BCD((*iter).second);
+
+	// .... add more here!!!
+	writeCmd.at(len + 6) = end;
 	return writeCmd;
 }
 
