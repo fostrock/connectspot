@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include <algorithm>
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerial.h"
 #include "commonlib/BCDConvert.h"
@@ -112,6 +113,19 @@ BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 	zs.SetTimeout(boost::posix_time::seconds(3));
 	std::vector<ZSDataItem> items = zs.ReadData(ZSSerial::one, 1);
 	BOOST_CHECK_EQUAL(items.size(), 12);
+	std::cout << "*** read data group1 ***" << std::endl;
+	for (std::size_t i = 0; i < items.size(); ++i)
+	{
+		std::cout << items.at(i).variant << std::endl;
+	}
+
+	items = zs.ReadData(ZSSerial::two, 1);
+	BOOST_CHECK_EQUAL(items.size(), 22);
+	std::cout << "*** read data group2 ***" << std::endl;
+	for (std::size_t i = 0; i < items.size(); ++i)
+	{
+		std::cout << items.at(i).variant << std::endl;
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
