@@ -79,7 +79,7 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 		return vec;
 	}
 
-	std::vector<char> readCmd = MakeReadCmd(group, station);
+	std::vector<unsigned char> readCmd = MakeReadCmd(group, station);
 	port.Write(readCmd);
 	std::string beginStr(1, begin);
 	port.ReadStringUntil(beginStr);
@@ -119,9 +119,21 @@ void ZSSerial::WriteData(const ZSDataItem& item, unsigned char station)
 }
 
 // Write command to the device
-void ZSSerial::WriteCommand(int commandID, unsigned char station)
+void ZSSerial::WriteCommand(unsigned short commandID, unsigned char station)
 {
-	
+	_ASSERT(station <= 99);
+	std::vector<ZSDataItem> vec;
+	if (station > 99)
+	{
+		throw std::invalid_argument("Station number is larger than 99");
+	}
+	if (!port.IsOpen())
+	{
+		return;
+	}
+
+	std::vector<unsigned char> command = MakeCommonCmd(commandID, station);
+	port.Write(command);
 }
 
 // Calculate the sum of BCD codes
@@ -138,22 +150,11 @@ unsigned char ZSSerial::CalculateBCDSum(const std::vector<unsigned char>& bcdVec
 	return result;
 }
 
-// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
-unsigned char ZSSerial::Dec2BCD(unsigned char dec)
-{
-	_ASSERT(dec <= 99);
-	if (dec > 99)
-	{
-		return 0;
-	}
-	return ((dec / 10) << 4) | (dec % 10);
-}
-
 // Make a read data command
-std::vector<char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
+std::vector<unsigned char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
 {
 	_ASSERT(station <= 99);
-	std::vector<char> readCmd;
+	std::vector<unsigned char> readCmd;
 	if (station > 99)
 	{
 		return readCmd;
@@ -178,12 +179,58 @@ std::vector<char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
 	return readCmd;
 }
 
+// Make a write data command
+std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID, 
+												  boost::variant<unsigned int, float> val, 
+												  unsigned char station
+												  )
+{
+	_ASSERT(station <= 99);
+	std::vector<unsigned char> writeCmd;
+	if (station > 99)
+	{
+		return writeCmd;
+	}
+
+	writeCmd.resize(6, 0x0);
+	return writeCmd;
+}
+
+// Make a common command
+std::vector<unsigned char> ZSSerial::MakeCommonCmd(unsigned short commandID, unsigned char station)
+{
+	_ASSERT(station <= 99);
+	std::vector<unsigned char> commonCmd;
+	if (station > 99)
+	{
+		return commonCmd;
+	}
+
+	const ZSSerialProtocol::CommonCmdDef& vecCmd = protocol.GetCommonCmd();
+	ZSSerialProtocol::CommonCmdDef::const_iterator iter = vecCmd.find(commandID);
+	_ASSERTE(iter != vecCmd.end());
+	if (vecCmd.end() == iter)
+	{
+		return commonCmd;
+	}
+
+	commonCmd.resize(6, 0x0);
+	commonCmd.at(0) = begin;
+	commonCmd.at(1) = Dec2BCD(station);
+	commonCmd.at(2) = Dec2BCD(0x4);
+    commonCmd.at(3) = (*iter).second;
+	commonCmd.at(4) = CalculateBCDSum(std::vector<unsigned char>(&commonCmd.at(1), &commonCmd.at(4)));
+	commonCmd.at(5) = end;
+	return commonCmd;
+}
+
 // Check BCD code sum
 bool ZSSerial::CheckSumEqual(const std::vector<unsigned char>& bcdVec, unsigned char expected)
 {
 	return CalculateBCDSum(bcdVec) == expected;
 }
 
+// Parse the read data stream to ZSDataItem vector
 std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::string &dataStr)
 {
 	std::vector<ZSDataItem> vec; 

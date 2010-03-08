@@ -16,7 +16,7 @@
 namespace CommonLib
 {
 	// Convert a BCD stream to a float. 
-	float BCD2Float(unsigned char* begin, unsigned short len, unsigned short digitNum)
+	float BCD2Float(const unsigned char* begin, unsigned short len, unsigned short digitNum)
 	{
 		_ASSERTE(len > 0 && digitNum < 7);
 		if (0 == len || digitNum > 6)
@@ -28,7 +28,7 @@ namespace CommonLib
 		float base = 1.0f;
 		float baseDigit = powf(0.1f, digitNum);
 		bool isEven = (0 == (digitNum % 2)) ? true : false;
-		unsigned char* itStream = begin;
+		const unsigned char* itStream = begin;
 		unsigned int digitIndex = 0;
 
 		if (digitNum > 0)
@@ -66,7 +66,7 @@ namespace CommonLib
 	}
 
 	// Convert a BCD stream to a float. 
-	float BCD2FloatR(unsigned char* begin, unsigned short len, unsigned short digitNum)
+	float BCD2FloatR(const unsigned char* begin, unsigned short len, unsigned short digitNum)
 	{
 		_ASSERTE(len > 0 && digitNum < 7);
 		if (0 == len || digitNum > 6)
@@ -78,7 +78,7 @@ namespace CommonLib
 		float base = 1.0f;
 		float baseDigit = powf(0.1f, digitNum);
 		bool isEven = (0 == (digitNum % 2)) ? true : false;
-		unsigned char* itStream = begin + len - 1;
+		const unsigned char* itStream = begin + len - 1;
 		unsigned int digitIndex = 0;
 
 		if (digitNum > 0)
@@ -116,7 +116,7 @@ namespace CommonLib
 	}
 
 	// Convert a BCD stream to an integer. 
-	unsigned int BCD2Int(unsigned char* begin, unsigned short len)
+	unsigned int BCD2Int(const unsigned char* begin, unsigned short len)
 	{
 		_ASSERTE(len > 0 && len < 6);
 		if (0 == len || len > 5)
@@ -127,7 +127,7 @@ namespace CommonLib
 		unsigned int value = 0;
 		unsigned int base = 1;
 
-		unsigned char* itStream = begin;
+		const unsigned char* itStream = begin;
 		while (len--)
 		{
 			value += base * ((*itStream) & 0x0f);
@@ -140,7 +140,7 @@ namespace CommonLib
 	}
 
 	// Convert a BCD stream to an integer. 
-	unsigned int BCD2IntR(unsigned char* begin, unsigned short len)
+	unsigned int BCD2IntR(const unsigned char* begin, unsigned short len)
 	{
 		_ASSERTE(len > 0 && len < 6);
 		if (0 == len || len > 5)
@@ -151,7 +151,7 @@ namespace CommonLib
 		unsigned int value = 0;
 		unsigned int base = 1;
 
-		unsigned char* itStream = begin + len - 1;
+		const unsigned char* itStream = begin + len - 1;
 		while (len--)
 		{
 			value += base * ((*itStream) & 0x0f);
@@ -162,5 +162,16 @@ namespace CommonLib
 		}
 
 		return value;
+	}
+
+	// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
+	unsigned char Dec2BCD(unsigned char dec)
+	{
+		_ASSERT(dec <= 99);
+		if (dec > 99)
+		{
+			return 0;
+		}
+		return ((dec / 10) << 4) | (dec % 10);
 	}
 }

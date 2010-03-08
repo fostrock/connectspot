@@ -19,7 +19,7 @@ namespace CommonLib
 	// @param <len> the stream's length
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	float BCD2Float(unsigned char* begin, unsigned short len, 
+	float BCD2Float(const unsigned char* begin, unsigned short len, 
 		unsigned short digitNum = 4);
 
 	// Convert a BCD stream to a float. 
@@ -28,7 +28,7 @@ namespace CommonLib
 	// @param <len> the stream's length
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	float BCD2FloatR(unsigned char* begin, unsigned short len, 
+	float BCD2FloatR(const unsigned char* begin, unsigned short len, 
 		unsigned short digitNum = 4);
 
 	// Convert a BCD stream to an integer. 
@@ -36,7 +36,7 @@ namespace CommonLib
 	// @param <begin> the stream's begin iterator
 	// @param <len> the stream's length
 	// @return the converted unsigned integer
-	unsigned int BCD2Int(unsigned char* begin, unsigned short len);
+	unsigned int BCD2Int(const unsigned char* begin, unsigned short len);
 
 	// Convert a BCD stream to an integer. 
 	// The begin iterator represents the highest two digits
@@ -44,7 +44,12 @@ namespace CommonLib
 	// @param <begin> the stream's begin iterator
 	// @param <len> the stream's length in bytes
 	// @return the converted unsigned integer
-	unsigned int BCD2IntR(unsigned char* begin, unsigned short len);
+	unsigned int BCD2IntR(const unsigned char* begin, unsigned short len);
+
+	// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
+	// @param <dec> a decimal code, it shall not larger than 99
+	// @return a BCD code
+	unsigned char Dec2BCD(unsigned char dec);
 }
 
 
