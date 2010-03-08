@@ -20,7 +20,7 @@
 struct ZSDataItem 
 {
 	unsigned short index;
-	boost::variant<int, float> variant;
+	boost::variant<unsigned int, float> variant;
 };
 
 class ZSSerial
@@ -108,6 +108,12 @@ private:
 	// @param <expected> the expected value
 	// @return true if the BCD sum is equal to expected value, otherwise false
 	bool CheckSumEqual(const std::vector<unsigned char>& bcdVec, unsigned char expected);
+
+	// Parse the read data stream to ZSDataItem vector
+	// @param <group> the read data group
+	// @param <dataStr> the input read data stream
+	// @return the ZSDataItem vector
+	std::vector<ZSDataItem> ParseReadData(DataGroup group, const std::string &dataStr);
 
 private:
 	static const unsigned char begin = 0xbb;

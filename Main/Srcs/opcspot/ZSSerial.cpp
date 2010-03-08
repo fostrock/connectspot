@@ -88,14 +88,14 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 	_ASSERTE(dataStr.size() > 3);
 
 	// Check the station No.
-	if (CommonLib::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(0))), 1) != station)
+	if (BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(0))), 1) != station)
 	{
 		_ASSERTE(!"Check station No. error");
 		return vec;
 	}
 
 	// Check the data stream's length
-	if (CommonLib::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(1))), 1) != dataStr.size())
+	if (BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(1))), 1) != dataStr.size())
 	{
 		_ASSERTE(!"Check data length error");
 		return vec;
@@ -108,36 +108,8 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 		return vec;
 	}
 
-	// Parse data
-	const std::vector<ZSReadDataInfo>& vecCmd = protocol.GetReadDataCmd().at(0).info;
-	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
-	ZSSerialProtocol::DataSetDef::const_iterator itDef;
-	for (std::size_t i = 0; i < vecCmd.size(); ++i)
-	{
-		itDef = dataset.find(vecCmd.at(i).index);
-		if (itDef != dataset.end())
-		{
-			ZSDataItem item;
-			item.index = vecCmd.at(i).index;
-
-			bool isFloat = (*itDef).second.get<3>();
-			unsigned short lenDataItem = (*itDef).second.get<2>();
-
-			if (isFloat)
-			{
-				//item.variant = ZSSerial::BCD2Float(dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset - vecCmd.at(i).length,
-				//	dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset);
-			}
-			else
-			{
-				//item.variant = ZSSerial::BCD2Int(dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset - vecCmd.at(i).length,
-				//	dataStr.rbegin() + 1 + 37 - vecCmd.at(i).offset);
-			}
-			vec.push_back(item);
-		}
-	}
-
-	return vec;
+	// Parse read data
+	return ParseReadData(group, dataStr);
 }
 
 // Write data to the device
@@ -210,4 +182,42 @@ std::vector<char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char station)
 bool ZSSerial::CheckSumEqual(const std::vector<unsigned char>& bcdVec, unsigned char expected)
 {
 	return CalculateBCDSum(bcdVec) == expected;
+}
+
+std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::string &dataStr)
+{
+	std::vector<ZSDataItem> vec; 
+	std::size_t readCmdIndex = 0;;
+	if (one == group)
+	{
+		readCmdIndex = 0;
+	}
+	else if (two == group)
+	{
+		readCmdIndex = 1;
+	}
+	const std::vector<ZSReadDataInfo>& vecDataInfo = protocol.GetReadDataCmd().at(readCmdIndex).info;
+	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
+	ZSSerialProtocol::DataSetDef::const_iterator itDef;
+	for (std::size_t i = 0; i < vecDataInfo.size(); ++i)
+	{
+		ZSDataItem item;
+		item.index = vecDataInfo.at(i).index;
+		std::size_t offset = vecDataInfo.at(i).offset;
+		if (vecDataInfo.at(i).isFloat)
+		{
+			item.variant = BCD2FloatR(
+				reinterpret_cast<const unsigned char*>( &(dataStr.at(2 + offset)) ), 
+				vecDataInfo.at(i).length);
+		}
+		else
+		{
+			item.variant = BCD2IntR(
+				reinterpret_cast<const unsigned char*>( &(dataStr.at(2 + offset)) ), 
+				vecDataInfo.at(i).length);
+		}
+		vec.push_back(item);
+	}
+
+	return vec;
 }
