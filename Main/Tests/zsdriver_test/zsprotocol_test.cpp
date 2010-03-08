@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 		{
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).length, 5);
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).offset, 18);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).isFloat, true);
 			break;
 		}
 	}
@@ -69,6 +70,7 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 		{
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).length, 4);
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).offset, 46);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).isFloat, true);
 			break;
 		}
 	}
