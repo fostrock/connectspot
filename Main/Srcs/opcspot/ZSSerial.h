@@ -82,25 +82,33 @@ public:
 	// @param <commandID> command ID
 	// @param <station> RS-485 station No.
 	// @throws boost::system::system_error on failure
-	void WriteCommand(int commandID, unsigned char station);
+	void WriteCommand(unsigned short commandID, unsigned char station);
 
 	// Make a read data command
 	// @param <group> one represents the frequent access data set,
 	//				two represents the less frequent access data set
 	// @param <station> RS-485 station No.
 	// @return command byte vector
-	std::vector<char> MakeReadCmd(DataGroup group, unsigned char station);
+	std::vector<unsigned char> MakeReadCmd(DataGroup group, unsigned char station);
+
+	// Make a write data command
+	// @param <dataID> data ID
+	// @param <val> variant value, it can be a float or an integer
+	// @param <station> RS-485 station No.
+	// @throws boost::system::system_error on failure
+	std::vector<unsigned char> MakeWriteCmd(unsigned short dataID, 
+		boost::variant<unsigned int, float> val, unsigned char station);
+
+	// Make a common command
+	// @param <commandID> command ID
+	// @param <station> RS-485 station No.
+	// @return command byte vector
+	std::vector<unsigned char> MakeCommonCmd(unsigned short commandID, unsigned char station);
 
 	// Calculate the sum of BCD codes
 	// @param <bcdVec> the given BCD vector
 	// @return the sum
 	static unsigned char CalculateBCDSum(const std::vector<unsigned char>& bcdVec);
-
-	// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
-	// @param <dec> a decimal code, it shall not larger than 99
-	// @return a BCD code
-	static unsigned char Dec2BCD(unsigned char dec);
-
 
 private:
 	// Check BCD code sum

@@ -80,6 +80,11 @@ void TimeoutSerial::Write(const std::vector<char>& data)
 	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
+void TimeoutSerial::Write(const std::vector<unsigned char>& data)
+{
+	asio::write(port, asio::buffer(&data[0], data.size()));
+}
+
 void TimeoutSerial::WriteString(const std::string& s)
 {
 	asio::write(port, asio::buffer(s.c_str(), s.size()));
