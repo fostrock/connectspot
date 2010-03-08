@@ -88,14 +88,14 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 	_ASSERTE(dataStr.size() > 3);
 
 	// Check the station No.
-	if (ZSSerial::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(0))), 1) != station)
+	if (CommonLib::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(0))), 1) != station)
 	{
 		_ASSERTE(!"Check station No. error");
 		return vec;
 	}
 
 	// Check the data stream's length
-	if (ZSSerial::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(1))), 1) != dataStr.size())
+	if (CommonLib::BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(1))), 1) != dataStr.size())
 	{
 		_ASSERTE(!"Check data length error");
 		return vec;
