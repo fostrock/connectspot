@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerial.h"
+#include "commonlib/BCDConvert.h"
 
 const std::string zs_protocol_file = "D:\\zsdriver.xml";
 
@@ -64,20 +65,22 @@ BOOST_AUTO_TEST_CASE(zsserial_Dec2BCD_test)
 	BOOST_CHECK(0x09 == ZSSerial::Dec2BCD(9));
 }
 
-BOOST_AUTO_TEST_CASE(zsserial_BCD2Int_test)
+BOOST_AUTO_TEST_CASE(commonlib_BCD2Int_test)
 {
 	unsigned char bcd[] = {0x21, 0x43, 0x65, 0x87};
 	std::vector<unsigned char> vec(bcd, bcd + 4);
-	BOOST_CHECK_EQUAL(ZSSerial::BCD2Int(bcd, 4), 87654321);
-	BOOST_CHECK_EQUAL(ZSSerial::BCD2IntR(bcd, 4), 21436587);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2Int(bcd, 4), 87654321);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2IntR(bcd, 4), 21436587);
 }
 
-BOOST_AUTO_TEST_CASE(zsserial_BCD2Float_test)
+BOOST_AUTO_TEST_CASE(commonlib_BCD2Float_test)
 {
     unsigned char bcd[] = {0x21, 0x43, 0x65, 0x87};
 	std::vector<unsigned char> vec(bcd, bcd + 4);
-	BOOST_CHECK_EQUAL(ZSSerial::BCD2Float(bcd, 4, 4), 8765.4321f);
-	BOOST_CHECK_EQUAL(ZSSerial::BCD2Float(bcd, 4, 3), 87654.321f);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2Float(bcd, 4, 4), 8765.4321f);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2Float(bcd, 4, 3), 87654.321f);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2FloatR(bcd, 4, 4), 2143.6587f);
+	BOOST_CHECK_EQUAL(CommonLib::BCD2FloatR(bcd, 4, 3), 21436.587f);
 }
 
 BOOST_AUTO_TEST_CASE(zsserial_MakeReadCmd_test)
