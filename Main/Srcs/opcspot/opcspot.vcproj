@@ -212,6 +212,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\commonlib\BCDConvert.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DAServer.cpp"
 				>
 			</File>
@@ -250,6 +254,10 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\commonlib\stringstext.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\commonlib\TimeoutSerial.cpp"

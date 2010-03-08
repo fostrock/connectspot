@@ -15,6 +15,7 @@
 #include "boost/variant.hpp"
 #include "ZSSerialProtocol.h"
 #include "commonlib/timeoutserial.h"
+#include "commonlib/BCDConvert.h"
 
 struct ZSDataItem 
 {
@@ -99,115 +100,6 @@ public:
 	// @param <dec> a decimal code, it shall not larger than 99
 	// @return a BCD code
 	static unsigned char Dec2BCD(unsigned char dec);
-
-	// Convert a BCD stream to a float. The stream is big-endian.
-	// @param <begin> the stream's begin iterator
-	// @param <len> the stream's length
-	// @param <digitNum> the number of digit. It can not exceed 6.
-	// @return the converted unsigned integer
-	static float BCD2Float(unsigned char* begin, unsigned short len, 
-		unsigned short digitNum = 4)
-	{
-		_ASSERTE(len > 0 && digitNum < 7);
-		if (0 == len || digitNum > 6)
-		{
-			throw std::invalid_argument("Empty BCD stream or the digit number exceeds 6");
-		}
-
-		float value = 0.0f;
-		float base = 1.0f;
-		float baseDigit = powf(0.1f, digitNum);
-		bool isEven = (0 == (digitNum % 2)) ? true : false;
-		unsigned char* itStream = begin;
-		unsigned int digitIndex = 0;
-
-		if (digitNum > 0)
-		{
-			while ((digitIndex < digitNum / 2) && (len--))//; itStream != end, digitIndex < digitNum / 2; itStream++, digitIndex++)
-			{
-				value += baseDigit * ((*itStream) & 0x0f);
-				baseDigit *= 10.0f;
-				value += baseDigit * ((*itStream) >> 4);
-				baseDigit *= 10.0f;
-				itStream++;
-				digitIndex++;
-			}
-			if (!isEven)
-			{
-				value += baseDigit * ((*itStream) & 0x0f);
-				value += base * ((*itStream) >> 4);
-				base *= 10.0f;
-				itStream++;
-			}
-		}
-
-		while (len--)// (; itStream != end; itStream++)
-		{
-			value += base * ((*itStream) & 0x0f);
-			base *= 10.0f;
-			value += base * ((*itStream) >> 4);
-			base *= 10.0f;
-			itStream++;
-		}
-
-		return value;
-	}
-
-	// Convert a BCD stream to an integer. The begin iterator represents the lowest digit
-	// @param <begin> the stream's begin iterator
-	// @param <len> the stream's length
-	// @return the converted unsigned integer
-	static unsigned int BCD2Int(unsigned char* begin, unsigned short len)
-	{
-		_ASSERTE(len > 0 && len < 6);
-		if (0 == len || len > 5)
-		{
-			throw std::invalid_argument("Empty BCD stream or the stream length is too long.");
-		}
-
-		unsigned int value = 0;
-		unsigned int base = 1;
-
-		unsigned char* itStream = begin;
-		while (len--)
-		{
-			value += base * ((*itStream) & 0x0f);
-			base *= 10;
-			value += base * ((*itStream) >> 4);
-			base *= 10;
-			itStream++;
-		}
-		return value;
-	}
-
-	// Convert a BCD stream to an integer. The begin iterator represents the highest digit
-	// It is a Reverse function to BCD2Int
-	// @param <begin> the stream's begin iterator
-	// @param <len> the stream's length in bytes
-	// @return the converted unsigned integer
-	static unsigned int BCD2IntR(unsigned char* begin, unsigned short len)
-	{
-		_ASSERTE(len > 0 && len < 6);
-		if (0 == len || len > 5)
-		{
-			throw std::invalid_argument("Empty BCD stream or the stream length is too long.");
-		}
-
-		unsigned int value = 0;
-		unsigned int base = 1;
-
-		unsigned char* itStream = begin + len - 1;
-		while (len--)
-		{
-			value += base * ((*itStream) & 0x0f);
-			base *= 10;
-			value += base * ((*itStream) >> 4);
-			base *= 10;
-			itStream--;
-		}
-
-		return value;
-	}
 
 
 private:
