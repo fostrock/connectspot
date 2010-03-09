@@ -193,7 +193,7 @@ bool ZSSerialProtocol::Parse()
 				unsigned short matchID = boost::lexical_cast<unsigned short>(dataItem->get_attribute("match_id")->get_value());
 				// cmd in HEX
 				long lCmd = strtol(dataItem->get_attribute("cmd")->get_value().c_str(), NULL, 0);
-				commonCmd.insert(std::make_pair(matchID, static_cast<unsigned short>(lCmd)));
+				commonCmd.insert(std::make_pair(matchID, static_cast<unsigned char>(lCmd)));
 			}
 
 			ret = true;
