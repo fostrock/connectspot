@@ -174,4 +174,40 @@ namespace CommonLib
 		}
 		return ((dec / 10) << 4) | (dec % 10);
 	}
+
+	// Convert a decimal integer to BCD code. 
+	std::vector<unsigned char> Dec2BCD_R(unsigned int dec, unsigned short byteSize)
+	{
+		_ASSERTE(byteSize != 0);
+		std::vector<unsigned char> vec(byteSize, 0x0);
+
+		for (unsigned short i = 0; i < byteSize; i++)
+		{
+			vec.at(vec.size() - i - 1) = dec % 10;
+			dec /= 10;
+			vec.at(vec.size() - i - 1) |= ((dec % 10) << 4);
+			dec /= 10;
+		}
+
+		return vec;
+	}
+
+	// Convert a decimal float to BCD code. 
+	std::vector<unsigned char> Dec2BCD_R(float dec, unsigned short byteSize, 
+		unsigned short digitNum)
+	{
+		_ASSERTE(byteSize != 0);
+		std::vector<unsigned char> vec(byteSize, 0x0);
+		long long d = dec * powf(10, digitNum);
+
+		for (unsigned short i = 0; i < byteSize; i++)
+		{
+			vec.at(vec.size() - i - 1) = d % 10;
+			d /= 10;
+			vec.at(vec.size() - i - 1) |= ((d % 10) << 4);
+			d /= 10;
+		}
+
+		return vec;
+	}
 }
