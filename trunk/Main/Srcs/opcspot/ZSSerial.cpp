@@ -14,6 +14,8 @@
 #include <cmath>
 #include <iostream>
 
+#pragma warning(disable:4996) // std::copy() unsafe iterator, _SCL_SECURE_NO_WARNINGS
+
 using namespace boost;
 using namespace CommonLib;
 
@@ -115,14 +117,24 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 // Write data to the device
 void ZSSerial::WriteData(const ZSDataItem& item, unsigned char station)
 {
-	
+	_ASSERT(station <= 99);
+	if (station > 99)
+	{
+		throw std::invalid_argument("Station number is larger than 99");
+	}
+	if (!port.IsOpen())
+	{
+		return;
+	}
+
+	std::vector<unsigned char> command = MakeWriteCmd(item.index, item.variant, station);
+	port.Write(command);
 }
 
 // Write command to the device
 void ZSSerial::WriteCommand(unsigned short commandID, unsigned char station)
 {
 	_ASSERT(station <= 99);
-	std::vector<ZSDataItem> vec;
 	if (station > 99)
 	{
 		throw std::invalid_argument("Station number is larger than 99");
@@ -181,7 +193,7 @@ std::vector<unsigned char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char 
 
 // Make a write data command
 std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID, 
-												  boost::variant<unsigned int, float> val, 
+												  const boost::variant<unsigned int, float>& val, 
 												  unsigned char station
 												  )
 {
@@ -193,9 +205,9 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 	}
 
 	const ZSWriteDataCmd& cmdDef = protocol.GetWriteDataCmd();
-	ZSWriteDataCmd::ParamDef::const_iterator iter = cmdDef.param.find(dataID);
-	_ASSERTE(iter != cmdDef.param.end());
-	if (cmdDef.param.end() == iter)
+	ZSWriteDataCmd::ParamDef::const_iterator iterCmd = cmdDef.param.find(dataID);
+	_ASSERTE(iterCmd != cmdDef.param.end());
+	if (cmdDef.param.end() == iterCmd)
 	{
 		return writeCmd;
 	}
@@ -210,12 +222,26 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 
 	writeCmd.resize(len + 7, 0x0);
 	writeCmd.at(0) = begin;
-	writeCmd.at(1) = Dec2BCD(station);
-	writeCmd.at(2) = Dec2BCD(len + 5);
-	writeCmd.at(3) = cmdDef.cmd;
-	writeCmd.at(4) = Dec2BCD((*iter).second);
+	writeCmd.at(1) = Dec2BCD(station);	// RS485 station No.
+	writeCmd.at(2) = Dec2BCD(len + 5);	// write command length
+	writeCmd.at(3) = cmdDef.cmd;		// write command
+	writeCmd.at(4) = Dec2BCD((*iterCmd).second);	// write command parameter
+	std::vector<unsigned char> dataStream(len, 0x0);
 
-	// .... add more here!!!
+	bool isFloat = (*itData).second.get<3>();
+	if (isFloat)
+	{
+		dataStream = Dec2BCD_R(boost::get<float>(val), len);
+	}
+	else
+	{
+		dataStream = Dec2BCD_R(boost::get<unsigned int>(val), len);
+	}
+	std::copy(dataStream.begin(), dataStream.end(), &writeCmd.at(5));
+
+	writeCmd.at(len + 5) = CalculateBCDSum(	// sum check
+		std::vector<unsigned char>(&writeCmd.at(1), &writeCmd.at(5 + len))
+		);
 	writeCmd.at(len + 6) = end;
 	return writeCmd;
 }
