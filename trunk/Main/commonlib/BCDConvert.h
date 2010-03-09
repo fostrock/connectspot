@@ -11,6 +11,8 @@
 #ifndef BCD_CONVERT_H__ 
 #define BCD_CONVERT_H__
 
+#include <vector>
+
 namespace CommonLib
 {
 	// Convert a BCD stream to a float. 
@@ -46,10 +48,31 @@ namespace CommonLib
 	// @return the converted unsigned integer
 	unsigned int BCD2IntR(const unsigned char* begin, unsigned short len);
 
-	// Convert a decimal to BCD code. IF the input value larger than 99, the result will always be 0
+	// Convert a decimal to BCD code. IF the input value larger than 99, 
+	// the result will always be 0
 	// @param <dec> a decimal code, it shall not larger than 99
 	// @return a BCD code
 	unsigned char Dec2BCD(unsigned char dec);
+
+	// Convert a decimal integer to BCD code. 
+	// The convert order is 169 -> {0x01, 0x69} with the byteSize 2
+	// If the the decimal value exceeds the given BCD size, 
+	// the higher part will be truncated.
+	// @param <dec> the given decimal value.
+	// @param <byteSize> the given byte size to contain BCD code required by <dec>
+	// @return the converted BCD code
+	std::vector<unsigned char> Dec2BCD_R(unsigned int dec, unsigned short byteSize);
+
+	// Convert a decimal float to BCD code. 
+	// The convert order is 169.1 -> {0x01, 0x69, 0x10, 0x00} with the byteSize 4 and digitNum 4
+	// If the the decimal value exceeds the given BCD size, 
+	// the higher part will be truncated.
+	// @param <dec> the given decimal value.
+	// @param <byteSize> the given byte size to contain BCD code required by <dec>
+	// @param <digitNum> the number of digit. It can not exceed 6.
+	// @return the converted BCD code
+	std::vector<unsigned char> Dec2BCD_R(float dec, unsigned short byteSize, 
+		unsigned short digitNum = 4);
 }
 
 
