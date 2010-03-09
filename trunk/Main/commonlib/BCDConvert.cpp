@@ -33,7 +33,7 @@ namespace CommonLib
 
 		if (digitNum > 0)
 		{
-			while ((digitIndex < digitNum / 2) && (len > 0))
+			while ((digitIndex < digitNum / 2u) && (len > 0))
 			{
 				value += baseDigit * ((*itStream) & 0x0f);
 				baseDigit *= 10.0f;
@@ -83,7 +83,7 @@ namespace CommonLib
 
 		if (digitNum > 0)
 		{
-			while ((digitIndex < digitNum / 2) && (len > 0))
+			while ((digitIndex < digitNum / 2u) && (len > 0))
 			{
 				value += baseDigit * ((*itStream) & 0x0f);
 				baseDigit *= 10.0f;
@@ -198,7 +198,7 @@ namespace CommonLib
 	{
 		_ASSERTE(byteSize != 0);
 		std::vector<unsigned char> vec(byteSize, 0x0);
-		long long d = dec * powf(10, digitNum);
+		long long d = static_cast<long long>(dec * powf(10, digitNum));
 
 		for (unsigned short i = 0; i < byteSize; i++)
 		{
