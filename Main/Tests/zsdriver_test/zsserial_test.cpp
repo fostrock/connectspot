@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(commonlib_Dec2BCD_test)
 	std::vector<unsigned char> vec = CommonLib::Dec2BCD_R(dec, 4);
 	BOOST_CHECK_EQUAL_COLLECTIONS(bcd, bcd + 4, vec.begin(), vec.end());
 
-	float f = 76543.21;
+	float f = 76543.21f;
 	unsigned char bcdFloat[] = {0x07, 0x65, 0x43, 0x21, 0x00};
 	std::vector<unsigned char> vecF = CommonLib::Dec2BCD_R(f, 5, 4);
 
@@ -107,14 +107,23 @@ BOOST_AUTO_TEST_CASE(zsserial_MakeReadCmd_test)
 	BOOST_CHECK(std::equal(readCmd, readCmd + 6, zs.MakeReadCmd(ZSSerial::one, 21).begin()));
 }
 
-//BOOST_AUTO_TEST_CASE(zsserial_MakeWriteCmd_test)
-//{
-//	ZSSerial zs("COM3", protocol);
-//	unsigned char readCmd[] = 
-//	{0xbb, 0x21/*station*/, 0x09, 0x60/*command*/, 0x21/*param*/, 0x98, 0x76, 0x54, 0x32, 0x03/*sum check*/, 0xee}; // PID比例系数
-//	boost::variant<unsigned int, float> val = 9876.5432f;
-//	BOOST_CHECK(std::equal(readCmd, readCmd + 11, zs.MakeWriteCmd(40, val, 21).begin()));
-//}
+BOOST_AUTO_TEST_CASE(zsserial_MakeWriteCmd_test)
+{
+	ZSSerial zs("COM3", protocol);
+	unsigned char readCmd[] = 
+	{0xbb, 0x21/*station*/, 0x09/*len*/, 0x60/*command*/, 0x21/*param*/, 
+		0x98, 0x76, 0x54, 0x32, 0x03/*sum check*/, 0xee}; // PID比例系数
+	boost::variant<unsigned int, float> val = 9876.5432f;
+	std::vector<unsigned char> cmdStream = zs.MakeWriteCmd(40, val, 21);
+	BOOST_CHECK_EQUAL_COLLECTIONS(readCmd, readCmd + 11, cmdStream.begin(), cmdStream.end());
+
+	unsigned char readCmdII[] = 
+	{0xbb, 0x21/*station*/, 0x07/*len*/, 0x60/*command*/, 0x18/*param*/, 
+		0x98, 0x76, 0x80/*sum check*/, 0xee}; // 控制方式字
+	boost::variant<unsigned int, float> valII = 9876u;
+	std::vector<unsigned char> cmdStreamII = zs.MakeWriteCmd(37, valII, 21);
+	BOOST_CHECK_EQUAL_COLLECTIONS(readCmdII, readCmdII + 9, cmdStreamII.begin(), cmdStreamII.end());
+}
 
 BOOST_AUTO_TEST_CASE(zsserial_MakeCommonCmd_test)
 {
