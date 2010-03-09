@@ -64,6 +64,22 @@ BOOST_AUTO_TEST_CASE(commonlib_Dec2BCD_test)
 {
 	BOOST_CHECK(0x99 == CommonLib::Dec2BCD(99));
 	BOOST_CHECK(0x09 == CommonLib::Dec2BCD(9));
+
+	unsigned int dec = 7654321;
+	unsigned char bcd[] = {0x07, 0x65, 0x43, 0x21};
+	std::vector<unsigned char> vec = CommonLib::Dec2BCD_R(dec, 4);
+	BOOST_CHECK_EQUAL_COLLECTIONS(bcd, bcd + 4, vec.begin(), vec.end());
+
+	float f = 76543.21;
+	unsigned char bcdFloat[] = {0x07, 0x65, 0x43, 0x21, 0x00};
+	std::vector<unsigned char> vecF = CommonLib::Dec2BCD_R(f, 5, 4);
+
+	// Because of the float storage format, we compare the first 4 bytes only. 
+	BOOST_CHECK_EQUAL_COLLECTIONS(bcdFloat, bcdFloat + 4, vecF.begin(), vecF.begin() + 4);
+
+	unsigned char bcdFloatII[] = {0x00, 0x00, 0x76, 0x54, 0x32};
+	std::vector<unsigned char> vecFII = CommonLib::Dec2BCD_R(f, 5, 1);
+	BOOST_CHECK_EQUAL_COLLECTIONS(bcdFloatII, bcdFloatII + 5, vecFII.begin(), vecFII.end());
 }
 
 BOOST_AUTO_TEST_CASE(commonlib_BCD2Int_test)
