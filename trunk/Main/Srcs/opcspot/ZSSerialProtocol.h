@@ -10,6 +10,11 @@
 
 #pragma once
 
+// xmlpp::exception using glib::ustring, it needs to be exported in DLL interface
+// we merely disable it here. More detail: 
+// see http://www.unknownroad.com/rtfm/VisualStudio/warningC4251.html
+#pragma warning(disable:4251)	
+
 #include "boost/noncopyable.hpp"
 #include "libxml++/libxml++.h"
 #include <map>
