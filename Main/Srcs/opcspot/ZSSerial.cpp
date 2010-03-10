@@ -193,7 +193,7 @@ std::vector<unsigned char> ZSSerial::MakeReadCmd(DataGroup group, unsigned char 
 
 // Make a write data command
 std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID, 
-												  const boost::variant<unsigned int, float>& val, 
+												  const boost::variant<unsigned int, double>& val, 
 												  unsigned char station
 												  )
 {
@@ -231,7 +231,7 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 	bool isFloat = (*itData).second.get<3>();
 	if (isFloat)
 	{
-		dataStream = Dec2BCD_R(boost::get<float>(val), len);
+		dataStream = Dec2BCD_R(boost::get<double>(val), len);
 	}
 	else
 	{

@@ -16,7 +16,7 @@
 namespace CommonLib
 {
 	// Convert a BCD stream to a float. 
-	float BCD2Float(const unsigned char* begin, unsigned short len, unsigned short digitNum)
+	double BCD2Float(const unsigned char* begin, unsigned short len, unsigned short digitNum)
 	{
 		_ASSERTE(len > 0 && digitNum < 7);
 		if (0 == len || digitNum > 6)
@@ -24,9 +24,9 @@ namespace CommonLib
 			throw std::invalid_argument("Empty BCD stream or the digit number exceeds 6");
 		}
 
-		float value = 0.0f;
-		float base = 1.0f;
-		float baseDigit = powf(0.1f, digitNum);
+		double value = 0.0f;
+		double base = 1.0f;
+		double baseDigit = powf(0.1f, digitNum);
 		bool isEven = (0 == (digitNum % 2)) ? true : false;
 		const unsigned char* itStream = begin;
 		unsigned int digitIndex = 0;
@@ -66,7 +66,7 @@ namespace CommonLib
 	}
 
 	// Convert a BCD stream to a float. 
-	float BCD2FloatR(const unsigned char* begin, unsigned short len, unsigned short digitNum)
+	double BCD2FloatR(const unsigned char* begin, unsigned short len, unsigned short digitNum)
 	{
 		_ASSERTE(len > 0 && digitNum < 7);
 		if (0 == len || digitNum > 6)
@@ -74,9 +74,9 @@ namespace CommonLib
 			throw std::invalid_argument("Empty BCD stream or the digit number exceeds 6");
 		}
 
-		float value = 0.0f;
-		float base = 1.0f;
-		float baseDigit = powf(0.1f, digitNum);
+		double value = 0.0f;
+		double base = 1.0f;
+		double baseDigit = powf(0.1f, digitNum);
 		bool isEven = (0 == (digitNum % 2)) ? true : false;
 		const unsigned char* itStream = begin + len - 1;
 		unsigned int digitIndex = 0;
@@ -193,7 +193,7 @@ namespace CommonLib
 	}
 
 	// Convert a decimal float to BCD code. 
-	std::vector<unsigned char> Dec2BCD_R(float dec, unsigned short byteSize, 
+	std::vector<unsigned char> Dec2BCD_R(double dec, unsigned short byteSize, 
 		unsigned short digitNum)
 	{
 		_ASSERTE(byteSize != 0);

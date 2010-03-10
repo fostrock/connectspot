@@ -21,7 +21,7 @@ namespace CommonLib
 	// @param <len> the stream's length
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	float BCD2Float(const unsigned char* begin, unsigned short len, 
+	double BCD2Float(const unsigned char* begin, unsigned short len, 
 		unsigned short digitNum = 4);
 
 	// Convert a BCD stream to a float. 
@@ -30,7 +30,7 @@ namespace CommonLib
 	// @param <len> the stream's length
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted unsigned integer
-	float BCD2FloatR(const unsigned char* begin, unsigned short len, 
+	double BCD2FloatR(const unsigned char* begin, unsigned short len, 
 		unsigned short digitNum = 4);
 
 	// Convert a BCD stream to an integer. 
@@ -71,7 +71,7 @@ namespace CommonLib
 	// @param <byteSize> the given byte size to contain BCD code required by <dec>
 	// @param <digitNum> the number of digit. It can not exceed 6.
 	// @return the converted BCD code
-	std::vector<unsigned char> Dec2BCD_R(float dec, unsigned short byteSize, 
+	std::vector<unsigned char> Dec2BCD_R(double dec, unsigned short byteSize, 
 		unsigned short digitNum = 4);
 }
 
