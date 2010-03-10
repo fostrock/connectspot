@@ -20,7 +20,7 @@
 struct ZSDataItem 
 {
 	unsigned short index;
-	boost::variant<unsigned int, float> variant;
+	boost::variant<unsigned int, double> variant;
 };
 
 class ZSSerial
@@ -97,7 +97,7 @@ public:
 	// @param <station> RS-485 station No.
 	// @throws boost::system::system_error on failure
 	std::vector<unsigned char> MakeWriteCmd(unsigned short dataID, 
-		const boost::variant<unsigned int, float>& val, unsigned char station);
+		const boost::variant<unsigned int, double>& val, unsigned char station);
 
 	// Make a common command
 	// @param <commandID> command ID
