@@ -20,7 +20,16 @@ using namespace boost;
 using namespace CommonLib;
 
 ZSSerial::ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol) : 
-protocol(protocol)
+devName(devName), protocol(protocol)
+{
+	Open();
+}
+
+ZSSerial::~ZSSerial(void)
+{
+}
+
+void ZSSerial::Open()
 {
 	const std::vector<ZSSerialSetting>& settings = protocol.GetPortSetting();
 	std::size_t i;
@@ -61,10 +70,6 @@ protocol(protocol)
 		Close();
 		throw std::runtime_error("The devName is not matched.");
 	}
-}
-
-ZSSerial::~ZSSerial(void)
-{
 }
 
 // Read data from the device.

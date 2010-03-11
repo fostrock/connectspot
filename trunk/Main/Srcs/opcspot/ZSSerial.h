@@ -53,10 +53,7 @@ public:
 		port.SetTimeout(t);
 	}
 
-	void Open()
-	{
-		
-	}
+	void Open();
 
 	void Close()
 	{
@@ -126,6 +123,7 @@ private:
 private:
 	static const unsigned char begin = 0xbb;
 	static const unsigned char end = 0xee;
+	const std::string devName;
 
 	const ZSSerialProtocol& protocol;
 	TimeoutSerial port;
