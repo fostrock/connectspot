@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\3rdLib\boost\v_1_41"
+				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,8 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib"
+				OutputFile="../../bin/$(ProjectName)D.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\3rdLib\boost\v_1_41\lib"
+				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -116,6 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -134,7 +137,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="xml++-vc90-2_6.lib glibmm-vc90-2_4.lib"
+				OutputFile="../../bin/$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -177,7 +183,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tpdriver_test.cpp"
+				RelativePath="..\..\Srcs\opcspot\ZSDriver.cpp"
 				>
 			</File>
 			<File
