@@ -8,6 +8,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opcspotPS", "opcspotPS.vcpr
 		{C880740C-9A75-4CED-9E31-8C8A62F91B8D} = {C880740C-9A75-4CED-9E31-8C8A62F91B8D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opcspot_test", "..\..\Tests\opcspot_test\opcspot_test.vcproj", "{9856DF4C-E7A8-4D01-9C80-9E0DED15B29B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -20,6 +22,10 @@ Global
 		{C880740C-9A75-4CED-9E31-8C8A62F91B8D}.Release|Win32.Build.0 = Release|Win32
 		{7442DD55-C9A9-4175-B101-2F073DE7E676}.Debug|Win32.ActiveCfg = Debug|Win32
 		{7442DD55-C9A9-4175-B101-2F073DE7E676}.Release|Win32.ActiveCfg = Release|Win32
+		{9856DF4C-E7A8-4D01-9C80-9E0DED15B29B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9856DF4C-E7A8-4D01-9C80-9E0DED15B29B}.Debug|Win32.Build.0 = Debug|Win32
+		{9856DF4C-E7A8-4D01-9C80-9E0DED15B29B}.Release|Win32.ActiveCfg = Release|Win32
+		{9856DF4C-E7A8-4D01-9C80-9E0DED15B29B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
