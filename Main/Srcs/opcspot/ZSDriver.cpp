@@ -20,16 +20,16 @@ bool ZSDriver::Init(const std::string& protocolPath)
 	bool isOK = false;
 	serials = new std::vector<boost::shared_ptr<ZSSerial> >;
 	boost::shared_ptr<ZSSerialProtocol> protocol(new ZSSerialProtocol(protocolPath));
-	//if (!protocol->Parse())
-	//{
-	//	return isOK;
-	//}
+	if (!protocol->Parse())
+	{
+		return isOK;
+	}
 
-	//const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
-	//for (std::size_t i = 0; i < ports.size(); ++i)
-	//{
-	//	serials->push_back(boost::shared_ptr<ZSSerial>(new ZSSerial(ports.at(i).devName, *protocol)));
-	//}
+	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
+	for (std::size_t i = 0; i < ports.size(); ++i)
+	{
+		serials->push_back(boost::shared_ptr<ZSSerial>(new ZSSerial(ports.at(i).devName, *protocol)));
+	}
 	
 	return false;
 }
