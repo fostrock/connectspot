@@ -1,4 +1,4 @@
-#define BOOST_TEST_DYN_LINK
+#include "stdafx.h"
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSDriver.h"
 

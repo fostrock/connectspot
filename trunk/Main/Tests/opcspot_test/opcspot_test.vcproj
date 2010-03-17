@@ -46,7 +46,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -122,7 +122,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -183,8 +183,24 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Srcs\opcspot\ZSDriver.cpp"
+				RelativePath=".\stdafx.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\zsdriver_test.cpp"
@@ -196,12 +212,48 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\targetver.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="Link Files"
+			>
+			<File
+				RelativePath="..\..\commonlib\BCDConvert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\commonlib\stringstext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\commonlib\TimeoutSerial.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Srcs\opcspot\ZSDriver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Srcs\opcspot\ZSSerial.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Srcs\opcspot\ZSSerialProtocol.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
