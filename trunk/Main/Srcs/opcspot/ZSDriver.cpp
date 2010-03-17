@@ -11,24 +11,36 @@
 #include "StdAfx.h"
 #include "ZSDriver.h"
 #include "ZSSerial.h"
-
+#include <iostream>
 
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = 0;
+const loService* ZSDriver::dataService = 0;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
 	bool isOK = false;
-	serials = new std::vector<boost::shared_ptr<ZSSerial> >;
 	boost::shared_ptr<ZSSerialProtocol> protocol(new ZSSerialProtocol(protocolPath));
 	if (!protocol->Parse())
 	{
 		return isOK;
 	}
 
+	serials = new std::vector<boost::shared_ptr<ZSSerial> >;
 	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
 	for (std::size_t i = 0; i < ports.size(); ++i)
 	{
-		serials->push_back(boost::shared_ptr<ZSSerial>(new ZSSerial(ports.at(i).devName, *protocol)));
+		try
+		{
+			boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
+			serials->push_back(p);
+		}
+		catch (boost::system::system_error& e)
+		{
+#ifdef _DEBUG
+			std::cout << e.what() << std::endl;
+#endif
+			// add log here
+		}
 	}
 	
 	return false;

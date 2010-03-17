@@ -52,6 +52,15 @@ public:
 		HRESULT *master_err, HRESULT *master_qual,
 		const VARTYPE vtypes[], LCID lcid);
 
+	// Assign the data service
+	// @param <pService> the class needs to contain the data service reference
+	static void AssignService(const loService* pService)
+	{
+		_ASSERTE(pService != NULL);
+		dataService = pService;
+	}
+
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
+	static const loService* dataService;
 };

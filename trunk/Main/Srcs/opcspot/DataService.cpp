@@ -36,7 +36,7 @@ int DataService::InitService()
 
 	driver.ldBranchSep = '/'; // Hierarchical branch separator
 
-	int ecode = loServiceCreate(&instance, &driver, 64 /* number of tags in the cache */);
+	int ecode = loServiceCreate(&instance, &driver, 4096 /* number of tags in the cache */);
 	if (ecode)
 	{
 		return -1;
