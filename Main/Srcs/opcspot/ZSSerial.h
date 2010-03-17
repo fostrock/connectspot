@@ -53,6 +53,7 @@ public:
 		port.SetTimeout(t);
 	}
 
+	// @throws boost::system::system_error if cannot open the serial device  
 	void Open();
 
 	void Close()
