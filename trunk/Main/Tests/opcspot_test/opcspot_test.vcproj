@@ -61,10 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib"
+				AdditionalDependencies="xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib lo.lib"
 				OutputFile="../../bin/$(ProjectName)D.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
+				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;;..\..\3rdLib\lightopc\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -137,10 +137,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="xml++-vc90-2_6.lib glibmm-vc90-2_4.lib"
+				AdditionalDependencies="xml++-vc90-2_6.lib glibmm-vc90-2_4.lib lo.lib"
 				OutputFile="../../bin/$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
+				AdditionalLibraryDirectories="../../3rdlib/boost/v_1_41/lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;;..\..\3rdLib\lightopc\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
