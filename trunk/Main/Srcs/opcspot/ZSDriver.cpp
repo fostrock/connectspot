@@ -12,24 +12,32 @@
 #include "ZSDriver.h"
 #include "ZSSerial.h"
 #include "opcda.h"
+#include <iostream>
 
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
 const loService* ZSDriver::dataService = NULL;
-std::vector<unsigned>* ZSDriver::tagIDs = NULL;
+std::vector<loTagValue>* ZSDriver::tags = NULL;
 std::map<unsigned, unsigned>* ZSDriver::tagID2Index = NULL;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
+boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
 	bool isOK = false;
+
+	// protocol
 	protocol.reset(new ZSSerialProtocol(protocolPath));
 	if (!protocol->Parse())
 	{
 		return isOK;
 	}
 
-	unsigned total = 0;
-	unsigned fixed = protocol->GetDataSetInfo().size();
+	// thread group
+	threadGp.reset(new boost::thread_group);
+
+	// serial objects
+	std::size_t total = 0;
+	std::size_t fixed = protocol->GetDataSetInfo().size();
 	serials = new std::vector<boost::shared_ptr<ZSSerial> >;
 	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
 	for (std::size_t i = 0; i < ports.size(); ++i)
@@ -39,9 +47,9 @@ bool ZSDriver::Init(const std::string& protocolPath)
 		total += ports.at(i).stations.size() * fixed;
 	}
 
-	tagIDs = new std::vector<unsigned>(total);
+	tags = new std::vector<loTagValue>(total);
 	tagID2Index = new std::map<unsigned, unsigned>;
-	
+
 	return true;
 }
 
@@ -52,10 +60,10 @@ void ZSDriver::Destroy()
 		delete serials;
 		serials = NULL;
 	}
-	if (tagIDs)
+	if (tags)
 	{
-		delete tagIDs;
-		tagIDs = NULL;
+		delete tags;
+		tags = NULL;
 	}
 	if (tagID2Index)
 	{
@@ -70,45 +78,47 @@ void ZSDriver::activation_monitor(const loCaller *ca, int count, loTagPair *til)
 }
 
 int ZSDriver::WriteTags(const loCaller *ca,
-					 unsigned count, loTagPair taglist[],
-					 VARIANT values[], HRESULT error[], HRESULT *master, LCID lcid)
+						unsigned count, loTagPair taglist[],
+						VARIANT values[], HRESULT error[], HRESULT *master, LCID lcid)
 {
 	return loDW_TOCACHE;
 }
 
 void ZSDriver::ConvertTags(const loCaller *ca,
-						unsigned count, const loTagPair taglist[],
-						VARIANT *values, WORD *qualities, HRESULT *errs,
-						HRESULT *master_err, HRESULT *master_qual,
-						const VARIANT src[], const VARTYPE vtypes[], LCID lcid)
+						   unsigned count, const loTagPair taglist[],
+						   VARIANT *values, WORD *qualities, HRESULT *errs,
+						   HRESULT *master_err, HRESULT *master_qual,
+						   const VARIANT src[], const VARTYPE vtypes[], LCID lcid)
 {
 
 }
 
 loTrid ZSDriver::ReadTags(const loCaller *ca,
-					   unsigned count, loTagPair taglist[],
-					   VARIANT *values, WORD *qualities,
-					   FILETIME *stamps, HRESULT *errs,
-					   HRESULT *master_err, HRESULT *master_qual,
-					   const VARTYPE vtypes[], LCID lcid)
+						  unsigned count, loTagPair taglist[],
+						  VARIANT *values, WORD *qualities,
+						  FILETIME *stamps, HRESULT *errs,
+						  HRESULT *master_err, HRESULT *master_qual,
+						  const VARTYPE vtypes[], LCID lcid)
 {
 	return loDR_CACHED;
 }
 
 void ZSDriver::AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex)
 {
-	_ASSERTE(tagIDs != NULL && tagID2Index != NULL);
-	_ASSERTE(dataIndex < tagIDs->size());
-	(*tagIDs).at(dataIndex) = tagID;
+	_ASSERTE(tags != NULL && tagID2Index != NULL);
+	_ASSERTE(dataIndex < tags->size());
+	(*tags).at(dataIndex).tvValue = CComVariant();
+	(*tags).at(dataIndex).tvTi = tagID;
+	(*tags).at(dataIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
 	tagID2Index->insert(std::make_pair(tagID, dataIndex));
 }
 
 // Get the tag definitions for the outer data service
 std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 {
-	_ASSERTE(tagIDs != NULL);
-    std::vector<TAG_DEF> tagDef;
-	tagDef.reserve(tagIDs->size());
+	_ASSERTE(tags != NULL);
+	std::vector<TAG_DEF> tagDef;
+	tagDef.reserve(tags->size());
 
 	std::size_t inc = 0;
 	unsigned fixed = protocol->GetDataSetInfo().size();
@@ -148,5 +158,79 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 	}
 
 	return tagDef;
+}
+
+// Tell the driver to refresh data
+// @param <service> opc data service
+void ZSDriver::RefreshData(loService* service)
+{
+	for (std::size_t i = 0; i < serials->size(); ++i)
+	{
+		if (serials->at(i)->IsOpened())
+		{
+			boost::thread* p = 
+				new boost::thread(Adapter<WorkerFunPtr, loService*, unsigned>(RefreshData, service, i));
+			threadGp->add_thread(p);
+		}
+	}
+}
+
+// Refresh data worker function
+void ZSDriver::RefreshData(loService* serivice, unsigned serialIndex)
+{
+	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
+	std::vector<std::pair<unsigned short, unsigned short> > stations =
+		protocol->GetPortSetting().at(serialIndex).stations;
+	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
+	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
+	std::size_t dataTotalCount = protocol->GetDataSetInfo().size(); 
+	std::size_t startOffset = 0;
+	for (std::size_t i = 0; i < serialIndex; i++)
+	{
+		startOffset += 
+			dataTotalCount * protocol->GetPortSetting().at(serialIndex).stations.size();
+	}
+
+	for (std::size_t i = 0; i < stations.size(); ++i)
+	{
+		if (1 == stations.at(i).second)
+		{
+			try
+			{
+				std::vector<ZSDataItem> items = 
+					serial->ReadData(ZSSerial::one, stations.at(i).first);
+				_ASSERTE(gpOneCount == items.size());
+				if (gpOneCount == items.size())
+				{
+					FILETIME ft;
+					GetSystemTimeAsFileTime(&ft); /* awoke */
+					for (std::size_t j = 0; j < items.size(); ++j)
+					{
+						std::size_t curIndex = startOffset + i * dataTotalCount;
+						tags->at(curIndex).tvState.tsTime = ft;
+						tags->at(curIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
+						CComVariant var;
+						if (unsigned* pui = boost::get<unsigned>(&items.at(j).variant))
+						{
+							var = *pui;
+						}
+						else if (double* pd = boost::get<double>(&items.at(j).variant))
+						{
+							var = *pd;
+						}
+						else
+						{
+							_ASSERTE(!"unexpected variant type");
+						}
+						tags->at(j).tvValue = var;
+					}
+				}
+			}
+			catch (std::runtime_error& e)
+			{
+				std::cout << "ReadData error: " << e.what() << std::endl;
+			}
+		}
+	}
 }
 
