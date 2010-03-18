@@ -16,8 +16,8 @@ class DataService
 {
 private:
 	DataService(void);
-	~DataService(void);
 	DataService& operator=(const DataService&);
+	DataService(const DataService&);
 
 public:
 	static int InitService();

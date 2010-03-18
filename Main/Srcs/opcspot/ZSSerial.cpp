@@ -22,7 +22,17 @@ using namespace CommonLib;
 ZSSerial::ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol) : 
 devName(devName), protocol(protocol)
 {
-	Open();
+	try
+	{
+		Open();
+	}
+	catch (boost::system::system_error& e)
+	{
+#ifdef _DEBUG
+		std::cout << e.what() << std::endl;
+#endif
+		// add log here
+	}
 }
 
 ZSSerial::~ZSSerial(void)
@@ -223,7 +233,7 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 	{
 		return writeCmd;
 	}
-	unsigned short len = (*itData).second.get<2>();
+	unsigned short len = (*itData).second.get<ZSSerialProtocol::ZS_DATA_LENGTH_INDEX>();
 
 	writeCmd.resize(len + 7, 0x0);
 	writeCmd.at(0) = begin;
@@ -233,7 +243,7 @@ std::vector<unsigned char> ZSSerial::MakeWriteCmd(unsigned short dataID,
 	writeCmd.at(4) = Dec2BCD((*iterCmd).second);	// write command parameter
 	std::vector<unsigned char> dataStream(len, 0x0);
 
-	bool isFloat = (*itData).second.get<3>();
+	bool isFloat = (*itData).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>();
 	if (isFloat)
 	{
 		dataStream = Dec2BCD_R(boost::get<double>(val), len);
@@ -299,8 +309,6 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 		readCmdIndex = 1;
 	}
 	const std::vector<ZSReadDataInfo>& vecDataInfo = protocol.GetReadDataCmd().at(readCmdIndex).info;
-	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
-	ZSSerialProtocol::DataSetDef::const_iterator itDef;
 	for (std::size_t i = 0; i < vecDataInfo.size(); ++i)
 	{
 		ZSDataItem item;

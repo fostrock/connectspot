@@ -16,10 +16,10 @@
 #include <algorithm>
 #include "commonlib/stringstext.h"
 
-static const unsigned short ZS_DATA_LENGTH_INDEX = 2;
-static const unsigned short ZS_DATA_TYPE_INDEX = 3;
-
 using namespace CommonLib;
+
+static const std::string LANG_CHS = "chs";
+static const std::string LANG_ENG = "eng";
 
 ZSSerialProtocol::ZSSerialProtocol(const std::string& cfgFile) : parser(cfgFile)
 {
@@ -113,6 +113,13 @@ bool ZSSerialProtocol::Parse()
 				vecSetting.push_back(setting);
 			}
 
+			// data lang definition
+			set = root->find("//zsdriver/protocol/dataset");
+			_ASSERTE(set.size() > 0);
+			const xmlpp::Element* datasetItem = static_cast<const xmlpp::Element*>(set.at(0));
+			_ASSERTE(datasetItem != NULL);
+			std::string lang = datasetItem->get_attribute("lang")->get_value();
+
 			// device data
 			set = root->find("//zsdriver/protocol/dataset/data");
 			for (std::size_t i = 0; i < set.size(); ++i)
@@ -121,11 +128,41 @@ bool ZSSerialProtocol::Parse()
 				_ASSERTE(dataItem != NULL);
 
 				int dataID = boost::lexical_cast<int>(dataItem->get_attribute("id")->get_value());
-				std::string chsName = boost::lexical_cast<std::string>(dataItem->get_attribute("name_chs")->get_value());
-				std::string engName = dataItem->get_attribute("name_eng")->get_value();
+				std::string dataName = "error_parse_name";
+				if (StringsText::CaseInsCompare(LANG_ENG, lang))
+				{
+					dataName = dataItem->get_attribute("name_eng")->get_value();
+				}
+				else if (StringsText::CaseInsCompare(LANG_CHS, lang))
+				{
+					dataName = boost::lexical_cast<std::string>(dataItem->get_attribute("name_chs")->get_value());
+				}
+				else
+				{
+					_ASSERTE(!"unsupported language type");
+				}
 				unsigned short length = boost::lexical_cast<unsigned short>(dataItem->get_attribute("length")->get_value());			
 				bool isFloat = StringsText::CaseInsCompare("TRUE", dataItem->get_attribute("float")->get_value());
-				dataset.insert(std::make_pair(dataID, boost::make_tuple(chsName, engName , length, isFloat)));
+				std::string strAttr = dataItem->get_attribute("access")->get_value();
+				ZSSerialDataAttr attr = readonly;
+				if (StringsText::CaseInsCompare("r", strAttr))
+				{
+					attr = readonly;
+				}
+				else if (StringsText::CaseInsCompare("w", strAttr))
+				{
+					attr = writeonly;
+				}
+				else if (StringsText::CaseInsCompare("rw", strAttr))
+				{
+					attr = readwrite;
+				}
+				else
+				{
+					_ASSERTE(!"unsupported data access type");
+				}
+
+				dataset.insert(std::make_pair(dataID, boost::make_tuple(dataName, length, isFloat, attr)));
 			}
 
 			// read commands

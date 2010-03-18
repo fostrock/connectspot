@@ -27,6 +27,9 @@ enum ZSSerialParity
 enum ZSSerialStopBits
 { one, onepointfive, two };
 
+enum ZSSerialDataAttr
+{ readonly, readwrite, writeonly };
+
 struct ZSSerialSetting
 {
 	ZSSerialSetting() : csize(8), stopBits(one), parity(none)
@@ -68,7 +71,7 @@ class ZSSerialProtocol :
 	public boost::noncopyable
 {
 public:
-	typedef std::map<int, boost::tuple<std::string, std::string, unsigned short, bool> > DataSetDef;
+	typedef std::map<int, boost::tuple<std::string, unsigned short, bool, ZSSerialDataAttr> > DataSetDef;
 	typedef std::map<unsigned short/*mapping id*/, unsigned char/*cmd*/> CommonCmdDef;
 
 	ZSSerialProtocol(const std::string& cfgFile);
@@ -112,6 +115,12 @@ public:
 	{
 		return commonCmd;
 	}
+
+public:
+	static const unsigned short ZS_DATA_NAME_INDEX = 0;
+	static const unsigned short ZS_DATA_LENGTH_INDEX = 1;
+	static const unsigned short ZS_DATA_TYPE_INDEX = 2;
+	static const unsigned short ZS_DATA_ACCESS_INDEX = 3;
 
 private:
 	xmlpp::DomParser parser;

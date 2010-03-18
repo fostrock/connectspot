@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--  ZS driver description file, created by YunHua  on 2010.2.20 -->
 <zsdriver>
-	<serialport port="COM1" setting="19200,8,N,1" stations="1,Y,8,N"/>
-	<serialport port="COM3" setting="19200,8,N,1" stations="1,Y,8,N"/>
+	<serialport port="COM1" setting="9600,8,N,1" stations="1,Y,8,N"/>
+	<serialport port="COM3" setting="9600,8,N,1" stations="1,Y,8,N"/>
 	<protocol>
-		<dataset>
-			<data id="1" name_chs="流速设定量" name_eng="a1" length="4" float="TRUE"/>
-			<data id="2" name_chs="显示控制字" name_eng="a2" length="2" float="FALSE"/>
-			<data id="3" name_chs="本机工作状态" name_eng="a2" length="2" float="FALSE"/>
-			<data id="4" name_chs="当前速度计数" name_eng="a2" length="3" float="FALSE"/>
-			<data id="5" name_chs="当前AD值" name_eng="a2" length="3" float="FALSE"/>
-			<data id="6" name_chs="当前流速" name_eng="a2" length="4" float="TRUE"/>
-			<data id="7" name_chs="当前累计总量" name_eng="a2" length="5" float="TRUE"/>
-			<data id="8" name_chs="当前PID数值" name_eng="a2" length="2" float="FALSE"/>
-			<data id="9" name_chs="工作方式控制字" name_eng="a2" length="2" float="FALSE"/>
-			<data id="10" name_chs="PID开度" name_eng="a2" length="2" float="FALSE"/>
-			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE"/>
-			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE"/>
-			<data id="21" name_chs="显示控制字" name_eng="a1" length="2" float="FALSE"/>
-			<data id="22" name_chs="重量零点偏移" name_eng="a2" length="3" float="FALSE"/>
-			<data id="23" name_chs="重量零点阀值" name_eng="a2" length="3" float="FALSE"/>
-			<data id="24" name_chs="重量标定系数" name_eng="a2" length="4" float="TRUE"/>
-			<data id="25" name_chs="重量标定值" name_eng="a2" length="4" float="TRUE"/>
-			<data id="26" name_chs="零延时间" name_eng="a2" length="2" float="FALSE"/>
-			<data id="27" name_chs="校量时间" name_eng="a2" length="2" float="FALSE"/>
-			<data id="28" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE"/>
-			<data id="29" name_chs="外给定零点" name_eng="a2" length="2" float="FALSE"/>
-			<data id="30" name_chs="外给定满度" name_eng="a2" length="2" float="FALSE"/>
-			<data id="31" name_chs="流量输出零点" name_eng="a2" length="2" float="FALSE"/>
-			<data id="32" name_chs="流量输出满度" name_eng="a2" length="2" float="FALSE"/>
-			<data id="33" name_chs="PID输出零点" name_eng="a2" length="2" float="FALSE"/>
-			<data id="34" name_chs="PID输出满度" name_eng="a2" length="2" float="FALSE"/>
-			<data id="35" name_chs="累计量脉冲数比率" name_eng="a2" length="4" float="TRUE"/>
-			<data id="36" name_chs="速度系数" name_eng="a2" length="4" float="TRUE"/>
-			<data id="37" name_chs="控制方式字" name_eng="a2" length="2" float="FALSE"/>
-			<data id="38" name_chs="缺料报警阀值" name_eng="a2" length="4" float="TRUE"/>
-			<data id="39" name_chs="超重报警阀值" name_eng="a2" length="4" float="TRUE"/>
-			<data id="40" name_chs="PID比例系数" name_eng="a2" length="4" float="TRUE"/>
-			<data id="41" name_chs="PID积分时间" name_eng="a2" length="4" float="TRUE"/>
-			<data id="42" name_chs="PID微分时间" name_eng="a2" length="4" float="TRUE"/>
-			<data id="61" name_chs="累计值清零" name_eng="a2" length="0" float="FALSE"/>
-			<data id="62" name_chs="启动校零操作" name_eng="a2" length="0" float="FALSE"/>
-			<data id="63" name_chs="启动校增益操作" name_eng="a2" length="0" float="FALSE"/>
-			<data id="64" name_chs="启动挂码数据采集操作" name_eng="a2" length="0" float="FALSE"/>
+		<dataset lang="chs">
+			<data id="1" name_chs="流速设定量" name_eng="a1" length="4" float="TRUE" access="rw"/>
+			<data id="2" name_chs="显示控制字" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="3" name_chs="本机工作状态" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="4" name_chs="当前速度计数" name_eng="a2" length="3" float="FALSE" access="r"/>
+			<data id="5" name_chs="当前AD值" name_eng="a2" length="3" float="FALSE" access="r"/>
+			<data id="6" name_chs="当前流速" name_eng="a2" length="4" float="TRUE" access="r"/>
+			<data id="7" name_chs="当前累计总量" name_eng="a2" length="5" float="TRUE" access="r"/>
+			<data id="8" name_chs="当前PID数值" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="9" name_chs="工作方式控制字" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="10" name_chs="PID开度" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="r"/>
+			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="r"/>
+			<data id="21" name_chs="显示控制字" name_eng="a1" length="2" float="FALSE" access="rw"/>
+			<data id="22" name_chs="重量零点偏移" name_eng="a2" length="3" float="FALSE" access="rw"/>
+			<data id="23" name_chs="重量零点阀值" name_eng="a2" length="3" float="FALSE" access="rw"/>
+			<data id="24" name_chs="重量标定系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="25" name_chs="重量标定值" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="26" name_chs="零延时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="27" name_chs="校量时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="28" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="29" name_chs="外给定零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="30" name_chs="外给定满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="31" name_chs="流量输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="32" name_chs="流量输出满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="33" name_chs="PID输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="34" name_chs="PID输出满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="35" name_chs="累计量脉冲数比率" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="36" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="37" name_chs="控制方式字" name_eng="a2" length="2" float="FALSE" access="rw"/>
+			<data id="38" name_chs="缺料报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="39" name_chs="超重报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="40" name_chs="PID比例系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="41" name_chs="PID积分时间" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="42" name_chs="PID微分时间" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="61" name_chs="累计值清零" name_eng="a2" length="0" float="FALSE" access="w"/>
+			<data id="62" name_chs="启动校零操作" name_eng="a2" length="0" float="FALSE" access="w"/>
+			<data id="63" name_chs="启动校增益操作" name_eng="a2" length="0" float="FALSE" access="w"/>
+			<data id="64" name_chs="启动挂码数据采集操作" name_eng="a2" length="0" float="FALSE" access="w"/>
 		</dataset>
 		<!-- refresh rate in ms -->
 		<read number="1" cmd="0x51" refresh="100">

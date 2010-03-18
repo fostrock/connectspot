@@ -11,39 +11,56 @@
 #include "StdAfx.h"
 #include "ZSDriver.h"
 #include "ZSSerial.h"
-#include <iostream>
 
-std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = 0;
-const loService* ZSDriver::dataService = 0;
+std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
+const loService* ZSDriver::dataService = NULL;
+std::vector<unsigned>* ZSDriver::tagIDs = NULL;
+std::map<unsigned, unsigned>* ZSDriver::tagID2Index = NULL;
+boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
 	bool isOK = false;
-	boost::shared_ptr<ZSSerialProtocol> protocol(new ZSSerialProtocol(protocolPath));
+	protocol.reset(new ZSSerialProtocol(protocolPath));
 	if (!protocol->Parse())
 	{
 		return isOK;
 	}
 
+	unsigned total = 0;
+	unsigned fixed = protocol->GetDataSetInfo().size();
 	serials = new std::vector<boost::shared_ptr<ZSSerial> >;
 	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
 	for (std::size_t i = 0; i < ports.size(); ++i)
 	{
-		try
-		{
-			boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
-			serials->push_back(p);
-		}
-		catch (boost::system::system_error& e)
-		{
-#ifdef _DEBUG
-			std::cout << e.what() << std::endl;
-#endif
-			// add log here
-		}
+		boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
+		serials->push_back(p);
+		total += ports.at(i).stations.size() * fixed;
 	}
+
+	tagIDs = new std::vector<unsigned>(total);
+	tagID2Index = new std::map<unsigned, unsigned>;
 	
-	return false;
+	return true;
+}
+
+void ZSDriver::Destroy()
+{
+	if (serials)
+	{
+		delete serials;
+		serials = NULL;
+	}
+	if (tagIDs)
+	{
+		delete tagIDs;
+		tagIDs = NULL;
+	}
+	if (tagID2Index)
+	{
+		delete tagID2Index;
+		tagID2Index = NULL;
+	}
 }
 
 void ZSDriver::activation_monitor(const loCaller *ca, int count, loTagPair *til)
@@ -75,5 +92,41 @@ loTrid ZSDriver::ReadTags(const loCaller *ca,
 					   const VARTYPE vtypes[], LCID lcid)
 {
 	return loDR_CACHED;
+}
+
+void ZSDriver::AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex)
+{
+	_ASSERTE(tagIDs != NULL && tagID2Index != NULL);
+	_ASSERTE(dataIndex < tagIDs->size());
+	(*tagIDs).at(dataIndex) = tagID;
+	tagID2Index->insert(std::make_pair(tagID, dataIndex));
+}
+
+// Get the tag definitions for the outer data service
+std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
+{
+	_ASSERTE(tagIDs != NULL);
+    std::vector<TAG_DEF> tagDef;
+	tagDef.reserve(tagIDs->size());
+
+	std::size_t inc = 0;
+	unsigned fixed = protocol->GetDataSetInfo().size();
+	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
+	const ZSSerialProtocol::DataSetDef& dataDef = protocol->GetDataSetInfo();
+	const std::vector<ZSReadDataCmd>& readData = protocol->GetReadDataCmd();
+	const ZSWriteDataCmd& writeData = protocol->GetWriteDataCmd();
+	const ZSSerialProtocol::CommonCmdDef& commonCmd = protocol->GetCommonCmd();
+
+	for (std::size_t i = 0; i < ports.size(); ++i)
+	{
+		for (std::size_t j = 0; j < ports.at(i).stations.size(); ++j)
+		{
+
+		}
+		//boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
+		
+	}
+
+	return tagDef;
 }
 
