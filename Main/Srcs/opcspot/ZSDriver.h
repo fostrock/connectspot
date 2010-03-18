@@ -28,6 +28,14 @@ private:
 	ZSDriver(const ZSDriver&);
 
 public:
+	struct TAG_DEF 
+	{
+		std::string name;
+		unsigned dataID;
+		bool isFloat;
+		WORD quality;
+	};
+
 	// Initialize the driver
 	// @param <protocolPath> the path of the protocol used by the driver
 	// @return true if the process run successfully.
@@ -62,8 +70,6 @@ public:
 	// @param <tagID> the OPC tag ID
 	// @param <dataIndex> the driver's data index
 	static void AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex);
-
-	typedef boost::tuple<std::string/*name*/, unsigned/*dataID*/, bool/*isFloat*/, WORD/*quality*/> TAG_DEF;
 	
 	// Get the tag definitions for the outer data service
 	// @return the tag definitions

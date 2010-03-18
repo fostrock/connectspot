@@ -113,9 +113,6 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 	unsigned fixed = protocol->GetDataSetInfo().size();
 	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
 	const ZSSerialProtocol::DataSetDef& dataDef = protocol->GetDataSetInfo();
-	const std::vector<ZSReadDataCmd>& readData = protocol->GetReadDataCmd();
-	const ZSWriteDataCmd& writeData = protocol->GetWriteDataCmd();
-	const ZSSerialProtocol::CommonCmdDef& commonCmd = protocol->GetCommonCmd();
 
 	for (std::size_t i = 0; i < ports.size(); ++i)
 	{
