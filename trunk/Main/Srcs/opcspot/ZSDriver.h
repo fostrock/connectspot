@@ -13,9 +13,12 @@
 #include "lightopc.h"
 #include <vector>
 #include <string>
+#include <map>
 #include "boost/smart_ptr.hpp"
+#include "boost/tuple/tuple.hpp"
 
 class ZSSerial;
+class ZSSerialProtocol;
 
 class ZSDriver
 {
@@ -29,6 +32,9 @@ public:
 	// @param <protocolPath> the path of the protocol used by the driver
 	// @return true if the process run successfully.
 	static bool Init(const std::string& protocolPath);
+
+	// Destroy the driver's resource
+	static void Destroy();
 
 	static void activation_monitor(const loCaller *ca, int count, loTagPair *til);
 
@@ -52,15 +58,21 @@ public:
 		HRESULT *master_err, HRESULT *master_qual,
 		const VARTYPE vtypes[], LCID lcid);
 
-	// Assign the data service
-	// @param <pService> the class needs to contain the data service reference
-	static void AssignService(const loService* pService)
-	{
-		_ASSERTE(pService != NULL);
-		dataService = pService;
-	}
+	// Assign the data ID and the OPC tag ID
+	// @param <tagID> the OPC tag ID
+	// @param <dataIndex> the driver's data index
+	static void AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex);
+
+	typedef boost::tuple<std::string/*name*/, unsigned/*dataID*/, bool/*isFloat*/, WORD/*quality*/> TAG_DEF;
+	
+	// Get the tag definitions for the outer data service
+	// @return the tag definitions
+	static std::vector<TAG_DEF> GetTagDef();
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
 	static const loService* dataService;
+	static std::vector<unsigned>* tagIDs;
+	static std::map<unsigned/*tag ID*/, unsigned/*driver index*/>* tagID2Index;
+	static boost::shared_ptr<ZSSerialProtocol> protocol;
 };

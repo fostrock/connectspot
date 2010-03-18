@@ -14,14 +14,6 @@
 
 loService* DataService::instance = NULL;
 
-DataService::DataService(void)
-{
-}
-
-DataService::~DataService(void)
-{
-}
-
 int DataService::InitService()
 {
 	loDriver driver;

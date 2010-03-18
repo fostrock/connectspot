@@ -43,6 +43,10 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	const ZSSerialProtocol::DataSetDef& dataset = protocol.GetDataSetInfo();
 	ZSSerialProtocol::DataSetDef::const_iterator it = dataset.find(1);
 	BOOST_CHECK(it != dataset.end());
+	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>(), true);
+	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_LENGTH_INDEX>(), 4);
+	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_ACCESS_INDEX>(), readwrite);
+	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>(), "流速设定量");
 
 	// test read data cmd part
 	const std::vector<ZSReadDataCmd>& readDataCmds = protocol.GetReadDataCmd();
