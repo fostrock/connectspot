@@ -32,8 +32,8 @@ public:
 	{
 		std::string name;
 		unsigned dataID;
-		bool isFloat;
-		WORD quality;
+		VARTYPE type;
+		WORD right;
 	};
 
 	// Initialize the driver

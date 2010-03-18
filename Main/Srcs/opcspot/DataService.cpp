@@ -18,6 +18,7 @@ int DataService::InitService()
 {
 	loDriver driver;
 	memset(&driver, 0, sizeof(loDriver));
+	ZSDriver::Init("d:\\zsdriver.xml");
 	driver.ldSubscribe = ZSDriver::activation_monitor;
 
 	driver.ldFlags = loDF_IGNCASE | loDf_NOFORCE;
@@ -32,6 +33,23 @@ int DataService::InitService()
 	if (ecode)
 	{
 		return -1;
+	}
+
+	std::vector<ZSDriver::TAG_DEF> tagDef = ZSDriver::GetTagDef();
+	loTagId tagID = 0;
+	for (std::size_t i = 0; i < tagDef.size(); ++i)
+	{
+		CComVariant var;
+		if (VT_R8 == tagDef.at(i).type)
+		{
+			var = 0.0;
+		}
+		else if (VT_UI4 == tagDef.at(i).type)
+		{
+			var = (unsigned)0;
+		}
+		loAddRealTag(instance, &tagID, (loRealTag)0, tagDef.at(i).name.c_str(), loTF_EMPTY, tagDef.at(i).right, &var, 0, NULL);
+		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
 	}
 
 	return 0;

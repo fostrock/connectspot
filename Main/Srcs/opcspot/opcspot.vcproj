@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"

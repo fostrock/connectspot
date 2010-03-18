@@ -11,6 +11,7 @@
 #include "StdAfx.h"
 #include "ZSDriver.h"
 #include "ZSSerial.h"
+#include "opcda.h"
 
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
 const loService* ZSDriver::dataService = NULL;
@@ -118,10 +119,32 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 	{
 		for (std::size_t j = 0; j < ports.at(i).stations.size(); ++j)
 		{
+			for (ZSSerialProtocol::DataSetDef::const_iterator it = dataDef.begin();
+				it != dataDef.end();
+				it++)
+			{
+				TAG_DEF def;
+				def.dataID = inc;
+				def.name = (*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>();
+				def.type = (*it).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>() ? VT_R8 : VT_UI4; 
+				ZSSerialDataAttr attr = (*it).second.get<ZSSerialProtocol::ZS_DATA_ACCESS_INDEX>();
+				if (readonly == attr)
+				{
+					def.right = OPC_READABLE;
+				}
+				else if (writeonly == attr)
+				{
+					def.right = OPC_WRITEABLE;
+				} 
+				else
+				{
+					def.right = OPC_READABLE | OPC_WRITEABLE;
+				}
+				tagDef.push_back(def);
+				inc++;
+			}
 
 		}
-		//boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
-		
 	}
 
 	return tagDef;
