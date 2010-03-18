@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc"
+				AdditionalIncludeDirectories="../../3rdlib/boost/v_1_41;&quot;../../3rdlib/libxml++/v_2_26&quot;;../../srcs;../../;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
