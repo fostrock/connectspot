@@ -11,8 +11,6 @@
 #ifndef _TIMEOUTSERIAL_H
 #define	_TIMEOUTSERIAL_H
 
-#define BOOST_ALL_DYN_LINK
-
 #include <stdexcept>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>

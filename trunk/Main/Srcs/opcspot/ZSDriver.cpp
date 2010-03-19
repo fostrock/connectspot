@@ -20,6 +20,10 @@ std::vector<loTagValue>* ZSDriver::tags = NULL;
 std::map<unsigned, unsigned>* ZSDriver::tagID2Index = NULL;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
+boost::shared_ptr<boost::mutex> ZSDriver::mutex;
+bool ZSDriver::isKeepRunning = false;
+
+static const long TIMEOUT_IN_SEC = 3;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
@@ -35,6 +39,9 @@ bool ZSDriver::Init(const std::string& protocolPath)
 	// thread group
 	threadGp.reset(new boost::thread_group);
 
+	// mutex
+	mutex.reset(new boost::mutex);
+
 	// serial objects
 	std::size_t total = 0;
 	std::size_t fixed = protocol->GetDataSetInfo().size();
@@ -43,6 +50,7 @@ bool ZSDriver::Init(const std::string& protocolPath)
 	for (std::size_t i = 0; i < ports.size(); ++i)
 	{
 		boost::shared_ptr<ZSSerial> p(new ZSSerial(ports.at(i).devName, *protocol));
+		p->SetTimeout(boost::posix_time::seconds(TIMEOUT_IN_SEC));	// timeout
 		serials->push_back(p);
 		total += ports.at(i).stations.size() * fixed;
 	}
@@ -70,6 +78,9 @@ void ZSDriver::Destroy()
 		delete tagID2Index;
 		tagID2Index = NULL;
 	}
+	boost::mutex::scoped_lock lock(*mutex);
+	isKeepRunning = false;
+	threadGp->join_all();
 }
 
 void ZSDriver::activation_monitor(const loCaller *ca, int count, loTagPair *til)
@@ -164,22 +175,26 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 // @param <service> opc data service
 void ZSDriver::RefreshData(loService* service)
 {
+	boost::mutex::scoped_lock lock(*mutex);
+	isKeepRunning = true;
 	for (std::size_t i = 0; i < serials->size(); ++i)
 	{
 		if (serials->at(i)->IsOpened())
 		{
-			boost::thread* p = new boost::thread(boost::bind(RefreshDataTask, service, i));
+			// equal to: boost::thread(boost::bind(RefreshDataTask, service, i));
+			boost::thread* p = new boost::thread(RefreshDataTask, service, i);
 			threadGp->add_thread(p);
 		}
 	}
 }
 
 // Refresh data worker function
-void ZSDriver::RefreshDataTask(loService* serivice, unsigned serialIndex)
+void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 {
 	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
 	std::vector<std::pair<unsigned short, unsigned short> > stations =
 		protocol->GetPortSetting().at(serialIndex).stations;
+	std::string devName = protocol->GetPortSetting().at(serialIndex).devName;
 	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
 	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
 	std::size_t dataTotalCount = protocol->GetDataSetInfo().size(); 
@@ -190,10 +205,17 @@ void ZSDriver::RefreshDataTask(loService* serivice, unsigned serialIndex)
 			dataTotalCount * protocol->GetPortSetting().at(serialIndex).stations.size();
 	}
 
-	for (std::size_t i = 0; i < stations.size(); ++i)
+	while (isKeepRunning)
 	{
-		if (1 == stations.at(i).second)
+		for (std::size_t i = 0; i < stations.size(); ++i)
 		{
+			// the station is disabled
+			if (0 == stations.at(i).second)
+			{
+				continue;
+			}
+
+			// refresh data
 			try
 			{
 				std::vector<ZSDataItem> items = 
@@ -203,9 +225,10 @@ void ZSDriver::RefreshDataTask(loService* serivice, unsigned serialIndex)
 				{
 					FILETIME ft;
 					GetSystemTimeAsFileTime(&ft); /* awoke */
+					std::size_t curIndex = startOffset + i * dataTotalCount;
+
 					for (std::size_t j = 0; j < items.size(); ++j)
 					{
-						std::size_t curIndex = startOffset + i * dataTotalCount;
 						tags->at(curIndex).tvState.tsTime = ft;
 						tags->at(curIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
 						CComVariant var;
@@ -221,13 +244,17 @@ void ZSDriver::RefreshDataTask(loService* serivice, unsigned serialIndex)
 						{
 							_ASSERTE(!"unexpected variant type");
 						}
-						tags->at(j).tvValue = var;
+						tags->at(curIndex + j).tvValue = var;
+					}
+					{
+						boost::mutex::scoped_lock lock(*mutex);
+						loCacheUpdate(service, gpOneCount, &(tags->at(curIndex)), 0);
 					}
 				}
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cout << "ReadData error: " << e.what() << std::endl;
+				std::cout << "ReadData error: " << devName << " - " << e.what() << std::endl;
 			}
 		}
 	}
