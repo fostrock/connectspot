@@ -168,15 +168,14 @@ void ZSDriver::RefreshData(loService* service)
 	{
 		if (serials->at(i)->IsOpened())
 		{
-			boost::thread* p = 
-				new boost::thread(Adapter<WorkerFunPtr, loService*, unsigned>(RefreshData, service, i));
+			boost::thread* p = new boost::thread(boost::bind(RefreshDataTask, service, i));
 			threadGp->add_thread(p);
 		}
 	}
 }
 
 // Refresh data worker function
-void ZSDriver::RefreshData(loService* serivice, unsigned serialIndex)
+void ZSDriver::RefreshDataTask(loService* serivice, unsigned serialIndex)
 {
 	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
 	std::vector<std::pair<unsigned short, unsigned short> > stations =
