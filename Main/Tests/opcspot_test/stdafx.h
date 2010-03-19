@@ -5,9 +5,11 @@
 
 #pragma once
 
+#define BOOST_ALL_DYN_LINK
+#define WIN32_LEAN_AND_MEAN // Solve fatal error C1189: #error : WinSock.h has already been included
+							// If you use <atlbase.h>, it can be not defined.
+
 #include "targetver.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <atlbase.h>
-
-#define BOOST_TEST_DYN_LINK
