@@ -22,26 +22,6 @@
 class ZSSerial;
 class ZSSerialProtocol;
 
-template<typename FunT,   // The type of the function being called
-typename ParamT1,
-typename ParamT2> // The type of its parameter
-struct Adapter {
-	Adapter(FunT f, ParamT1 p1, ParamT2 p2) : // Construct this adapter and set the
-f_(f), p1_(p1), p2_(p2)          // members to the function and its arg
-{
-
-}
-
-void operator( )( ) { // This just calls the function with its arg
-	f_(p1_, p2_);         
-}
-
-private:
-	FunT    f_;
-	ParamT1 p1_;
-	ParamT2 p2_;
-};
-
 class ZSDriver
 {
 private:
@@ -102,12 +82,10 @@ public:
 	static void RefreshData(loService* service);
 
 private:
-	typedef void (*WorkerFunPtr)(loService* serivice, unsigned serialIndex);
-
 	// Refresh data worker function
 	// @param <service> opc data service
 	// @param <serialIndex> serial object index
-	static void RefreshData(loService* serivice, unsigned serialIndex);
+	static void RefreshDataTask(loService* serivice, unsigned serialIndex);
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
