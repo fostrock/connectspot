@@ -7,7 +7,7 @@
 
 #include "targetver.h"
 
-#define BOOST_TEST_DYN_LINK
+#define BOOST_ALL_DYN_LINK
 
 #include <stdio.h>
 #include <tchar.h>
