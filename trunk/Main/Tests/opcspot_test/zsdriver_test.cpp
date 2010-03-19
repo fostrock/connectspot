@@ -4,19 +4,19 @@
 #include <iostream>
 
 
-BOOST_AUTO_TEST_CASE(zsdriver_init_test) 
-{
-	BOOST_CHECK_EQUAL(true, ZSDriver::Init("d:\\zsdriver.xml"));
-
-	std::vector<ZSDriver::TAG_DEF> tagDef = ZSDriver::GetTagDef();
-	BOOST_CHECK_EQUAL(tagDef.size(), 38 * 4);
-	for (std::size_t i = 0; i < tagDef.size(); i++)
-	{
-		ZSDriver::AssignTagIDIndexMap(tagDef.at(i).dataID + 1, tagDef.at(i).dataID);
-	}
-
-	ZSDriver::Destroy();
-}
+//BOOST_AUTO_TEST_CASE(zsdriver_init_test) 
+//{
+//	BOOST_CHECK_EQUAL(true, ZSDriver::Init("d:\\zsdriver.xml"));
+//
+//	std::vector<ZSDriver::TAG_DEF> tagDef = ZSDriver::GetTagDef();
+//	BOOST_CHECK_EQUAL(tagDef.size(), 38 * 4);
+//	for (std::size_t i = 0; i < tagDef.size(); i++)
+//	{
+//		ZSDriver::AssignTagIDIndexMap(tagDef.at(i).dataID + 1, tagDef.at(i).dataID);
+//	}
+//
+//	ZSDriver::Destroy();
+//}
 
 BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 {
@@ -54,6 +54,8 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 	}
 
 	ZSDriver::RefreshData(instance);
+
+	Sleep(10000); // wait refreshdata() to finish
 
 	ecode = loServiceDestroy(instance);
 	BOOST_CHECK_EQUAL(0, ecode);
