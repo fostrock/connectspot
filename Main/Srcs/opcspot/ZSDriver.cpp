@@ -63,6 +63,11 @@ bool ZSDriver::Init(const std::string& protocolPath)
 
 void ZSDriver::Destroy()
 {
+	{ // the scope is necessary for the lock
+		boost::mutex::scoped_lock lock(*mutex);
+		isKeepRunning = false;
+	}
+	threadGp->join_all();
 	if (serials)
 	{
 		delete serials;
@@ -78,9 +83,6 @@ void ZSDriver::Destroy()
 		delete tagID2Index;
 		tagID2Index = NULL;
 	}
-	boost::mutex::scoped_lock lock(*mutex);
-	isKeepRunning = false;
-	threadGp->join_all();
 }
 
 void ZSDriver::activation_monitor(const loCaller *ca, int count, loTagPair *til)
@@ -249,6 +251,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 					{
 						boost::mutex::scoped_lock lock(*mutex);
 						loCacheUpdate(service, gpOneCount, &(tags->at(curIndex)), 0);
+						std::cout << "read ok" << std::endl;
 					}
 				}
 			}
