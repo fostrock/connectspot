@@ -16,7 +16,6 @@
 #include <map>
 #include "boost/smart_ptr.hpp"
 #include "boost/tuple/tuple.hpp"
-#define BOOST_ALL_DYN_LINK
 #include "boost/thread.hpp"
 
 class ZSSerial;
@@ -85,7 +84,7 @@ private:
 	// Refresh data worker function
 	// @param <service> opc data service
 	// @param <serialIndex> serial object index
-	static void RefreshDataTask(loService* serivice, unsigned serialIndex);
+	static void RefreshDataTask(loService* service, unsigned serialIndex);
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
@@ -94,4 +93,6 @@ private:
 	static std::map<unsigned/*tag ID*/, unsigned/*driver index*/>* tagID2Index;
 	static boost::shared_ptr<ZSSerialProtocol> protocol;
 	static boost::shared_ptr<boost::thread_group> threadGp;
+	static boost::shared_ptr<boost::mutex> mutex;
+	static bool isKeepRunning;
 };

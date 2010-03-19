@@ -49,16 +49,24 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 		{
 			var = (unsigned)0;
 		}
-		loAddRealTag(instance, &tagID, (loRealTag)0, tagDef.at(i).name.c_str(), loTF_EMPTY, tagDef.at(i).right, &var, 0, NULL);
+		loAddRealTag(instance, 
+			&tagID, 
+			(loRealTag)0, 
+			tagDef.at(i).name.c_str(), 
+			loTF_EMPTY, 
+			tagDef.at(i).right, 
+			&var, 
+			0, 
+			NULL);
 		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
 	}
 
 	ZSDriver::RefreshData(instance);
 
-	Sleep(10000); // wait refreshdata() to finish
+	Sleep(15000);
+
+	ZSDriver::Destroy();
 
 	ecode = loServiceDestroy(instance);
 	BOOST_CHECK_EQUAL(0, ecode);
-
-	ZSDriver::Destroy();
 }
