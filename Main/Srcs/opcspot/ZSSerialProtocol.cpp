@@ -128,14 +128,22 @@ bool ZSSerialProtocol::Parse()
 				_ASSERTE(dataItem != NULL);
 
 				int dataID = boost::lexical_cast<int>(dataItem->get_attribute("id")->get_value());
-				std::string dataName = "error_parse_name";
+				std::wstring dataName = _T("error_parse_name");
 				if (StringsText::CaseInsCompare(LANG_ENG, lang))
 				{
-					dataName = dataItem->get_attribute("name_eng")->get_value();
+					LPWSTR pName = StringsText::StrToWChar(
+						dataItem->get_attribute("name_eng")->get_value().c_str());
+					_ASSERTE(pName != NULL);
+					dataName = pName;
+					HeapFree(GetProcessHeap(), 0, pName);
 				}
 				else if (StringsText::CaseInsCompare(LANG_CHS, lang))
 				{
-					dataName = boost::lexical_cast<std::string>(dataItem->get_attribute("name_chs")->get_value());
+					LPWSTR pName = StringsText::StrToWChar(
+						dataItem->get_attribute("name_chs")->get_value().c_str());
+					_ASSERTE(pName != NULL);
+					dataName = pName;
+					HeapFree(GetProcessHeap(), 0, pName);
 				}
 				else
 				{

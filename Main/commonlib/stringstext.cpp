@@ -31,5 +31,21 @@ namespace CommonLib
 		return((s1.size( ) == s2.size( )) &&
 			equal(s1.begin( ), s1.end( ), s2.begin( ), CaseInsCharCompareW));
 	}
+
+	LPWSTR StringsText::StrToWChar(LPCSTR pMultiByteStr, unsigned codePage)
+	{
+		int nLenOfWideCharStr;
+		LPWSTR pWideCharStr;
+
+		// 计算宽字符占的char空间
+		nLenOfWideCharStr = MultiByteToWideChar(codePage, 0, 
+			pMultiByteStr, -1, NULL, 0);
+		// 从堆中分配空间
+		pWideCharStr = (LPWSTR)HeapAlloc(GetProcessHeap(), 0, nLenOfWideCharStr * sizeof(WCHAR));
+		// 转换
+		MultiByteToWideChar(codePage, 0, pMultiByteStr, -1, pWideCharStr, nLenOfWideCharStr);
+
+		return pWideCharStr;	
+	}
 }
 

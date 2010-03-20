@@ -31,7 +31,7 @@ private:
 public:
 	struct TAG_DEF 
 	{
-		std::string name;
+		std::wstring name;
 		unsigned dataID;
 		VARTYPE type;
 		WORD right;

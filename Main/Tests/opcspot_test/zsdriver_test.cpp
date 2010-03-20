@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 		{
 			var = (unsigned)0;
 		}
-		loAddRealTag(instance, 
+		loAddRealTagW(instance, 
 			&tagID, 
 			(loRealTag)0, 
 			tagDef.at(i).name.c_str(), 
