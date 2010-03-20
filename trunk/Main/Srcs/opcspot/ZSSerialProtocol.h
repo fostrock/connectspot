@@ -71,7 +71,7 @@ class ZSSerialProtocol :
 	public boost::noncopyable
 {
 public:
-	typedef std::map<int, boost::tuple<std::string, unsigned short, bool, ZSSerialDataAttr> > DataSetDef;
+	typedef std::map<int, boost::tuple<std::wstring, unsigned short, bool, ZSSerialDataAttr> > DataSetDef;
 	typedef std::map<unsigned short/*mapping id*/, unsigned char/*cmd*/> CommonCmdDef;
 
 	ZSSerialProtocol(const std::string& cfgFile);
