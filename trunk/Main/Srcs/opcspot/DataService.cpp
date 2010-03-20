@@ -19,13 +19,11 @@ int DataService::InitService()
 	loDriver driver;
 	memset(&driver, 0, sizeof(loDriver));
 	ZSDriver::Init("d:\\zsdriver.xml");
-	driver.ldSubscribe = ZSDriver::activation_monitor;
 
-	driver.ldFlags = loDF_IGNCASE | loDf_NOFORCE;
-
+	driver.ldFlags = loDF_IGNCASE | loDf_NOFORCE & 0;
+    driver.ldRefreshRate = 500;
 	driver.ldWriteTags = ZSDriver::WriteTags;
 	driver.ldReadTags = ZSDriver::ReadTags;
-	driver.ldConvertTags = ZSDriver::ConvertTags;
 
 	driver.ldBranchSep = '/'; // Hierarchical branch separator
 
@@ -48,9 +46,12 @@ int DataService::InitService()
 		{
 			var = (unsigned)0;
 		}
-		loAddRealTagW(instance, &tagID, (loRealTag)0, tagDef.at(i).name.c_str(), loTF_EMPTY, tagDef.at(i).right, &var, 0, NULL);
+		loAddRealTagW(instance, &tagID, (loRealTag)(tagDef.at(i).dataID), 
+			tagDef.at(i).name.c_str(), 0, tagDef.at(i).right, &var, 0, NULL);
 		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
 	}
+
+	ZSDriver::RefreshData(instance);
 
 	return 0;
 }

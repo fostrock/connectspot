@@ -128,7 +128,7 @@ bool ZSSerialProtocol::Parse()
 				_ASSERTE(dataItem != NULL);
 
 				int dataID = boost::lexical_cast<int>(dataItem->get_attribute("id")->get_value());
-				std::wstring dataName = _T("error_parse_name");
+				std::wstring dataName = L"error_parse_name";
 				if (StringsText::CaseInsCompare(LANG_ENG, lang))
 				{
 					LPWSTR pName = StringsText::StrToWChar(

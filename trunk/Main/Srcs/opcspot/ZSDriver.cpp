@@ -24,6 +24,7 @@ boost::shared_ptr<boost::mutex> ZSDriver::mutex;
 bool ZSDriver::isKeepRunning = false;
 
 static const long TIMEOUT_IN_SEC = 3;
+static const std::wstring DRV_PREFIX = L"ZS06A";
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
@@ -120,8 +121,12 @@ void ZSDriver::AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex)
 {
 	_ASSERTE(tags != NULL && tagID2Index != NULL);
 	_ASSERTE(dataIndex < tags->size());
+	FILETIME ft;
+	GetSystemTimeAsFileTime(&ft);
 	(*tags).at(dataIndex).tvValue = CComVariant();
 	(*tags).at(dataIndex).tvTi = tagID;
+	(*tags).at(dataIndex).tvState.tsTime = ft;
+	(*tags).at(dataIndex).tvState.tsError = S_OK;
 	(*tags).at(dataIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
 	tagID2Index->insert(std::make_pair(tagID, dataIndex));
 }
@@ -148,7 +153,11 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 			{
 				TAG_DEF def;
 				def.dataID = inc;
-				def.name = (*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>();
+				std::wstringstream wss;
+				wss << DRV_PREFIX << L"/Port_" << i << L"/Station_" 
+					<< ports.at(i).stations.at(j).first << L"/" 
+					<< (*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>();
+				def.name = wss.str();
 				def.type = (*it).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>() ? VT_R8 : VT_UI4; 
 				ZSSerialDataAttr attr = (*it).second.get<ZSSerialProtocol::ZS_DATA_ACCESS_INDEX>();
 				if (readonly == attr)
