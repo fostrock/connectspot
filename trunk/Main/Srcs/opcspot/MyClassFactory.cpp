@@ -12,6 +12,7 @@
 #include "MyClassFactory.h"
 #include "lightopc.h"
 #include "DataService.h"
+#include "opcda.h"
 
 static loService* my_service;
 
@@ -57,6 +58,12 @@ HRESULT MyClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** 
 	{
 		hr = server->QueryInterface(riid, ppvObj); /* Then 2 (if success) */
 		server->Release(); // Then 1 (on behalf of client) or 0 (if QI failed)
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		loSetState(DataService::instance, (loClient*)server,
+			loOP_OPERATE, (int)OPC_STATUS_RUNNING, "Finished by client");
 	}
 
 	return hr;
