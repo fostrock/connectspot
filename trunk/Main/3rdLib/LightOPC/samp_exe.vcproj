@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./opc-fnd,D:\Program Files\Common Files\OPC Foundation\Include,../lightopc,../unilog"
+				AdditionalIncludeDirectories="&quot;./opc-fnd&quot;;../lightopc;../unilog;&quot;../opc foundation/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -144,7 +144,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="./opc-fnd,D:\Program Files\Common Files\OPC Foundation\Include,../lightopc,../unilog"
+				AdditionalIncludeDirectories="&quot;./opc-fnd&quot;;&quot;../opc foundation/include&quot;;../lightopc;../unilog"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -170,10 +170,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib lo.lib"
 				OutputFile="Release/lopcsamp.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="./lib"
 				GenerateMapFile="true"
 				MapFileName=".\Release/lopcsamp.map"
 				SubSystem="1"
@@ -243,7 +244,7 @@
 			>
 		</Filter>
 		<File
-			RelativePath="lightopc.lib"
+			RelativePath=".\lib\lo.lib"
 			>
 		</File>
 		<File
