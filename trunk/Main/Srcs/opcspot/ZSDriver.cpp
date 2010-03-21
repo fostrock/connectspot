@@ -95,6 +95,86 @@ int ZSDriver::WriteTags(const loCaller *ca,
 						unsigned count, loTagPair taglist[],
 						VARIANT values[], HRESULT error[], HRESULT *master, LCID lcid)
 {
+	const ZSSerialProtocol::DataSetDef& dataDef = protocol->GetDataSetInfo();
+	unsigned fixed = dataDef.size();
+	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
+	std::vector<unsigned> segments;
+	segments.push_back(0);
+	for (std::size_t i = 0; i < ports.size(); ++i)
+	{
+		unsigned temp = ports.at(i).stations.size() * fixed;
+		segments.push_back(temp + segments.at(i));
+	}
+
+	for (unsigned i = 0; i < count; ++i)
+	{
+		std::size_t whichPort = 0;
+		unsigned drvIndex = reinterpret_cast<unsigned>(taglist[i].tpRt);
+		for (; whichPort < segments.size() - 1; ++whichPort)
+		{
+			if (drvIndex < segments.at(whichPort + 1))
+			{
+				break; // the port is matched
+			}
+		}
+		if (segments.size() - 1 == whichPort)
+		{
+			continue; // no port is matched. Go to the next tag
+		}
+
+		unsigned short whichStation = (drvIndex - segments.at(whichPort)) / fixed;
+		unsigned short index = (drvIndex - segments.at(whichPort)) % fixed;
+
+		ZSSerialProtocol::DataSetDef::const_iterator iter = dataDef.begin();
+		std::advance(iter, index);
+		_ASSERTE(iter != dataDef.end());
+		if (iter == dataDef.end())
+		{
+			continue; // error, we do nothing, add log here.
+		}
+
+		// check whether the stations is enabled
+		if (0 == ports.at(whichPort).stations.at(whichStation).second)
+		{
+			continue; // the station is disabled, jump to the next tag.
+		}
+
+		if (iter->first < 60)
+		{
+			ZSDataItem dataItem;
+			dataItem.index = iter->first;
+			CComVariant var = values[i];
+			HRESULT hr;
+			if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
+			{
+				hr = var.ChangeType(VT_R8);
+				_ASSERTE(SUCCEEDED(hr));
+				if (S_OK != hr)
+				{
+					continue; // add log here
+				}
+				dataItem.variant = var.dblVal;
+			}
+			else
+			{
+				hr = var.ChangeType(VT_UI4);
+				_ASSERTE(SUCCEEDED(hr));
+				if (S_OK != hr)
+				{
+					continue; // add log here
+				}
+				dataItem.variant = var.uintVal;
+			}
+
+			if (!isKeepRunning)
+			{
+				break;
+			}
+			serials->at(whichPort)->WriteData(dataItem, 
+				ports.at(whichPort).stations.at(whichStation).first);
+		}	
+	}
+
 	return loDW_TOCACHE;
 }
 
