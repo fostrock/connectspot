@@ -63,6 +63,17 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 
 	ZSDriver::RefreshData(instance);
 
+	loCaller *ca = NULL;
+	loTagPair taglist[1];
+	taglist[0].tpRt = (loRealTag)100;
+	VARIANT values[1];
+	V_R8(&values[0]) = 100.0;
+	V_VT(&values[0]) = VT_R8;
+	HRESULT error[1];
+	HRESULT *master = NULL;
+	LCID lcid = 0;
+	ZSDriver::WriteTags(ca, 1, taglist, values, error, master, lcid);
+
 	Sleep(15000);
 
 	ZSDriver::Destroy();
