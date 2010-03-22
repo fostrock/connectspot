@@ -11,6 +11,9 @@
 #include "stdafx.h"
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerialProtocol.h"
+#include "commonlib/stringstext.h"
+
+using namespace CommonLib;
 
 const std::string zs_protocol_file = "D:\\zsdriver.xml";
 
@@ -31,7 +34,7 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	BOOST_CHECK_EQUAL(settings.at(0).parity, none);
 	BOOST_CHECK_EQUAL(settings.at(0).csize, 8);
 	BOOST_CHECK_EQUAL(settings.at(0).stopBits, one);
-	const std::vector<std::pair<unsigned short, unsigned short> >& stations =
+	const std::vector<std::pair<unsigned char, unsigned short> >& stations =
 		settings.at(0).stations;
 	BOOST_CHECK_EQUAL(stations.size(), 2);
 	BOOST_CHECK_EQUAL(stations.at(0).first, 1);
@@ -46,7 +49,10 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>(), true);
 	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_LENGTH_INDEX>(), 4);
 	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_ACCESS_INDEX>(), readwrite);
-	BOOST_CHECK_EQUAL((*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>(), "流速设定量");
+	BOOST_CHECK(
+		StringsText::CaseInsCompare((*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>(), 
+		L"流速设定量")
+		);
 
 	// test read data cmd part
 	const std::vector<ZSReadDataCmd>& readDataCmds = protocol.GetReadDataCmd();
