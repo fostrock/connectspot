@@ -42,7 +42,7 @@ struct ZSSerialSetting
 	ZSSerialStopBits stopBits; 
 	ZSSerialParity parity; 
 	unsigned int baudRate;
-	std::vector<std::pair<unsigned short/*station No.*/, unsigned short/*1:enable, 0:disable*/> > stations;
+	std::vector<std::pair<unsigned char/*station No.*/, unsigned short/*1:enable, 0:disable*/> > stations;
 };
 
 struct ZSReadDataInfo

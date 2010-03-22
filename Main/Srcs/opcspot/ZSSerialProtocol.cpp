@@ -99,7 +99,9 @@ bool ZSSerialProtocol::Parse()
 				for (tokenizer::iterator itStation = tokStation.begin(); itStation != tokStation.end();
 					++itStation)
 				{
-					unsigned short station = boost::lexical_cast<unsigned short>(*itStation);
+					// Attention: boost::lexical_cast<unsigned char>(1) -> 0x31 or character '1'
+					unsigned char station = 
+						static_cast<unsigned char>(boost::lexical_cast<unsigned short>(*itStation));
 					unsigned short enable = 0;
 					++itStation;
 					if (StringsText::CaseInsCompare("Y", *itStation))
