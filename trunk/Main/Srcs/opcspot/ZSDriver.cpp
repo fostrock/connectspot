@@ -25,6 +25,7 @@ bool ZSDriver::isKeepRunning = false;
 
 static const long TIMEOUT_IN_SEC = 3;
 static const std::wstring DRV_PREFIX = L"ZS06A";
+static const int ZSDRV_COMMON_CMD_START = 61;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
@@ -95,6 +96,12 @@ int ZSDriver::WriteTags(const loCaller *ca,
 						unsigned count, loTagPair taglist[],
 						VARIANT values[], HRESULT error[], HRESULT *master, LCID lcid)
 {
+	// A guard but unsafe
+	if (!isKeepRunning)
+	{
+		return loDW_TOCACHE;
+	}
+
 	const ZSSerialProtocol::DataSetDef& dataDef = protocol->GetDataSetInfo();
 	unsigned fixed = dataDef.size();
 	const std::vector<ZSSerialSetting>& ports = protocol->GetPortSetting();
@@ -139,16 +146,17 @@ int ZSDriver::WriteTags(const loCaller *ca,
 			continue; // the station is disabled, jump to the next tag.
 		}
 
-		if (iter->first < 60)
+		// write data or command
+		HRESULT hr;
+		CComVariant var = values[i];
+		if (iter->first < ZSDRV_COMMON_CMD_START) // write data
 		{
 			ZSDataItem dataItem;
 			dataItem.index = iter->first;
-			CComVariant var = values[i];
-			HRESULT hr;
 			if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
 			{
 				hr = var.ChangeType(VT_R8);
-				_ASSERTE(SUCCEEDED(hr));
+				_ASSERTE(S_OK == hr);
 				if (S_OK != hr)
 				{
 					continue; // add log here
@@ -158,7 +166,7 @@ int ZSDriver::WriteTags(const loCaller *ca,
 			else
 			{
 				hr = var.ChangeType(VT_UI4);
-				_ASSERTE(SUCCEEDED(hr));
+				_ASSERTE(S_OK == hr);
 				if (S_OK != hr)
 				{
 					continue; // add log here
@@ -166,13 +174,23 @@ int ZSDriver::WriteTags(const loCaller *ca,
 				dataItem.variant = var.uintVal;
 			}
 
-			if (!isKeepRunning)
-			{
-				break;
-			}
 			serials->at(whichPort)->WriteData(dataItem, 
 				ports.at(whichPort).stations.at(whichStation).first);
-		}	
+		}
+		else // write the common command
+		{
+			hr = var.ChangeType(VT_UI4);
+			_ASSERTE(S_OK == hr);
+			if (S_OK != hr)
+			{
+				continue; // add log here
+			}
+			if (var.uintVal > 0)
+			{
+				serials->at(whichPort)->WriteCommand(iter->first, 
+					ports.at(whichPort).stations.at(whichStation).first);
+			}	
+		}
 	}
 
 	return loDW_TOCACHE;
@@ -283,7 +301,7 @@ void ZSDriver::RefreshData(loService* service)
 void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 {
 	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
-	std::vector<std::pair<unsigned short, unsigned short> > stations =
+	std::vector<std::pair<unsigned char, unsigned short> > stations =
 		protocol->GetPortSetting().at(serialIndex).stations;
 	std::string devName = protocol->GetPortSetting().at(serialIndex).devName;
 	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
