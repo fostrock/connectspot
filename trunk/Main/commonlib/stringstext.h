@@ -12,6 +12,7 @@
 #define STRINGS_TEXT_H__
 
 #include <string>
+#include <windows.h>
 
 namespace CommonLib
 {
