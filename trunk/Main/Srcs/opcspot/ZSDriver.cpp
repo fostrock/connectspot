@@ -23,9 +23,12 @@ boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
 boost::shared_ptr<boost::mutex> ZSDriver::mutex;
 bool ZSDriver::isKeepRunning = false;
 
-static const long TIMEOUT_IN_SEC = 3;
+static const long TIMEOUT_IN_SEC = 2;
 static const std::wstring DRV_PREFIX = L"ZS06A";
 static const int ZSDRV_COMMON_CMD_START = 61;
+static const int ZSDRV_READDATA_GROUP_SWITCH_INTERVAL = 3;
+static const unsigned ZSDRV_READ_DATA_GROUP_I = 0;
+static const unsigned ZSDRV_READ_DATA_GROUP_II = 1;
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
@@ -316,6 +319,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 
 	while (isKeepRunning)
 	{
+		int interval = ZSDRV_READDATA_GROUP_SWITCH_INTERVAL;
 		for (std::size_t i = 0; i < stations.size(); ++i)
 		{
 			// the station is disabled
@@ -324,49 +328,100 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 				continue;
 			}
 
-			// refresh data
-			try
+			try // refresh data
 			{
-				std::vector<ZSDataItem> items = 
-					serial->ReadData(ZSSerial::one, stations.at(i).first);
-				_ASSERTE(gpOneCount == items.size());
-				if (gpOneCount == items.size())
+				unsigned dataGroup;
+				if (interval > 1)
 				{
-					FILETIME ft;
-					GetSystemTimeAsFileTime(&ft); /* awoke */
-					std::size_t curIndex = startOffset + i * dataTotalCount;
-
-					for (std::size_t j = 0; j < items.size(); ++j)
-					{
-						tags->at(curIndex).tvState.tsTime = ft;
-						tags->at(curIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
-						CComVariant var;
-						if (unsigned* pui = boost::get<unsigned>(&items.at(j).variant))
-						{
-							var = *pui;
-						}
-						else if (double* pd = boost::get<double>(&items.at(j).variant))
-						{
-							var = *pd;
-						}
-						else
-						{
-							_ASSERTE(!"unexpected variant type");
-						}
-						tags->at(curIndex + j).tvValue = var;
-					}
-					{
-						boost::mutex::scoped_lock lock(*mutex);
-						loCacheUpdate(service, gpOneCount, &(tags->at(curIndex)), 0);
-						std::cout << "read ok" << std::endl;
-					}
+					dataGroup = ZSDRV_READ_DATA_GROUP_I;
 				}
+				else
+				{
+					dataGroup = ZSDRV_READ_DATA_GROUP_II;
+				}
+				RefreshDataSubJob(service, serial, stations.at(i).first, 
+					dataGroup, startOffset + i * dataTotalCount);
 			}
 			catch (std::runtime_error& e)
 			{
 				std::cout << "ReadData error: " << devName << " - " << e.what() << std::endl;
 			}
 		}
+		interval--;
+		if (0 == interval)
+		{
+			interval = ZSDRV_READDATA_GROUP_SWITCH_INTERVAL;
+		}
 	}
 }
+
+// It is the real job body for RefreshDataTask
+void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial> serial, 
+										unsigned char station, unsigned group, 
+										std::size_t startOffset
+										)
+{
+	std::vector<ZSDataItem> items;
+	std::size_t curIndex;
+	std::size_t gpCount;
+	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
+	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
+	if (0 == group)
+	{
+		items = serial->ReadData(ZSSerial::one, station);
+		_ASSERTE(gpOneCount == items.size());
+		if (gpOneCount != items.size())
+		{
+			// add log here
+			return;
+		}
+		curIndex = startOffset;
+		gpCount = gpOneCount;
+	}
+	else if (1 == group)
+	{
+		items = serial->ReadData(ZSSerial::two, station);
+		_ASSERTE(gpTwoCount == items.size());
+		if (gpTwoCount != items.size())
+		{
+			// add log here
+			return;
+		}
+		curIndex = startOffset + gpOneCount;
+		gpCount = gpTwoCount;
+	}
+	else
+	{
+		_ASSERTE(!"unsupported read data group indicator.");
+		return;
+	}
+
+	FILETIME ft;
+	GetSystemTimeAsFileTime(&ft);
+	for (std::size_t j = 0; j < items.size(); ++j)
+	{
+		tags->at(curIndex + j).tvState.tsTime = ft;
+		tags->at(curIndex + j).tvState.tsQuality = OPC_QUALITY_GOOD;
+		CComVariant var;
+		if (unsigned* pui = boost::get<unsigned>(&items.at(j).variant))
+		{
+			var = *pui;
+		}
+		else if (double* pd = boost::get<double>(&items.at(j).variant))
+		{
+			var = *pd;
+		}
+		else
+		{
+			_ASSERTE(!"unexpected variant type");
+		}
+		tags->at(curIndex + j).tvValue = var;
+	}
+	{
+		boost::mutex::scoped_lock lock(*mutex);
+		loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
+		std::cout << "read ok" << std::endl;
+	}
+}
+
 
