@@ -21,6 +21,7 @@ std::map<unsigned, unsigned>* ZSDriver::tagID2Index = NULL;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
 boost::shared_ptr<boost::mutex> ZSDriver::mutex;
+boost::shared_ptr<boost::shared_mutex> ZSDriver::rwMutex;
 bool ZSDriver::isKeepRunning = false;
 
 static const long TIMEOUT_IN_SEC = 2;
@@ -46,6 +47,7 @@ bool ZSDriver::Init(const std::string& protocolPath)
 
 	// mutex
 	mutex.reset(new boost::mutex);
+	rwMutex.reset(new boost::shared_mutex);
 
 	// serial objects
 	std::size_t total = 0;
@@ -152,6 +154,9 @@ int ZSDriver::WriteTags(const loCaller *ca,
 		// write data or command
 		HRESULT hr;
 		CComVariant var = values[i];
+		boost::upgrade_lock<boost::shared_mutex> upLock(*rwMutex);
+		boost::upgrade_to_unique_lock<boost::shared_mutex> uniLock(upLock);
+
 		if (iter->first < ZSDRV_COMMON_CMD_START) // write data
 		{
 			ZSDataItem dataItem;
@@ -366,6 +371,7 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 	std::size_t gpCount;
 	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
 	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
+	boost::shared_lock<boost::shared_mutex> rLock(*rwMutex);
 	if (0 == group)
 	{
 		items = serial->ReadData(ZSSerial::one, station);
