@@ -196,7 +196,7 @@ int ZSDriver::WriteTags(const loCaller *ca,
 		}
 	}
 
-	return loDW_TOCACHE;
+	return loDW_ALLDONE;
 }
 
 void ZSDriver::ConvertTags(const loCaller *ca,
