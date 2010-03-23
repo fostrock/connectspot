@@ -105,5 +105,6 @@ private:
 	static boost::shared_ptr<ZSSerialProtocol> protocol;
 	static boost::shared_ptr<boost::thread_group> threadGp;
 	static boost::shared_ptr<boost::mutex> mutex;
+	static boost::shared_ptr<boost::shared_mutex> rwMutex;
 	static bool isKeepRunning;
 };
