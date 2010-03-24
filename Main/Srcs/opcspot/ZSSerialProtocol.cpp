@@ -187,7 +187,8 @@ bool ZSSerialProtocol::Parse()
 				long lCmd = strtol(dataItem->get_attribute("cmd")->get_value().c_str(), NULL, 0);
 				vecReadDataCmd.at(i).cmd = static_cast<unsigned char>(lCmd);
 				// refresh rate
-				vecReadDataCmd.at(i).refresh = boost::lexical_cast<int>(dataItem->get_attribute("refresh")->get_value());
+				vecReadDataCmd.at(i).refresh = 
+					boost::lexical_cast<unsigned>(dataItem->get_attribute("refresh")->get_value());
 				// child nodes
 				const xmlpp::Node::NodeList children = dataItem->get_children("data");
 				for (xmlpp::Node::NodeList::const_iterator it = children.begin(); it != children.end(); ++it)
