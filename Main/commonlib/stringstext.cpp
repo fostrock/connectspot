@@ -47,5 +47,24 @@ namespace CommonLib
 
 		return pWideCharStr;	
 	}
+
+	// wchar_t to multi byte string using the code page
+	bool StringsText::WCharToStr(LPCWSTR pWideCharStr, LPSTR* pMultiByteStr, unsigned codePage)
+	{
+		int nLenOfMultiByteStr;
+		bool fOk = false;
+
+		nLenOfMultiByteStr = ::WideCharToMultiByte(codePage, 0, pWideCharStr, -1, 
+			NULL, 0, NULL, NULL);
+		*pMultiByteStr = (char*)HeapAlloc(GetProcessHeap(), 0, nLenOfMultiByteStr * sizeof(CHAR));
+		if (*pMultiByteStr == NULL) 
+		{
+			return(fOk);
+		}
+		::WideCharToMultiByte(codePage, 0, pWideCharStr, -1, 
+			*pMultiByteStr, nLenOfMultiByteStr, NULL, NULL);
+		fOk = true;
+		return fOk;
+	} 
 }
 
