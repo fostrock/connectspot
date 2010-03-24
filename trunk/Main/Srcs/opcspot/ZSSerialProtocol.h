@@ -56,7 +56,7 @@ struct ZSReadDataInfo
 struct ZSReadDataCmd 
 {
 	unsigned char cmd;
-	int refresh; // ms
+	unsigned refresh; // ms
 	std::vector<ZSReadDataInfo> info;
 };
 

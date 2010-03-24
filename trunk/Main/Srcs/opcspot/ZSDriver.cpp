@@ -30,6 +30,7 @@ static const int ZSDRV_COMMON_CMD_START = 61;
 static const int ZSDRV_READDATA_GROUP_SWITCH_INTERVAL = 3;
 static const unsigned ZSDRV_READ_DATA_GROUP_I = 0;
 static const unsigned ZSDRV_READ_DATA_GROUP_II = 1;
+static const unsigned REFRESH_MIN = 10; // ms
 
 bool ZSDriver::Init(const std::string& protocolPath)
 {
@@ -314,7 +315,15 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 	std::string devName = protocol->GetPortSetting().at(serialIndex).devName;
 	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
 	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
-	std::size_t dataTotalCount = protocol->GetDataSetInfo().size(); 
+	std::size_t dataTotalCount = protocol->GetDataSetInfo().size();
+
+	unsigned refreshBase = protocol->GetReadDataCmd().at(0).refresh;
+	refreshBase = (0 == refreshBase) ? REFRESH_MIN : refreshBase; // at lease REFRESH_MIN
+	unsigned interval = 
+		protocol->GetReadDataCmd().at(1).refresh / refreshBase;
+	interval = // at least ZSDRV_READDATA_GROUP_SWITCH_INTERVAL
+		(interval < ZSDRV_READDATA_GROUP_SWITCH_INTERVAL) ? ZSDRV_READDATA_GROUP_SWITCH_INTERVAL : interval;
+	
 	std::size_t startOffset = 0;
 	for (std::size_t i = 0; i < serialIndex; i++)
 	{
@@ -324,7 +333,6 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 
 	while (isKeepRunning)
 	{
-		int interval = ZSDRV_READDATA_GROUP_SWITCH_INTERVAL;
 		for (std::size_t i = 0; i < stations.size(); ++i)
 		{
 			// the station is disabled
@@ -333,29 +341,34 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 				continue;
 			}
 
+			unsigned dataGroup;
+			if (interval > 0)
+			{
+				dataGroup = ZSDRV_READ_DATA_GROUP_I;
+			}
+			else
+			{
+				dataGroup = ZSDRV_READ_DATA_GROUP_II;
+			}
+
 			try // refresh data
 			{
-				unsigned dataGroup;
-				if (interval > 1)
-				{
-					dataGroup = ZSDRV_READ_DATA_GROUP_I;
-				}
-				else
-				{
-					dataGroup = ZSDRV_READ_DATA_GROUP_II;
-				}
 				RefreshDataSubJob(service, serial, stations.at(i).first, 
 					dataGroup, startOffset + i * dataTotalCount);
+				::Sleep(refreshBase);
 			}
 			catch (std::runtime_error& e)
 			{
 				std::cout << "ReadData error: " << devName << " - " << e.what() << std::endl;
 			}
 		}
-		interval--;
 		if (0 == interval)
 		{
 			interval = ZSDRV_READDATA_GROUP_SWITCH_INTERVAL;
+		}
+		else
+		{
+			interval--;
 		}
 	}
 }
