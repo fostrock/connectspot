@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSDriver.h"
+#include "commonlib/filesystem.h"
+#include "commonlib/stringstext.h"
 #include <iostream>
 
+using namespace CommonLib;
 
 //BOOST_AUTO_TEST_CASE(zsdriver_init_test) 
 //{
@@ -20,9 +23,15 @@
 
 BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 {
+	LPSTR path = NULL;
+	std::wstring cfgFile = GetAppDir() + L"config\\zsdriver.xml";
+	bool isOK = StringsText::WCharToStr(cfgFile.c_str(), &path);
+	_ASSERTE(isOK);
+
 	loDriver driver;
 	memset(&driver, 0, sizeof(loDriver));
-	ZSDriver::Init("d:\\zsdriver.xml");
+	ZSDriver::Init(path);
+	HeapFree(GetProcessHeap(), 0, path);
 	driver.ldSubscribe = ZSDriver::activation_monitor;
 
 	driver.ldFlags = loDF_IGNCASE | loDf_NOFORCE;

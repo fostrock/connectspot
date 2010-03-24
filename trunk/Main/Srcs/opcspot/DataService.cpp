@@ -11,15 +11,28 @@
 #include "StdAfx.h"
 #include "DataService.h"
 #include "ZSDriver.h"
+#include "commonlib/filesystem.h"
+#include "commonlib/stringstext.h"
+
+using namespace CommonLib;
 
 loService* DataService::instance = NULL;
 
 int DataService::InitService()
 {
+	LPSTR path = NULL;
+	std::wstring cfgFile = GetAppDir() + L"config\\zsdriver.xml";
+	bool isOK = StringsText::WCharToStr(cfgFile.c_str(), &path);
+	_ASSERTE(isOK);
+	if (!isOK)
+	{
+		return -1;
+	}
+	ZSDriver::Init(path);
+	HeapFree(GetProcessHeap(), 0, path);
+
 	loDriver driver;
 	memset(&driver, 0, sizeof(loDriver));
-	ZSDriver::Init("d:\\zsdriver.xml");
-
 	driver.ldFlags = loDF_IGNCASE | loDf_NOFORCE & 0;
     driver.ldRefreshRate = 500;
 	driver.ldWriteTags = ZSDriver::WriteTags;

@@ -34,8 +34,21 @@ namespace CommonLib
 
 		static bool CaseInsCompare(const std::wstring& s1, const std::wstring& s2);
 
-		// 定义的一个字符转换,不过不完善,调用完不用heapfree会 memory leap
+		// multi-byte to wchar_t string using the code page
+		// Using HeapFree() to release the allocated string!
+		// @param <pMultiByteStr> the multi-char string
+		// @param <codePage> the converting code page
+		// @return the converted wchar_t string
 		static LPWSTR StrToWChar(LPCSTR pMultiByteStr, unsigned codePage = CP_UTF8);
+
+        // wchar_t to multi-byte string using the code page
+		// Using HeapFree() to release the allocated string!
+		// @param <pWideCharStr> the wide char string
+		// @param <pMultiByteStr> the converted multi char string
+		// @param <codePage> the converting code page
+		// @return true if succeeded, otherwise false
+		static bool WCharToStr(LPCWSTR pWideCharStr, LPSTR* pMultiByteStr,
+			unsigned codePage = CP_UTF8);
 	};
 }
 

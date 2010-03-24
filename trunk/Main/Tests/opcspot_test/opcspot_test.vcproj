@@ -237,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\commonlib\filesystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\commonlib\stringstext.cpp"
 				>
 			</File>
