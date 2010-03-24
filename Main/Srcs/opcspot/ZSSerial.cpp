@@ -122,6 +122,7 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
     std::vector<unsigned char> vecTemp(&(dataStr.at(0)), &(dataStr.at(dataStr.size() - 1)));
 	if (!ZSSerial::CheckSumEqual(vecTemp, *(dataStr.rbegin())))
 	{
+		_ASSERTE(!"Check data sum error");
 		return vec;
 	}
 
@@ -130,8 +131,9 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 }
 
 // Write data to the device
-void ZSSerial::WriteData(const ZSDataItem& item, unsigned char station)
+bool ZSSerial::WriteData(const ZSDataItem& item, unsigned char station)
 {
+	bool isOK = false;
 	_ASSERT(station <= 99);
 	if (station > 99)
 	{
@@ -139,16 +141,22 @@ void ZSSerial::WriteData(const ZSDataItem& item, unsigned char station)
 	}
 	if (!port.IsOpen())
 	{
-		return;
+		return isOK;
 	}
+
 
 	std::vector<unsigned char> command = MakeWriteCmd(item.index, item.variant, station);
 	port.Write(command);
+
+	// check the result
+	isOK = IsWrittenCmdOK(station);
+	return isOK;
 }
 
 // Write command to the device
-void ZSSerial::WriteCommand(unsigned short commandID, unsigned char station)
+bool ZSSerial::WriteCommand(unsigned short commandID, unsigned char station)
 {
+	bool isOK = false;
 	_ASSERT(station <= 99);
 	if (station > 99)
 	{
@@ -156,11 +164,15 @@ void ZSSerial::WriteCommand(unsigned short commandID, unsigned char station)
 	}
 	if (!port.IsOpen())
 	{
-		return;
+		return isOK;
 	}
 
 	std::vector<unsigned char> command = MakeCommonCmd(commandID, station);
 	port.Write(command);
+
+	// check the result
+	isOK = IsWrittenCmdOK(station);
+	return isOK;
 }
 
 // Calculate the sum of BCD codes
@@ -330,4 +342,48 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 	}
 
 	return vec;
+}
+
+
+// Check the result of the send messages to confirm whether the writing data command or
+bool ZSSerial::IsWrittenCmdOK(unsigned char station)
+{
+	bool isOK = false;
+	std::string beginStr(1, begin);
+	port.ReadStringUntil(beginStr);
+	std::string endStr(1, end);
+	std::string dataStr = port.ReadStringUntil(endStr);	// The return string excludes the END char
+	_ASSERTE(4 == dataStr.size());
+	if (4 == dataStr.size())
+	{
+		return isOK;
+	}
+
+	// Check the station No.
+	if (BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(0))), 1) != station)
+	{
+		_ASSERTE(!"Check station No. error");
+		return isOK;
+	}
+
+	// Check the data stream's length
+	if (BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(1))), 1) != dataStr.size())
+	{
+		_ASSERTE(!"Check data length error");
+		return isOK;
+	}
+
+	// Check the BCD sum
+	std::vector<unsigned char> vecTemp(&(dataStr.at(0)), &(dataStr.at(dataStr.size() - 1)));
+	if (!ZSSerial::CheckSumEqual(vecTemp, *(dataStr.rbegin())))
+	{
+		_ASSERTE(!"Check data sum error");
+		return isOK;
+	}
+
+	if (0x00 == BCD2Int(reinterpret_cast<unsigned char*>(&(dataStr.at(2))), 1))
+	{
+		isOK = true;
+	}
+	return isOK;
 }

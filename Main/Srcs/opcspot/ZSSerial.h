@@ -73,14 +73,16 @@ public:
 	// Write data to the device
 	// @param <item> the data item will be write to the device
 	// @param <station> RS-485 station No.
+	// @return true if it succeeded, otherwise false
 	// @throws boost::system::system_error on failure
-	void WriteData(const ZSDataItem& item, unsigned char station);
+	bool WriteData(const ZSDataItem& item, unsigned char station);
 
 	// Write command to the device
 	// @param <commandID> command ID
 	// @param <station> RS-485 station No.
+	// @return true if it succeeded, otherwise false
 	// @throws boost::system::system_error on failure
-	void WriteCommand(unsigned short commandID, unsigned char station);
+	bool WriteCommand(unsigned short commandID, unsigned char station);
 
 	// Make a read data command
 	// @param <group> one represents the frequent access data set,
@@ -120,6 +122,14 @@ private:
 	// @param <dataStr> the input read data stream
 	// @return the ZSDataItem vector
 	std::vector<ZSDataItem> ParseReadData(DataGroup group, const std::string &dataStr);
+
+	// Check the result of the send messages to confirm whether the writing data command or
+	// the writing common command is successful. 
+	// The return stream is "bb station len 00 checksum ee" if it is OK
+	// Or "bb station len 99 checksum ee" if it failed.
+	// @param <station> the RS-485 station No.
+	// @return true if the writing data operation is successfully, otherwise false 
+	bool IsWrittenCmdOK(unsigned char station);
 
 private:
 	static const unsigned char begin = 0xbb;
