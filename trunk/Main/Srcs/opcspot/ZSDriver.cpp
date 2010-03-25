@@ -13,6 +13,7 @@
 #include "ZSSerial.h"
 #include "opcda.h"
 #include <iostream>
+#include "ULog.h"
 
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
 const loService* ZSDriver::dataService = NULL;
@@ -105,7 +106,7 @@ int ZSDriver::WriteTags(const loCaller *ca,
 	// A guard but unsafe
 	if (!isKeepRunning)
 	{
-		return loDW_TOCACHE;
+		return loDW_ALLDONE;
 	}
 
 	const ZSSerialProtocol::DataSetDef& dataDef = protocol->GetDataSetInfo();
@@ -183,8 +184,16 @@ int ZSDriver::WriteTags(const loCaller *ca,
 				dataItem.variant = var.uintVal;
 			}
 
-			serials->at(whichPort)->WriteData(dataItem, 
-				ports.at(whichPort).stations.at(whichStation).first);
+			try
+			{
+				serials->at(whichPort)->WriteData(dataItem, 
+					ports.at(whichPort).stations.at(whichStation).first);
+			}
+			catch (boost::system::system_error& e)
+			{
+				UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));		
+			}
+		
 		}
 		else // write the common command
 		{
@@ -196,8 +205,15 @@ int ZSDriver::WriteTags(const loCaller *ca,
 			}
 			if (var.uintVal > 0)
 			{
-				serials->at(whichPort)->WriteCommand(iter->first, 
-					ports.at(whichPort).stations.at(whichStation).first);
+				try
+				{
+					serials->at(whichPort)->WriteCommand(iter->first, 
+						ports.at(whichPort).stations.at(whichStation).first);
+				}
+				catch (boost::system::system_error& e)
+				{
+					UL_ERROR((Log::Instance().get(), 0, "WriteCommand() error: %s", e.what()));		
+				}
 			}	
 		}
 	}
@@ -359,7 +375,8 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cout << "ReadData error: " << devName << " - " << e.what() << std::endl;
+				UL_ERROR((Log::Instance().get(), 0, "ReadData error: %s - %s", 
+					devName.c_str(), e.what() ));		
 			}
 		}
 		if (0 == interval)
@@ -436,11 +453,8 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 		}
 		tags->at(curIndex + j).tvValue = var;
 	}
-	{
-		boost::mutex::scoped_lock lock(*mutex);
-		loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
-		std::cout << "read ok" << std::endl;
-	}
+
+	loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
 }
 
 
