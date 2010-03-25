@@ -53,7 +53,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;;..\..\3rdLib\unilog;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -77,10 +77,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="lo.lib xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib"
+				AdditionalDependencies="lo.lib xml++-vc90-d-2_6.lib glibmm-vc90-d-2_4.lib unilog.lib"
 				OutputFile="..\..\bin\$(ProjectName)D.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
+				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;;..\..\3rdLib\unilog"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;"
+				AdditionalIncludeDirectories="..\..\;&quot;..\..\3rdLib\libxml++\v_2_26&quot;;..\..\3rdLib\boost\v_1_41;..\..\3rdLib\lightopc;&quot;..\..\3rdLib\OPC Foundation\include&quot;;..\..\3rdLib\unilog"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -168,10 +168,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="lo.lib xml++-vc90-2_6.lib glibmm-vc90-2_4.lib"
+				AdditionalDependencies="lo.lib xml++-vc90-2_6.lib glibmm-vc90-2_4.lib unilog.lib"
 				OutputFile="..\..\bin\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;"
+				AdditionalLibraryDirectories="..\..\3rdlib\boost\v_1_41\lib;..\..\3rdLib\lightopc\lib;&quot;../../3rdlib/libxml++/v_2_26/lib&quot;;..\..\3rdLib\unilog"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -272,6 +272,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ULog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ZSDriver.cpp"
 				>
 			</File>
@@ -319,6 +323,10 @@
 			</File>
 			<File
 				RelativePath="..\..\commonlib\TimeoutSerial.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ULog.h"
 				>
 			</File>
 			<File
