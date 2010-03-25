@@ -6,7 +6,7 @@
 	<protocol>
 		<dataset lang="chs">
 			<data id="1" name_chs="流速设定量" name_eng="a1" length="4" float="TRUE" access="rw"/>
-			<data id="2" name_chs="显示控制字" name_eng="a2" length="2" float="FALSE" access="r"/>
+			<data id="2" name_chs="显示控制字" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="3" name_chs="本机工作状态" name_eng="a2" length="2" float="FALSE" access="r"/>
 			<data id="4" name_chs="当前速度计数" name_eng="a2" length="3" float="FALSE" access="r"/>
 			<data id="5" name_chs="当前AD值" name_eng="a2" length="3" float="FALSE" access="r"/>
@@ -15,16 +15,16 @@
 			<data id="8" name_chs="当前PID数值" name_eng="a2" length="2" float="FALSE" access="r"/>
 			<data id="9" name_chs="工作方式控制字" name_eng="a2" length="2" float="FALSE" access="r"/>
 			<data id="10" name_chs="PID开度" name_eng="a2" length="2" float="FALSE" access="r"/>
-			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="r"/>
-			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="r"/>
-			<data id="21" name_chs="显示控制字*" name_eng="a1" length="2" float="FALSE" access="rw"/>
+			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="21" name_chs="@1" name_eng="a1" length="2" float="FALSE" access="r"/> <!-- 显示控制字 -->
 			<data id="22" name_chs="重量零点偏移" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="23" name_chs="重量零点阀值" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="24" name_chs="重量标定系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="25" name_chs="重量标定值" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="26" name_chs="零延时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="27" name_chs="校量时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
-			<data id="28" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="28" name_chs="@2" name_eng="a2" length="4" float="TRUE" access="r"/> <!-- 最大瞬时流量 -->
 			<data id="29" name_chs="外给定零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="30" name_chs="外给定满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="31" name_chs="流量输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
@@ -32,7 +32,7 @@
 			<data id="33" name_chs="PID输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="34" name_chs="PID输出满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="35" name_chs="累计量脉冲数比率" name_eng="a2" length="4" float="TRUE" access="rw"/>
-			<data id="36" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
+			<data id="36" name_chs="@3" name_eng="a2" length="4" float="TRUE" access="r"/> <!-- 速度系数 -->
 			<data id="37" name_chs="控制方式字" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="38" name_chs="缺料报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="39" name_chs="超重报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
@@ -84,15 +84,15 @@
 			<data match_id="42" offset="62"/>
 		</read>
 		<write cmd="0x60">
-			<data match_id="1" param="1"/>
-			<data match_id="21" param="2"/>
+			<data match_id="1" param="1"/><!-- param needs to be converted to BCD -->
+			<data match_id="2" param="2"/>
 			<data match_id="22" param="3"/>
 			<data match_id="23" param="4"/>
 			<data match_id="24" param="5"/>
 			<data match_id="25" param="6"/>
 			<data match_id="26" param="7"/>
 			<data match_id="27" param="8"/>
-			<data match_id="28" param="9"/>
+			<data match_id="11" param="9"/>
 			<data match_id="29" param="10"/>
 			<data match_id="30" param="11"/>
 			<data match_id="31" param="12"/>
@@ -100,7 +100,7 @@
 			<data match_id="33" param="14"/>
 			<data match_id="34" param="15"/>
 			<data match_id="35" param="16"/>
-			<data match_id="36" param="17"/>
+			<data match_id="12" param="17"/>
 			<data match_id="37" param="18"/>
 			<data match_id="38" param="19"/>
 			<data match_id="39" param="20"/>
