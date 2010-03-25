@@ -4,8 +4,6 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "opcspot_i.h"
-
-#include "DataService.h"
 #include "mdump.h"
 
 static MiniDumper globalDumper(_T("opcspot.DAServer"));
@@ -24,12 +22,6 @@ CopcspotModule _AtlModule;
 extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, 
                                 LPTSTR /*lpCmdLine*/, int nShowCmd)
 {
-	int ret = DataService::InitService();
-	if (ret)
-	{
-		exit(EXIT_FAILURE);
-	}
-
     return _AtlModule.WinMain(nShowCmd);
 }
 

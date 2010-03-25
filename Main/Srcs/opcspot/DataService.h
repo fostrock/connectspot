@@ -20,8 +20,17 @@ private:
 	DataService(const DataService&);
 
 public:
+	// Initialize the data service including the device driver.
+	// @return 0 if it is successful, otherwise failed
 	static int InitService();
 
-public:
+	// Uninitialize the data service.
+	static void UninitService();
+
+	// Get the internal instance
+	// @return the service instance
+	static loService* Instance();
+
+private:
 	static loService* instance;
 };

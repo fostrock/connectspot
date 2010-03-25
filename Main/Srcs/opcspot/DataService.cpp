@@ -13,6 +13,7 @@
 #include "ZSDriver.h"
 #include "commonlib/filesystem.h"
 #include "commonlib/stringstext.h"
+#include "ULog.h"
 
 using namespace CommonLib;
 
@@ -20,6 +21,11 @@ loService* DataService::instance = NULL;
 
 int DataService::InitService()
 {
+	if (instance)
+	{
+		return 0;
+	}
+
 	LPSTR path = NULL;
 	std::wstring cfgFile = GetAppDir() + L"config\\zsdriver.xml";
 	bool isOK = StringsText::WCharToStr(cfgFile.c_str(), &path);
@@ -59,12 +65,44 @@ int DataService::InitService()
 		{
 			var = (unsigned)0;
 		}
-		loAddRealTagW(instance, &tagID, (loRealTag)(tagDef.at(i).dataID), 
+		ecode = loAddRealTagW(instance, &tagID, (loRealTag)(tagDef.at(i).dataID), 
 			tagDef.at(i).name.c_str(), 0, tagDef.at(i).right, &var, 0, NULL);
+		if (ecode)
+		{
+			UL_ERROR((Log::Instance().get(), 0, "loAddRealTagW() failed"));
+			return -1;
+		}
 		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
 	}
 
 	ZSDriver::RefreshData(instance);
 
 	return 0;
+}
+
+// Uninitialize the data service.
+void DataService::UninitService()
+{
+	ZSDriver::Destroy();
+	if (instance)
+	{
+		int ecode = loServiceDestroy(instance);
+		// add log here
+		instance = NULL;
+	}
+}
+
+loService* DataService::Instance()
+{
+	if (NULL == instance)
+	{
+		bool res = InitService();
+		if (res)
+		{
+			UL_ERROR((Log::Instance().get(), 0, "Init the data service failed"));
+			return NULL;
+		}
+	}
+
+	return instance;
 }
