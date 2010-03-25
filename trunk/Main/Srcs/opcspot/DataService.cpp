@@ -96,7 +96,7 @@ loService* DataService::Instance()
 {
 	if (NULL == instance)
 	{
-		bool res = InitService();
+		int res = InitService();
 		if (res)
 		{
 			UL_ERROR((Log::Instance().get(), 0, "Init the data service failed"));
