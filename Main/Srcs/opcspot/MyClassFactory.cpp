@@ -15,13 +15,15 @@
 #include "opcda.h"
 #include "ULog.h"
 
-static loService* my_service;
-
 static const loVendorInfo vendor = {
 	1 /*Major */ , 0 /*Minor */ , 1 /*Build */ , 0 /*Reserv */ ,
 	"ZongShi OPCDA Server"
 };
 
+static void a_server_finished(void *arg, loService *b, loClient *c)
+{
+	_pAtlModule->Unlock();
+}
 
 MyClassFactory::MyClassFactory(void)
 {
@@ -45,7 +47,7 @@ HRESULT MyClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** 
 	IUnknown *inner = NULL;
 	if (loClientCreate_agg(DataService::Instance(), (loClient**)&server, 
 		pUnkOuter, &inner,
-		0, &vendor, NULL/*a_server_finished*/, NULL/*cuserid*/))
+		0, &vendor, a_server_finished, NULL/*cuserid*/))
 	{
 		// server remove
 		UL_ERROR((Log::Instance().get(), 0, "myClassFactory::loClientCreate_agg() failed"));
