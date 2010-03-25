@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mdump.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MyClassFactory.cpp"
 				>
 			</File>
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\DataService.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mdump.h"
 				>
 			</File>
 			<File

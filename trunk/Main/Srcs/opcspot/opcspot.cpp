@@ -6,7 +6,9 @@
 #include "opcspot_i.h"
 
 #include "DataService.h"
+#include "mdump.h"
 
+static MiniDumper globalDumper(_T("opcspot.DAServer"));
 
 class CopcspotModule : public CAtlExeModuleT< CopcspotModule >
 {
@@ -27,6 +29,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
 	{
 		exit(EXIT_FAILURE);
 	}
+
     return _AtlModule.WinMain(nShowCmd);
 }
 
