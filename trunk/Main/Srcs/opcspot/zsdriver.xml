@@ -17,7 +17,7 @@
 			<data id="10" name_chs="PID开度" name_eng="a2" length="2" float="FALSE" access="r"/>
 			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="r"/>
 			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="r"/>
-			<data id="21" name_chs="显示控制字" name_eng="a1" length="2" float="FALSE" access="rw"/>
+			<data id="21" name_chs="显示控制字*" name_eng="a1" length="2" float="FALSE" access="rw"/>
 			<data id="22" name_chs="重量零点偏移" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="23" name_chs="重量零点阀值" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="24" name_chs="重量标定系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
