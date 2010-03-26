@@ -73,7 +73,7 @@ bool ZSDriver::Init(const std::string& protocolPath)
 void ZSDriver::Destroy()
 {
 	{ // the scope is necessary for the lock
-		boost::mutex::scoped_lock lock(*mutex);
+		boost::lock_guard<boost::mutex> guard(*mutex);
 		isKeepRunning = false;
 	}
 	threadGp->join_all();
@@ -159,21 +159,36 @@ int ZSDriver::WriteTags(const loCaller *ca,
 		boost::upgrade_lock<boost::shared_mutex> upLock(*rwMutex);
 		boost::upgrade_to_unique_lock<boost::shared_mutex> uniLock(upLock);
 
-		if (iter->first < ZSDRV_COMMON_CMD_START) // write data
+		try
 		{
-			ZSDataItem dataItem;
-			dataItem.index = iter->first;
-			if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
+			if (iter->first < ZSDRV_COMMON_CMD_START) // write data
 			{
-				hr = var.ChangeType(VT_R8);
-				_ASSERTE(S_OK == hr);
-				if (S_OK != hr)
+				ZSDataItem dataItem;
+				dataItem.index = iter->first;
+				if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
 				{
-					continue; // add log here
+					hr = var.ChangeType(VT_R8);
+					_ASSERTE(S_OK == hr);
+					if (S_OK != hr)
+					{
+						continue; // add log here
+					}
+					dataItem.variant = var.dblVal;
 				}
-				dataItem.variant = var.dblVal;
+				else
+				{
+					hr = var.ChangeType(VT_UI4);
+					_ASSERTE(S_OK == hr);
+					if (S_OK != hr)
+					{
+						continue; // add log here
+					}
+					dataItem.variant = var.uintVal;
+				}
+				serials->at(whichPort)->WriteData(dataItem, 
+					ports.at(whichPort).stations.at(whichStation).first);
 			}
-			else
+			else // write the common command
 			{
 				hr = var.ChangeType(VT_UI4);
 				_ASSERTE(S_OK == hr);
@@ -181,40 +196,20 @@ int ZSDriver::WriteTags(const loCaller *ca,
 				{
 					continue; // add log here
 				}
-				dataItem.variant = var.uintVal;
-			}
-
-			try
-			{
-				serials->at(whichPort)->WriteData(dataItem, 
-					ports.at(whichPort).stations.at(whichStation).first);
-			}
-			catch (boost::system::system_error& e)
-			{
-				UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));		
-			}
-		
-		}
-		else // write the common command
-		{
-			hr = var.ChangeType(VT_UI4);
-			_ASSERTE(S_OK == hr);
-			if (S_OK != hr)
-			{
-				continue; // add log here
-			}
-			if (var.uintVal > 0)
-			{
-				try
+				if (var.uintVal > 0)
 				{
 					serials->at(whichPort)->WriteCommand(iter->first, 
 						ports.at(whichPort).stations.at(whichStation).first);
-				}
-				catch (boost::system::system_error& e)
-				{
-					UL_ERROR((Log::Instance().get(), 0, "WriteCommand() error: %s", e.what()));		
-				}
-			}	
+				}	
+			}
+		}
+		catch (timeout_exception& e)
+		{
+			UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));		
+		}
+		catch (boost::system::system_error& e)
+		{
+			UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));
 		}
 	}
 
@@ -309,7 +304,7 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 // @param <service> opc data service
 void ZSDriver::RefreshData(loService* service)
 {
-	boost::mutex::scoped_lock lock(*mutex);
+	boost::lock_guard<boost::mutex> guard(*mutex);
 	isKeepRunning = true;
 	for (std::size_t i = 0; i < serials->size(); ++i)
 	{
@@ -333,13 +328,13 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
 	std::size_t dataTotalCount = protocol->GetDataSetInfo().size();
 
-	unsigned refreshBase = protocol->GetReadDataCmd().at(0).refresh;
+	unsigned refreshBase = protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_I).refresh;
 	refreshBase = (0 == refreshBase) ? REFRESH_MIN : refreshBase; // at lease REFRESH_MIN
 	unsigned interval = 
-		protocol->GetReadDataCmd().at(1).refresh / refreshBase;
+		protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_II).refresh / refreshBase;
 	interval = // at least ZSDRV_READDATA_GROUP_SWITCH_INTERVAL
 		(interval < ZSDRV_READDATA_GROUP_SWITCH_INTERVAL) ? ZSDRV_READDATA_GROUP_SWITCH_INTERVAL : interval;
-	
+
 	std::size_t startOffset = 0;
 	for (std::size_t i = 0; i < serialIndex; i++)
 	{
@@ -373,7 +368,12 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 					dataGroup, startOffset + i * dataTotalCount);
 				::Sleep(refreshBase);
 			}
-			catch (std::runtime_error& e)
+			catch (timeout_exception& e)
+			{
+				UL_ERROR((Log::Instance().get(), 0, "ReadData error: %s - %s", 
+					devName.c_str(), e.what() ));
+			}
+			catch (boost::system::system_error& e)
 			{
 				UL_ERROR((Log::Instance().get(), 0, "ReadData error: %s - %s", 
 					devName.c_str(), e.what() ));		
@@ -392,44 +392,46 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 
 // It is the real job body for RefreshDataTask
 void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial> serial, 
-										unsigned char station, unsigned group, 
-										std::size_t startOffset
-										)
+								 unsigned char station, unsigned group, 
+								 std::size_t startOffset
+								 )
 {
 	std::vector<ZSDataItem> items;
 	std::size_t curIndex;
 	std::size_t gpCount;
-	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
-	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(1).info.size();
-	boost::shared_lock<boost::shared_mutex> rLock(*rwMutex);
-	if (0 == group)
+	std::size_t gpOneCount = protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_I).info.size();
+	std::size_t gpTwoCount = protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_II).info.size();
 	{
-		items = serial->ReadData(ZSSerial::one, station);
-		_ASSERTE(gpOneCount == items.size());
-		if (gpOneCount != items.size())
+		boost::shared_lock<boost::shared_mutex> rLock(*rwMutex);
+		if (ZSDRV_READ_DATA_GROUP_I == group)
 		{
-			// add log here
+			items = serial->ReadData(ZSSerial::one, station);
+			_ASSERTE(gpOneCount == items.size());
+			if (gpOneCount != items.size())
+			{
+				// add log here
+				return;
+			}
+			curIndex = startOffset;
+			gpCount = gpOneCount;
+		}
+		else if (ZSDRV_READ_DATA_GROUP_II == group)
+		{
+			items = serial->ReadData(ZSSerial::two, station);
+			_ASSERTE(gpTwoCount == items.size());
+			if (gpTwoCount != items.size())
+			{
+				// add log here
+				return;
+			}
+			curIndex = startOffset + gpOneCount;
+			gpCount = gpTwoCount;
+		}
+		else
+		{
+			_ASSERTE(!"unsupported read data group indicator.");
 			return;
 		}
-		curIndex = startOffset;
-		gpCount = gpOneCount;
-	}
-	else if (1 == group)
-	{
-		items = serial->ReadData(ZSSerial::two, station);
-		_ASSERTE(gpTwoCount == items.size());
-		if (gpTwoCount != items.size())
-		{
-			// add log here
-			return;
-		}
-		curIndex = startOffset + gpOneCount;
-		gpCount = gpTwoCount;
-	}
-	else
-	{
-		_ASSERTE(!"unsupported read data group indicator.");
-		return;
 	}
 
 	FILETIME ft;
@@ -454,7 +456,11 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 		tags->at(curIndex + j).tvValue = var;
 	}
 
-	loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
+	// update the service cache
+	{
+		boost::lock_guard<boost::mutex> guard(*mutex);
+		loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
+	}
 }
 
 
