@@ -75,21 +75,37 @@ void TimeoutSerial::SetTimeout(const posix_time::time_duration& t)
 
 void TimeoutSerial::Write(const char *data, size_t size)
 {
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
+	PurgeComm(port.native(), PURGE_TXABORT|
+		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 	asio::write(port, asio::buffer(data, size));
 }
 
 void TimeoutSerial::Write(const std::vector<char>& data)
 {
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
+	PurgeComm(port.native(), PURGE_TXABORT|
+		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void TimeoutSerial::Write(const std::vector<unsigned char>& data)
 {
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
+	PurgeComm(port.native(), PURGE_TXABORT|
+		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void TimeoutSerial::WriteString(const std::string& s)
 {
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
+	PurgeComm(port.native(), PURGE_TXABORT|
+		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 	asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
 
@@ -111,6 +127,9 @@ void TimeoutSerial::Read(char *data, size_t size)
 		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired, this,
 			asio::placeholders::error));
 	}
+
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
 
 	asio::async_read(port, asio::buffer(data, size), 
 		boost::bind(
@@ -165,6 +184,9 @@ std::string TimeoutSerial::ReadStringUntil(const std::string& delim)
 		timer.async_wait(boost::bind(&TimeoutSerial::TimeoutExpired, this,
 			asio::placeholders::error));
 	}
+
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
 
 	asio::async_read_until(port, readData, delim, boost::bind(
 		&TimeoutSerial::ReadCompleted, this, asio::placeholders::error,
@@ -227,16 +249,4 @@ void TimeoutSerial::ReadCompleted(const boost::system::error_code& error,
 		result = resultSuccess;
 		this->bytesTransferred = bytesTransferred;
 	}
-}
-
-
-void TimeoutSerial::ClearRevBuffer()
-{
-	std::size_t num;
-	char c;
-	do 
-	{
-		num = asio::read(port, asio::buffer(&c, 1));
-	} 
-	while (num);
 }
