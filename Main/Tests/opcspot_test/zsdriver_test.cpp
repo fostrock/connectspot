@@ -83,7 +83,8 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 	LCID lcid = 0;
 	ZSDriver::WriteTags(ca, 1, taglist, values, error, master, lcid);
 
-	Sleep(15000);
+	Sleep(10000);
+
 
 	ZSDriver::Destroy();
 
