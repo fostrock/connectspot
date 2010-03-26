@@ -159,9 +159,6 @@ public:
 	// @throws timeout_exception in case of timeout
 	std::string ReadStringUntil(const std::string& delim="\n"); 
 
-	// Clear the serial hardware receive buffer
-	void ClearRevBuffer();
-
 private:
 
 
