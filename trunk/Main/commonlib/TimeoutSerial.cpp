@@ -228,3 +228,15 @@ void TimeoutSerial::ReadCompleted(const boost::system::error_code& error,
 		this->bytesTransferred = bytesTransferred;
 	}
 }
+
+
+void TimeoutSerial::ClearRevBuffer()
+{
+	std::size_t num;
+	char c;
+	do 
+	{
+		num = asio::read(port, asio::buffer(&c, 1));
+	} 
+	while (num);
+}
