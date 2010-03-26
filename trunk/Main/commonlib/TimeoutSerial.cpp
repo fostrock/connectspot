@@ -8,12 +8,15 @@
 // Copyright (C) 2010, Yun Hua
 //-----------------------------------------------------------------------------------------//
 
+// refer to http://msdn.microsoft.com/en-us/library/aa924071.aspx to see Winsock Error Codes
+
 #include "stdafx.h"
 #include "TimeoutSerial.h"
 #include <string>
 #include <algorithm>
 #include <istream>
 #include <boost/bind.hpp>
+
 
 using namespace std;
 using namespace boost;
