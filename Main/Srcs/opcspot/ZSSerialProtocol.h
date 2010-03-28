@@ -38,6 +38,7 @@ struct ZSSerialSetting
 	}
 
 	std::string devName;
+	std::wstring devName_w;
 	unsigned short csize;
 	ZSSerialStopBits stopBits; 
 	ZSSerialParity parity; 
