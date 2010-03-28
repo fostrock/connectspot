@@ -272,7 +272,7 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 				TAG_DEF def;
 				def.dataID = inc;
 				std::wstringstream wss;
-				wss << DRV_PREFIX << L"/Port_" << i << L"/Station_" 
+				wss << DRV_PREFIX << L"/" << ports.at(i).devName_w << L"/Station_" 
 					<< ports.at(i).stations.at(j).first << L"/" 
 					<< (*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>();
 				def.name = wss.str();

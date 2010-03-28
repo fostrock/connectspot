@@ -50,9 +50,14 @@ bool ZSSerialProtocol::Parse()
 				const xmlpp::Element* dataItem = static_cast<const xmlpp::Element*>(set.at(i));
 				_ASSERTE(dataItem != NULL);
 
+				// device name, represented by char string and wchar_t string
 				ZSSerialSetting setting;
 				setting.devName = dataItem->get_attribute("port")->get_value();
-
+				LPWSTR pName = StringsText::StrToWChar(
+					dataItem->get_attribute("port")->get_value().c_str());
+				_ASSERTE(pName != NULL);
+				setting.devName_w = pName;
+				HeapFree(GetProcessHeap(), 0, pName);
 
 				std::string strSetting = dataItem->get_attribute("setting")->get_value();
 				boost::char_separator<char> sep(",");
