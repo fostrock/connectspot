@@ -13,6 +13,7 @@
 #include "commonlib/stringstext.h"
 #include <cmath>
 #include <iostream>
+#include "ULog.h"
 
 #pragma warning(disable:4996) // std::copy() unsafe iterator, _SCL_SECURE_NO_WARNINGS
 
@@ -28,10 +29,8 @@ devName(devName), protocol(protocol)
 	}
 	catch (boost::system::system_error& e)
 	{
-#ifdef _DEBUG
-		std::cout << e.what() << std::endl;
-#endif
-		// add log here
+		UL_MESSAGE((Log::Instance().get(), 0, "Open %s failed: ", 
+			devName.c_str(), e.what() ));
 	}
 }
 
