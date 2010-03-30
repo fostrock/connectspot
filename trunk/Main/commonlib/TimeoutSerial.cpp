@@ -75,37 +75,25 @@ void TimeoutSerial::SetTimeout(const posix_time::time_duration& t)
 
 void TimeoutSerial::Write(const char *data, size_t size)
 {
-	DWORD dumb;
-	::ClearCommError(port.native(), &dumb, NULL);
-	PurgeComm(port.native(), PURGE_TXABORT|
-		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
+    ClearState();
 	asio::write(port, asio::buffer(data, size));
 }
 
 void TimeoutSerial::Write(const std::vector<char>& data)
 {
-	DWORD dumb;
-	::ClearCommError(port.native(), &dumb, NULL);
-	PurgeComm(port.native(), PURGE_TXABORT|
-		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
+	ClearState();
 	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void TimeoutSerial::Write(const std::vector<unsigned char>& data)
 {
-	DWORD dumb;
-	::ClearCommError(port.native(), &dumb, NULL);
-	PurgeComm(port.native(), PURGE_TXABORT|
-		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
+	ClearState();
 	asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void TimeoutSerial::WriteString(const std::string& s)
 {
-	DWORD dumb;
-	::ClearCommError(port.native(), &dumb, NULL);
-	PurgeComm(port.native(), PURGE_TXABORT|
-		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
+	ClearState();
 	asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
 
@@ -249,4 +237,12 @@ void TimeoutSerial::ReadCompleted(const boost::system::error_code& error,
 		result = resultSuccess;
 		this->bytesTransferred = bytesTransferred;
 	}
+}
+
+void TimeoutSerial::ClearState()
+{
+	DWORD dumb;
+	::ClearCommError(port.native(), &dumb, NULL);
+	PurgeComm(port.native(), PURGE_TXABORT|
+		PURGE_RXABORT|PURGE_TXCLEAR|PURGE_RXCLEAR);
 }
