@@ -161,7 +161,6 @@ public:
 
 private:
 
-
 	// Callback called either when the read timeout is expired or canceled.
 	// If called because timeout expired, sets result to resultTimeoutExpired    
 	void TimeoutExpired(const boost::system::error_code& error);
@@ -173,6 +172,9 @@ private:
 	void ReadCompleted(const boost::system::error_code& error,
 		const size_t bytesTransferred);
 
+	// Clear the serial port states including the port states 
+	// and the in-out data buffer. Call Win32 APIs directly.
+	void ClearState();
 
 	// Possible outcome of a read. Set by callbacks, read from main cod   
 	enum ReadResult
@@ -183,6 +185,7 @@ private:
 		resultTimeoutExpired
 	};
 
+private:
 	boost::asio::io_service io; ///< Io service object
 	boost::asio::serial_port port; ///< Serial port object
 	boost::asio::deadline_timer timer; ///< Timer for timeout
