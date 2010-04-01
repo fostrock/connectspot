@@ -32,7 +32,6 @@ namespace opcspot_mgr
         private readonly string ATTR_PORT = "port";
         private readonly string ATTR_SETTING = "setting";
         private readonly string ATTR_STATION = "stations";
-        private bool isInitStationDone = false;
 
         #endregion
 
@@ -218,9 +217,7 @@ namespace opcspot_mgr
                     this.checkedListBoxStations.Items.Clear();
                     foreach (KeyValuePair<uint, bool> pair in port.Stations)
                     {
-                        isInitStationDone = false; // guard for CheckListBox.ItemCheck event
                         this.checkedListBoxStations.Items.Add(pair.Key.ToString(), pair.Value);
-                        isInitStationDone = true;
                     }
                 }
             }
