@@ -13,6 +13,18 @@ namespace opcspot_mgr
         public MainForm()
         {
             InitializeComponent();
+            this.portSettings1.LoadAll();
+        }
+
+        private void buttonApply_Click(object sender, EventArgs e)
+        {
+            this.portSettings1.SaveAll();
+            this.Close();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

@@ -34,7 +34,7 @@
             this.checkedListBoxStations = new System.Windows.Forms.CheckedListBox();
             this.contextMenuStripStation = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addStationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeStationToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeStationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxPortSettings = new System.Windows.Forms.GroupBox();
             this.labelBaud = new System.Windows.Forms.Label();
             this.comboBoxStopBits = new System.Windows.Forms.ComboBox();
@@ -63,7 +63,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(369, 311);
+            this.panel1.Size = new System.Drawing.Size(367, 277);
             this.panel1.TabIndex = 0;
             // 
             // labelStations
@@ -71,7 +71,7 @@
             this.labelStations.AutoSize = true;
             this.labelStations.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelStations.ForeColor = System.Drawing.SystemColors.ActiveCaption;
-            this.labelStations.Location = new System.Drawing.Point(130, 138);
+            this.labelStations.Location = new System.Drawing.Point(130, 122);
             this.labelStations.Name = "labelStations";
             this.labelStations.Size = new System.Drawing.Size(84, 13);
             this.labelStations.TabIndex = 11;
@@ -81,31 +81,35 @@
             // 
             this.checkedListBoxStations.ContextMenuStrip = this.contextMenuStripStation;
             this.checkedListBoxStations.FormattingEnabled = true;
-            this.checkedListBoxStations.Location = new System.Drawing.Point(129, 154);
+            this.checkedListBoxStations.Location = new System.Drawing.Point(129, 139);
             this.checkedListBoxStations.Name = "checkedListBoxStations";
-            this.checkedListBoxStations.Size = new System.Drawing.Size(232, 154);
+            this.checkedListBoxStations.Size = new System.Drawing.Size(232, 132);
+            this.checkedListBoxStations.Sorted = true;
             this.checkedListBoxStations.TabIndex = 10;
+            this.checkedListBoxStations.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBoxStations_ItemCheck);
             // 
             // contextMenuStripStation
             // 
             this.contextMenuStripStation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addStationToolStripMenuItem,
-            this.removeStationToolStripMenuItem1});
+            this.removeStationToolStripMenuItem});
             this.contextMenuStripStation.Name = "contextMenuStripStation";
-            this.contextMenuStripStation.Size = new System.Drawing.Size(151, 48);
+            this.contextMenuStripStation.Size = new System.Drawing.Size(155, 48);
             this.contextMenuStripStation.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripStation_Opening);
             // 
             // addStationToolStripMenuItem
             // 
             this.addStationToolStripMenuItem.Name = "addStationToolStripMenuItem";
-            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.addStationToolStripMenuItem.Text = "Add Station";
+            this.addStationToolStripMenuItem.Click += new System.EventHandler(this.addStationToolStripMenuItem_Click);
             // 
-            // removeStationToolStripMenuItem1
+            // removeStationToolStripMenuItem
             // 
-            this.removeStationToolStripMenuItem1.Name = "removeStationToolStripMenuItem1";
-            this.removeStationToolStripMenuItem1.Size = new System.Drawing.Size(150, 22);
-            this.removeStationToolStripMenuItem1.Text = "Remove Station";
+            this.removeStationToolStripMenuItem.Name = "removeStationToolStripMenuItem";
+            this.removeStationToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.removeStationToolStripMenuItem.Text = "Remove Station";
+            this.removeStationToolStripMenuItem.Click += new System.EventHandler(this.removeStationToolStripMenuItem_Click);
             // 
             // groupBoxPortSettings
             // 
@@ -117,18 +121,18 @@
             this.groupBoxPortSettings.Controls.Add(this.comboBoxDataBits);
             this.groupBoxPortSettings.Controls.Add(this.labelStopBits);
             this.groupBoxPortSettings.Controls.Add(this.comboBoxBaud);
-            this.groupBoxPortSettings.Location = new System.Drawing.Point(129, 3);
+            this.groupBoxPortSettings.Location = new System.Drawing.Point(129, -3);
             this.groupBoxPortSettings.Name = "groupBoxPortSettings";
-            this.groupBoxPortSettings.Size = new System.Drawing.Size(232, 128);
+            this.groupBoxPortSettings.Size = new System.Drawing.Size(232, 118);
             this.groupBoxPortSettings.TabIndex = 9;
             this.groupBoxPortSettings.TabStop = false;
             // 
             // labelBaud
             // 
             this.labelBaud.AutoSize = true;
-            this.labelBaud.Location = new System.Drawing.Point(6, 16);
+            this.labelBaud.Location = new System.Drawing.Point(6, 15);
             this.labelBaud.Name = "labelBaud";
-            this.labelBaud.Size = new System.Drawing.Size(83, 13);
+            this.labelBaud.Size = new System.Drawing.Size(101, 12);
             this.labelBaud.TabIndex = 1;
             this.labelBaud.Text = "Bits per second:";
             // 
@@ -140,17 +144,17 @@
             "1",
             "1.5",
             "2"});
-            this.comboBoxStopBits.Location = new System.Drawing.Point(95, 98);
+            this.comboBoxStopBits.Location = new System.Drawing.Point(113, 90);
             this.comboBoxStopBits.Name = "comboBoxStopBits";
-            this.comboBoxStopBits.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxStopBits.Size = new System.Drawing.Size(103, 20);
             this.comboBoxStopBits.TabIndex = 8;
             // 
             // labelDataBits
             // 
             this.labelDataBits.AutoSize = true;
-            this.labelDataBits.Location = new System.Drawing.Point(37, 44);
+            this.labelDataBits.Location = new System.Drawing.Point(37, 41);
             this.labelDataBits.Name = "labelDataBits";
-            this.labelDataBits.Size = new System.Drawing.Size(52, 13);
+            this.labelDataBits.Size = new System.Drawing.Size(65, 12);
             this.labelDataBits.TabIndex = 2;
             this.labelDataBits.Text = "Data bits:";
             // 
@@ -162,17 +166,17 @@
             "Even",
             "Odd",
             "None"});
-            this.comboBoxParity.Location = new System.Drawing.Point(95, 70);
+            this.comboBoxParity.Location = new System.Drawing.Point(113, 65);
             this.comboBoxParity.Name = "comboBoxParity";
-            this.comboBoxParity.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxParity.Size = new System.Drawing.Size(103, 20);
             this.comboBoxParity.TabIndex = 7;
             // 
             // labelParity
             // 
             this.labelParity.AutoSize = true;
-            this.labelParity.Location = new System.Drawing.Point(53, 73);
+            this.labelParity.Location = new System.Drawing.Point(53, 67);
             this.labelParity.Name = "labelParity";
-            this.labelParity.Size = new System.Drawing.Size(36, 13);
+            this.labelParity.Size = new System.Drawing.Size(47, 12);
             this.labelParity.TabIndex = 3;
             this.labelParity.Text = "Parity:";
             // 
@@ -186,17 +190,17 @@
             "6",
             "7",
             "8"});
-            this.comboBoxDataBits.Location = new System.Drawing.Point(95, 41);
+            this.comboBoxDataBits.Location = new System.Drawing.Point(113, 38);
             this.comboBoxDataBits.Name = "comboBoxDataBits";
-            this.comboBoxDataBits.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxDataBits.Size = new System.Drawing.Size(103, 20);
             this.comboBoxDataBits.TabIndex = 6;
             // 
             // labelStopBits
             // 
             this.labelStopBits.AutoSize = true;
-            this.labelStopBits.Location = new System.Drawing.Point(37, 101);
+            this.labelStopBits.Location = new System.Drawing.Point(37, 93);
             this.labelStopBits.Name = "labelStopBits";
-            this.labelStopBits.Size = new System.Drawing.Size(52, 13);
+            this.labelStopBits.Size = new System.Drawing.Size(65, 12);
             this.labelStopBits.TabIndex = 4;
             this.labelStopBits.Text = "Stop Bits:";
             // 
@@ -206,18 +210,21 @@
             this.comboBoxBaud.Items.AddRange(new object[] {
             "9600",
             "19200"});
-            this.comboBoxBaud.Location = new System.Drawing.Point(95, 13);
+            this.comboBoxBaud.Location = new System.Drawing.Point(113, 12);
             this.comboBoxBaud.Name = "comboBoxBaud";
-            this.comboBoxBaud.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxBaud.Size = new System.Drawing.Size(103, 20);
             this.comboBoxBaud.TabIndex = 5;
+            this.comboBoxBaud.SelectedIndexChanged += new System.EventHandler(this.comboBoxBaud_SelectedIndexChanged);
             // 
             // listBoxPort
             // 
             this.listBoxPort.ContextMenuStrip = this.contextMenuStripPort;
             this.listBoxPort.FormattingEnabled = true;
+            this.listBoxPort.ItemHeight = 12;
             this.listBoxPort.Location = new System.Drawing.Point(3, 3);
             this.listBoxPort.Name = "listBoxPort";
-            this.listBoxPort.Size = new System.Drawing.Size(120, 303);
+            this.listBoxPort.Size = new System.Drawing.Size(120, 268);
+            this.listBoxPort.Sorted = true;
             this.listBoxPort.TabIndex = 0;
             this.listBoxPort.SelectedIndexChanged += new System.EventHandler(this.listBoxPort_SelectedIndexChanged);
             // 
@@ -227,30 +234,30 @@
             this.addPortToolStripMenuItem,
             this.removePortToolStripMenuItem});
             this.contextMenuStripPort.Name = "contextMenuStripPort";
-            this.contextMenuStripPort.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStripPort.Size = new System.Drawing.Size(137, 48);
             this.contextMenuStripPort.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripPort_Opening);
             // 
             // addPortToolStripMenuItem
             // 
             this.addPortToolStripMenuItem.Name = "addPortToolStripMenuItem";
-            this.addPortToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addPortToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.addPortToolStripMenuItem.Text = "Add Port";
             this.addPortToolStripMenuItem.Click += new System.EventHandler(this.addPortToolStripMenuItem_Click);
             // 
             // removePortToolStripMenuItem
             // 
             this.removePortToolStripMenuItem.Name = "removePortToolStripMenuItem";
-            this.removePortToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removePortToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.removePortToolStripMenuItem.Text = "Remove Port";
             this.removePortToolStripMenuItem.Click += new System.EventHandler(this.removePortToolStripMenuItem_Click);
             // 
             // PortSettings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
             this.Name = "PortSettings";
-            this.Size = new System.Drawing.Size(369, 311);
+            this.Size = new System.Drawing.Size(367, 277);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.contextMenuStripStation.ResumeLayout(false);
@@ -278,7 +285,7 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripStation;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripPort;
         private System.Windows.Forms.ToolStripMenuItem addStationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem removeStationToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem removeStationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addPortToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removePortToolStripMenuItem;
         private System.Windows.Forms.Label labelStations;

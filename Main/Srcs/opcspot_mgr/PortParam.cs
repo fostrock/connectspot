@@ -148,7 +148,9 @@ namespace opcspot_mgr
         {
             string setting = string.Empty;
             setting += baudRate.ToString();
+            setting += delimiter[0];
             setting += dataBits.ToString();
+            setting += delimiter[0];
             if (SerialParity.None == parity)
             {
                 setting += "N";
@@ -161,6 +163,7 @@ namespace opcspot_mgr
             {
                 setting += "O";
             }
+            setting += delimiter[0];
             setting += stopBits.ToString();
             return setting;
         }
@@ -175,6 +178,7 @@ namespace opcspot_mgr
             foreach (KeyValuePair<uint, bool> pair in stations)
             {
                 setting.Append(pair.Key.ToString());
+                setting.Append(delimiter[0]);
                 if (pair.Value)
                 {
                     setting.Append("Y");
@@ -183,6 +187,12 @@ namespace opcspot_mgr
                 {
                     setting.Append("N");
                 }
+                setting.Append(delimiter[0]);
+            }
+
+            if (setting.Length > 0)
+            {
+                setting.Remove(setting.Length - 1, 1); // remove the last ","
             }
             return setting.ToString();
         }
@@ -190,15 +200,11 @@ namespace opcspot_mgr
         /// <summary>
         /// Update station for the specified port.
         /// </summary>
-        /// <param name="devName">The port name.</param>
         /// <param name="station">The station No.</param>
         /// <param name="isActive">Whether the station is active.</param>
-        public void UpdateStation(string devName, uint station, bool isActive)
+        /// <returns>True if add a new station, otherwise updating a station status</returns>
+        public void UpdateStation(uint station, bool isActive)
         {
-            if (0 != string.Compare(devName, this.devName, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
             if (stations.ContainsKey(station))
             {
                 stations[station] = isActive;
@@ -207,6 +213,33 @@ namespace opcspot_mgr
             {
                 stations.Add(station, isActive);
             }
+        }
+
+        /// <summary>
+        /// Add a station to the specified port. The default active state is true.
+        /// </summary>
+        /// <param name="station">The station No.</param>
+        /// <returns>True if a new station is added in, otherwise false.</returns>
+        public bool AddStation(uint station)
+        {
+            if (stations.ContainsKey(station))
+            {
+                return false;
+            }
+            else
+            {
+                stations.Add(station, true);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Remove a station from the specified port.
+        /// </summary>
+        /// <param name="station">The station No.</param>
+        public void RemoveStation(uint station)
+        {
+             stations.Remove(station);
         }
 
         #endregion
