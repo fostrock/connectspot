@@ -1,5 +1,7 @@
 xcopy .\bin\opcspot.exe  .\install /s /y /i
 xcopy .\bin\opcspotPS.dll  .\install /s /y /i
+xcopy .\bin\opcspot_mgr.exe .\install /s /y /i
+xcopy .\bin\opcspot_mgr.exe.config .\install /s /y /i
 xcopy .\bin\config\zsdriver.xml  .\install\config /s /y /i
 
 xcopy .\bin\lo.dll  .\install /s /y /i
