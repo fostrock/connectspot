@@ -32,6 +32,7 @@ namespace opcspot_mgr
         private readonly string ATTR_PORT = "port";
         private readonly string ATTR_SETTING = "setting";
         private readonly string ATTR_STATION = "stations";
+        private bool isInitStationDone = false;
 
         #endregion
 
@@ -40,8 +41,6 @@ namespace opcspot_mgr
         public PortSettings()
         {
             InitializeComponent();
-            PrepareEnvironment();
-            LoadSettings();
         }
         #endregion
 
@@ -97,17 +96,22 @@ namespace opcspot_mgr
                 XmlNodeList nodes = xmlDoc.SelectNodes("//zsdriver/serialport");
                 foreach(XmlNode node in nodes)
                 {
-                    xmlDoc.RemoveChild(node);
+                    xmlDoc.DocumentElement.RemoveChild(node);
                 }
 
                 // Add new nodes
                 foreach (PortParam port in ports)
                 {
+                    if (0 == port.Stations.Count) // Skip the empty content port
+                    {
+                        continue;
+                    }
+
                     XmlElement element = xmlDoc.CreateElement("serialport");
                     element.SetAttribute(ATTR_PORT, port.DevName);
                     element.SetAttribute(ATTR_SETTING, port.FormatPortSetting());
                     element.SetAttribute(ATTR_STATION, port.FormatStationSetting());
-                    xmlDoc.AppendChild(element);
+                    xmlDoc.DocumentElement.AppendChild(element);
                 }
                 xmlDoc.Save(xmlFile);
             }
@@ -115,7 +119,6 @@ namespace opcspot_mgr
             {
                 throw new InvalidOperationException("Parse the config file failed.");
             }
-
         }
 
         /// <summary>
@@ -215,7 +218,9 @@ namespace opcspot_mgr
                     this.checkedListBoxStations.Items.Clear();
                     foreach (KeyValuePair<uint, bool> pair in port.Stations)
                     {
+                        isInitStationDone = false; // guard for CheckListBox.ItemCheck event
                         this.checkedListBoxStations.Items.Add(pair.Key.ToString(), pair.Value);
+                        isInitStationDone = true;
                     }
                 }
             }
@@ -252,16 +257,19 @@ namespace opcspot_mgr
         private void removePortToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListBox.SelectedIndexCollection indices = this.listBoxPort.SelectedIndices;
+            List<string> items = new List<string>(indices.Count);
             foreach (int i in indices)
             {
                 RemovePort(this.listBoxPort.Items[i].ToString());
-            }
-            for (int i = indices.Count - 1; i >= 0; i--)
-            {
-                this.listBoxPort.Items.RemoveAt(i);
+                this.listBoxPort.Items.Remove(this.listBoxPort.Items[i].ToString());
             }
         }
 
+        /// <summary>
+        /// Set status for the menu strips while opening.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
         private void contextMenuStripPort_Opening(object sender, CancelEventArgs e)
         {
             if (this.listBoxPort.Items.Count <= 1)
@@ -274,14 +282,165 @@ namespace opcspot_mgr
             }
         }
 
+        /// <summary>
+        /// Set status for the menu strips while opening.
+        /// </summary>
+        /// <param name="sender">The event handler.</param>
+        /// <param name="e">The event argument.</param>
         private void contextMenuStripStation_Opening(object sender, CancelEventArgs e)
         {
+            if (null == this.listBoxPort.SelectedItem)
+            {
+                this.addStationToolStripMenuItem.Enabled = false;
+                this.removeStationToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                this.addStationToolStripMenuItem.Enabled = true;
+                this.removeStationToolStripMenuItem.Enabled = true;
+            }
 
+            if (null == this.checkedListBoxStations.SelectedItem)
+            {
+                this.removeStationToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                this.removeStationToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Add stations for the current port.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void addStationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (null == this.listBoxPort.SelectedItem)
+            {
+                return;
+            }
+
+            AddItemDlg dlg = new AddItemDlg();
+            dlg.ItemLable = "Station";
+            DialogResult res = dlg.ShowDialog();
+            if (DialogResult.OK == res)
+            {
+                uint[] output = dlg.Indices;
+                PortParam port = null;
+                foreach (PortParam item in ports)
+                {
+                    if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(), 
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        port = item;
+                        break;
+                    }
+
+                }
+                for (int i = 0; i < output.Length; ++i)
+                {
+                    if (port.AddStation(output[i]))
+                    {
+                        this.checkedListBoxStations.Items.Add(output[i].ToString(), true);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove a station from the UI.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void removeStationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (null == this.listBoxPort.SelectedItem)
+            {
+                return;
+            }
+
+            PortParam port = null;
+            foreach (PortParam item in ports)
+            {
+                if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    port = item;
+                    break;
+                }
+            }
+
+            port.RemoveStation(
+                UInt32.Parse(this.checkedListBoxStations.SelectedItem.ToString()));
+            this.checkedListBoxStations.Items.Remove(this.checkedListBoxStations.SelectedItem);
+        }
+
+        /// <summary>
+        /// The item's check changing handler.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void checkedListBoxStations_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (null == this.checkedListBoxStations.SelectedItem)
+            {
+                return;
+            }
+
+            PortParam port = null;
+            foreach (PortParam item in ports)
+            {
+                if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    port = item;
+                    break;
+                }
+            }
+
+            port.UpdateStation(
+                UInt32.Parse(this.checkedListBoxStations.SelectedItem.ToString()), 
+                e.NewValue == CheckState.Checked ? true : false);
+        }
+
+        private void comboBoxBaud_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            PortParam port = null;
+            foreach (PortParam item in ports)
+            {
+                if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    port = item;
+                    break;
+                }
+            }
+
+            port.BaudRate = UInt32.Parse(this.comboBoxBaud.SelectedItem.ToString());
         }
 
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Load settings.
+        /// </summary>
+        public void LoadAll()
+        {
+            PrepareEnvironment();
+            LoadSettings();
+        }
+
+        /// <summary>
+        /// Save settings.
+        /// </summary>
+        public void SaveAll()
+        {
+            SaveSettings();
+        }
 
         #endregion
     }

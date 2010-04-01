@@ -28,24 +28,54 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.buttonApply = new System.Windows.Forms.Button();
+            this.buttonCancel = new System.Windows.Forms.Button();
             this.portSettings1 = new opcspot_mgr.PortSettings();
             this.SuspendLayout();
+            // 
+            // buttonApply
+            // 
+            this.buttonApply.Location = new System.Drawing.Point(206, 289);
+            this.buttonApply.Name = "buttonApply";
+            this.buttonApply.Size = new System.Drawing.Size(75, 23);
+            this.buttonApply.TabIndex = 1;
+            this.buttonApply.Text = "Apply";
+            this.buttonApply.UseVisualStyleBackColor = true;
+            this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.buttonCancel.Location = new System.Drawing.Point(287, 289);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.TabIndex = 2;
+            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
             // portSettings1
             // 
             this.portSettings1.Location = new System.Drawing.Point(0, 0);
             this.portSettings1.Name = "portSettings1";
-            this.portSettings1.Size = new System.Drawing.Size(376, 328);
+            this.portSettings1.Size = new System.Drawing.Size(376, 303);
             this.portSettings1.TabIndex = 0;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AcceptButton = this.buttonApply;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(658, 476);
+            this.CancelButton = this.buttonCancel;
+            this.ClientSize = new System.Drawing.Size(368, 317);
+            this.Controls.Add(this.buttonCancel);
+            this.Controls.Add(this.buttonApply);
             this.Controls.Add(this.portSettings1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Opcspot Mgr";
             this.ResumeLayout(false);
 
         }
@@ -53,6 +83,8 @@
         #endregion
 
         private PortSettings portSettings1;
+        private System.Windows.Forms.Button buttonApply;
+        private System.Windows.Forms.Button buttonCancel;
 
     }
 }
