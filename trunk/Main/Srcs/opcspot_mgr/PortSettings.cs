@@ -15,243 +15,23 @@ using System.Drawing;
 using System.Data;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
+using System.Xml;
 
 namespace opcspot_mgr
 {
-    internal enum SerialParity
-    {
-        odd, even, none
-    }
-
-    internal class PortParam
-    {
-        #region Private Fields
-
-        private string devName;
-        private uint baudRate = 9600;
-        private uint dataBits = 8;
-        private uint stopBits = 1; // we don't support 1.5 here
-        private SerialParity parity = SerialParity.none;
-        private Dictionary<uint, bool> stations = new Dictionary<uint, bool>();
-        private char[] delimiter = new char[] { ',' };
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="devName">The device name. For example, "COM3".</param>
-        /// <param name="baudRate">The data bits per second</param>
-        public PortParam(string devName, uint baudRate)
-        {
-            if (string.IsNullOrEmpty(devName))
-            {
-                throw new ArgumentNullException("devName");
-            }
-
-            this.devName = devName;
-            this.baudRate = baudRate;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="devName">The device name. For example, "COM3".</param>
-        /// <param name="setting">The setting string in the format: 9600,8,N,1</param>
-        /// <param name="station">The station string in the format: 1,N,5,Y</param>
-        public PortParam(string devName, string setting, string station)
-        {
-            if (string.IsNullOrEmpty(devName))
-            {
-                throw new ArgumentNullException("devName");
-            }
-
-            if (string.IsNullOrEmpty(setting))
-            {
-                throw new ArgumentNullException("setting");
-            }
-
-            if (string.IsNullOrEmpty(station))
-            {
-                throw new ArgumentNullException("station");
-            }
-
-            if (!ParsePortSetting(setting))
-            {
-                throw new ArgumentException("The serial port setting format is invalid.", "setting");
-            }
-
-            if (!ParseStationSetting(station))
-            {
-                throw new ArgumentException("The RS485 station format is invalid.", "station");
-            }
-
-            this.devName = devName;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        /// Format the serial port setting to a string using "," as delimiter
-        /// </summary>
-        /// <returns>The formated string</returns>
-        public string FormatPortSetting()
-        {
-            string setting = string.Empty;
-            setting += baudRate.ToString();
-            setting += dataBits.ToString();
-            if (SerialParity.none == parity)
-            {
-                setting += "N";
-            }
-            else if (SerialParity.even == parity)
-            {
-                setting += "E";
-            }
-            else
-            {
-                setting += "O";
-            }
-            setting += stopBits.ToString();
-            return setting;
-        }
-
-        /// <summary>
-        /// Format the station to a string using "," as delimiter. 
-        /// </summary>
-        /// <returns>The formated string</returns>
-        public string FormatStationSetting()
-        {
-            StringBuilder setting = new StringBuilder();
-            foreach (KeyValuePair<uint, bool> pair in stations)
-            {
-                setting.Append(pair.Key.ToString());
-                if (pair.Value)
-                {
-                    setting.Append("Y");
-                }
-                else
-                {
-                    setting.Append("N");
-                }
-            }
-            return setting.ToString();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Parse the serial port setting.
-        /// </summary>
-        /// <param name="setting">The serial port setting string.</param>
-        /// <returns>True if the operation succeeded, otherwise false</returns>
-        bool ParsePortSetting(string setting)
-        {
-            string[] result = setting.Split(delimiter);
-            if (result.Length != 4)
-            {
-                return false;
-            }
-
-            if (!UInt32.TryParse(result[0], out baudRate))
-            {
-                return false;
-            }
-
-            if (!UInt32.TryParse(result[1], out dataBits))
-            {
-                return false;
-            }
-
-            if (0 == string.Compare(result[2], "N", StringComparison.OrdinalIgnoreCase))
-            {
-                parity = SerialParity.none;
-            }
-            else if (0 == string.Compare(result[2], "E", StringComparison.OrdinalIgnoreCase))
-            {
-                parity = SerialParity.even;
-            }
-            else if (0 == string.Compare(result[2], "O", StringComparison.OrdinalIgnoreCase))
-            {
-                parity = SerialParity.odd;
-            }
-            else
-            {
-                return false;
-            }
-
-            if (!UInt32.TryParse(result[3], out stopBits))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Parse the RS485 station setting.
-        /// </summary>
-        /// <param name="setting">The station setting in format: 1,N,2,Y</param>
-        /// <returns></returns>
-        bool ParseStationSetting(string setting)
-        {
-            stations.Clear();
-            string[] result = setting.Split(delimiter);
-            if (0 != result.Length % 2) 
-            {
-                return false;
-            }
-
-            for (int i = 0; i < result.Length / 2; ++i)
-            {
-                uint station = 0;
-                bool isActive = false;
-                if (!UInt32.TryParse(result[2 * i], out station))
-                {
-                    return false;
-                }
-
-                if (0 == string.Compare(result[2 * i + 1], "Y", StringComparison.OrdinalIgnoreCase))
-                {
-                    isActive = true;
-                }
-                else if (0 == string.Compare(result[2 * i + 1], "N", StringComparison.OrdinalIgnoreCase))
-                {
-                    isActive = false;
-                }
-                else
-                {
-                    return false;
-                }
-
-                try
-                {
-                    stations.Add(station, isActive);
-                }
-                catch (System.ArgumentException)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        #endregion
-    }
-
     /// <summary>
     /// Port setting user control
     /// </summary>
     public partial class PortSettings : UserControl
     {
         #region Fields
+
+        private string xmlFile;
+        private List<PortParam> ports = new List<PortParam>();
+        private readonly string ATTR_PORT = "port";
+        private readonly string ATTR_SETTING = "setting";
+        private readonly string ATTR_STATION = "stations";
 
         #endregion
 
@@ -260,6 +40,8 @@ namespace opcspot_mgr
         public PortSettings()
         {
             InitializeComponent();
+            PrepareEnvironment();
+            LoadSettings();
         }
         #endregion
 
@@ -270,13 +52,229 @@ namespace opcspot_mgr
         /// </summary>
         private void LoadSettings()
         {
+            XmlDocument xmlDoc = new XmlDocument();
+            try
+            {
+                xmlDoc.Load(xmlFile);
+                XmlNodeList nodes = xmlDoc.SelectNodes("//zsdriver/serialport");
+                foreach (XmlNode node in nodes)
+                {
+                    string devName = node.Attributes[ATTR_PORT].Value;
+                    string setting = node.Attributes[ATTR_SETTING].Value;
+                    string stations = node.Attributes[ATTR_STATION].Value;
+                    PortParam port = new PortParam(devName, setting, stations);
+                    ports.Add(port);
+                }
+            }
+            catch
+            {
+                throw new InvalidOperationException("Parse the config file failed.");          
+            }
 
+            // Fill the port list control
+            this.listBoxPort.Items.Clear();
+            foreach (PortParam port in ports)
+            {
+                this.listBoxPort.Items.Add(port.DevName);
+            }
+            if (this.listBoxPort.Items.Count > 0)
+            {
+                this.listBoxPort.SelectedIndex = 0;
+            }
         }
 
         /// <summary>
         /// Save settings to XML file
         /// </summary>
         private void SaveSettings()
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            try
+            {
+                xmlDoc.Load(xmlFile);
+
+                // Clear old nodes firstly
+                XmlNodeList nodes = xmlDoc.SelectNodes("//zsdriver/serialport");
+                foreach(XmlNode node in nodes)
+                {
+                    xmlDoc.RemoveChild(node);
+                }
+
+                // Add new nodes
+                foreach (PortParam port in ports)
+                {
+                    XmlElement element = xmlDoc.CreateElement("serialport");
+                    element.SetAttribute(ATTR_PORT, port.DevName);
+                    element.SetAttribute(ATTR_SETTING, port.FormatPortSetting());
+                    element.SetAttribute(ATTR_STATION, port.FormatStationSetting());
+                    xmlDoc.AppendChild(element);
+                }
+                xmlDoc.Save(xmlFile);
+            }
+            catch
+            {
+                throw new InvalidOperationException("Parse the config file failed.");
+            }
+
+        }
+
+        /// <summary>
+        /// Prepare environment including the xml config file's location.
+        /// </summary>
+        private void PrepareEnvironment()
+        {
+            string mainPath = Utilities.GetMainPath();
+            mainPath += "\\config\\zsdriver.xml";
+            if (!File.Exists(mainPath))
+            {
+                throw new InvalidOperationException("Config file is not prepared");
+            }
+            xmlFile = mainPath;
+        }
+
+        /// <summary>
+        /// Add a port.
+        /// </summary>
+        /// <param name="devName">The port name.</param>
+        /// <returns>True if a new port is added in, otherwise false.</returns>
+        private bool AddPort(string devName)
+        {
+            if (string.IsNullOrEmpty(devName))
+            {
+                throw new ArgumentException("The port name is invalid.", "devName");
+            }
+
+            foreach (PortParam item in ports)
+            {
+                if (0 == string.Compare(item.DevName, devName))
+                {
+                    return false;
+                }
+            }
+
+            ports.Add(new PortParam(devName, 9600));
+            return true;
+        }
+
+        /// <summary>
+        /// Remove a port.
+        /// </summary>
+        /// <param name="devName">The port name.</param>
+        private void RemovePort(string devName)
+        {
+            if (string.IsNullOrEmpty(devName))
+            {
+                throw new ArgumentException("The port name is invalid.", "devName");
+            }
+
+            PortParam port = null;
+            foreach (PortParam item in ports)
+            {
+                if (0 == string.Compare(item.DevName, devName))
+                {
+                    port = item;
+                }
+            }
+            if (null != port)
+            {
+                ports.Remove(port);
+            }
+        }
+
+        #endregion
+
+        #region UI Control Handlers
+
+        /// <summary>
+        /// Handler dealing with the selection changing in the list control.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void listBoxPort_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (null == this.listBoxPort.SelectedItem)
+            {
+                return;
+            }
+
+            string devName = this.listBoxPort.SelectedItem.ToString();
+            foreach (PortParam port in ports)
+            {
+                if (0 ==string.Compare(port.DevName, devName, StringComparison.OrdinalIgnoreCase))
+                {
+                    int index = -1;
+                    index = this.comboBoxBaud.Items.IndexOf(port.BaudRate.ToString());
+                    this.comboBoxBaud.SelectedIndex = index;
+                    index = this.comboBoxDataBits.Items.IndexOf(port.DataBits.ToString());
+                    this.comboBoxDataBits.SelectedIndex = index;
+                    index = this.comboBoxParity.Items.IndexOf(port.Parity.ToString());
+                    this.comboBoxParity.SelectedIndex = index;
+                    index = this.comboBoxStopBits.Items.IndexOf(port.StopBits.ToString());
+                    this.comboBoxStopBits.SelectedIndex = index;
+
+                    this.checkedListBoxStations.Items.Clear();
+                    foreach (KeyValuePair<uint, bool> pair in port.Stations)
+                    {
+                        this.checkedListBoxStations.Items.Add(pair.Key.ToString(), pair.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a port to the UI and the port model.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void addPortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddItemDlg dlg = new AddItemDlg();
+            dlg.ItemLable = "COM";
+            DialogResult res = dlg.ShowDialog();
+            if (DialogResult.OK == res)
+            {
+                uint[] output = dlg.Indices;
+                for (int i = 0; i < output.Length; ++i)
+                {
+                    if (AddPort(dlg.ItemLable + output[i].ToString()))
+                    {
+                        this.listBoxPort.Items.Add(dlg.ItemLable + output[i].ToString());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove a port from the UI and the port model.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void removePortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ListBox.SelectedIndexCollection indices = this.listBoxPort.SelectedIndices;
+            foreach (int i in indices)
+            {
+                RemovePort(this.listBoxPort.Items[i].ToString());
+            }
+            for (int i = indices.Count - 1; i >= 0; i--)
+            {
+                this.listBoxPort.Items.RemoveAt(i);
+            }
+        }
+
+        private void contextMenuStripPort_Opening(object sender, CancelEventArgs e)
+        {
+            if (this.listBoxPort.Items.Count <= 1)
+            {
+                this.removePortToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                this.removePortToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void contextMenuStripStation_Opening(object sender, CancelEventArgs e)
         {
 
         }
