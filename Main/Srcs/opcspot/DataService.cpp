@@ -69,7 +69,7 @@ int DataService::InitService()
 			tagDef.at(i).name.c_str(), 0, tagDef.at(i).right, &var, 0, NULL);
 		if (ecode)
 		{
-			UL_ERROR((Log::Instance().get(), 0, "loAddRealTagW() failed"));
+			UL_ERROR((Log::Instance().get(), 0, "loAddRealTagW() failed: %d", ecode));
 			return -1;
 		}
 		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
