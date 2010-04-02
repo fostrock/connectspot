@@ -32,6 +32,10 @@ namespace opcspot_mgr
         private readonly string ATTR_PORT = "port";
         private readonly string ATTR_SETTING = "setting";
         private readonly string ATTR_STATION = "stations";
+        private readonly string ATTR_REFRESH = "refresh";
+        private readonly string ATTR_NUMBER = "number";
+        private uint readDataInterval;
+        private uint secReadDataInterval;
 
         #endregion
 
@@ -63,10 +67,28 @@ namespace opcspot_mgr
                     PortParam port = new PortParam(devName, setting, stations);
                     ports.Add(port);
                 }
+
+                nodes = xmlDoc.SelectNodes("//zsdriver/protocol/read");
+                foreach (XmlNode node in nodes)
+                {
+                    int number = Int32.Parse(node.Attributes[ATTR_NUMBER].Value);
+                    if (1 == number)
+                    {
+                        readDataInterval = UInt32.Parse(node.Attributes[ATTR_REFRESH].Value);
+                    }
+                    else if (2 == number)
+                    {
+                        secReadDataInterval = UInt32.Parse(node.Attributes[ATTR_REFRESH].Value);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("The read data section number is not supported.");
+                    }
+                }
             }
             catch
             {
-                throw new InvalidOperationException("Parse the config file failed.");          
+                throw new InvalidOperationException("Parse the config file failed.");
             }
 
             // Fill the port list control
@@ -79,6 +101,10 @@ namespace opcspot_mgr
             {
                 this.listBoxPort.SelectedIndex = 0;
             }
+
+            // Fill the read data interval
+            this.textBoxMainRefresh.Text = readDataInterval.ToString();
+            this.comboBoxSecRatio.SelectedItem = (secReadDataInterval / readDataInterval).ToString();
         }
 
         /// <summary>
@@ -112,6 +138,30 @@ namespace opcspot_mgr
                     element.SetAttribute(ATTR_STATION, port.FormatStationSetting());
                     xmlDoc.DocumentElement.AppendChild(element);
                 }
+
+                if (ValidateDataRefreshInput(this.textBoxMainRefresh.Text, out readDataInterval))
+                {
+                    nodes = xmlDoc.SelectNodes("//zsdriver/protocol/read");
+                    foreach (XmlNode node in nodes)
+                    {
+                        int number = Int32.Parse(node.Attributes[ATTR_NUMBER].Value);
+                        if (1 == number)
+                        {
+                            node.Attributes[ATTR_REFRESH].Value = readDataInterval.ToString();
+                        }
+                        else if (2 == number)
+                        {
+                            node.Attributes[ATTR_REFRESH].Value =
+                                (readDataInterval * 
+                                UInt32.Parse(this.comboBoxSecRatio.SelectedItem.ToString())).ToString();
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("The read data section number is not supported.");
+                        }
+                    }
+                }
+
                 xmlDoc.Save(xmlFile);
             }
             catch
@@ -183,6 +233,28 @@ namespace opcspot_mgr
             }
         }
 
+        /// <summary>
+        /// Validate the input string which must match the refresh interval requirements.
+        /// The input can be converted to UInt32 and the value shall be in range [10, 10000] (ms)
+        /// </summary>
+        /// <param name="input">The input string representing the interval value.</param>
+        /// <param name="val">The converted value if it succeeded.</param>
+        /// <returns></returns>
+        private bool ValidateDataRefreshInput(string input, out uint val)
+        {
+            val = 50;
+            if (!UInt32.TryParse(input, out val))
+            {
+                return false;
+            }
+
+            if (val < 10 || val > 10000)
+            {
+                return false;
+            }
+            return true;
+        }
+
         #endregion
 
         #region UI Control Handlers
@@ -202,7 +274,7 @@ namespace opcspot_mgr
             string devName = this.listBoxPort.SelectedItem.ToString();
             foreach (PortParam port in ports)
             {
-                if (0 ==string.Compare(port.DevName, devName, StringComparison.OrdinalIgnoreCase))
+                if (0 == string.Compare(port.DevName, devName, StringComparison.OrdinalIgnoreCase))
                 {
                     int index = -1;
                     index = this.comboBoxBaud.Items.IndexOf(port.BaudRate.ToString());
@@ -328,7 +400,7 @@ namespace opcspot_mgr
                 PortParam port = null;
                 foreach (PortParam item in ports)
                 {
-                    if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(), 
+                    if (0 == string.Compare(item.DevName, this.listBoxPort.SelectedItem.ToString(),
                         StringComparison.OrdinalIgnoreCase))
                     {
                         port = item;
@@ -398,10 +470,15 @@ namespace opcspot_mgr
             }
 
             port.UpdateStation(
-                UInt32.Parse(this.checkedListBoxStations.SelectedItem.ToString()), 
+                UInt32.Parse(this.checkedListBoxStations.SelectedItem.ToString()),
                 e.NewValue == CheckState.Checked ? true : false);
         }
 
+        /// <summary>
+        /// Baud rate selection changing event handler.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
         private void comboBoxBaud_SelectedIndexChanged(object sender, EventArgs e)
         {
             PortParam port = null;
@@ -419,6 +496,24 @@ namespace opcspot_mgr
         }
 
         #endregion
+
+        /// <summary>
+        /// The main reading data refresh rate input validation.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void textBoxMainRefresh_TextChanged(object sender, EventArgs e)
+        {
+            uint val;
+            if (!ValidateDataRefreshInput(this.textBoxMainRefresh.Text, out val))
+            {
+                this.textBoxMainRefresh.ForeColor = Color.DarkRed;
+            }
+            else
+            {
+                this.textBoxMainRefresh.ForeColor = Color.Black;
+            }
+        }
 
         #region Public Methods
 
