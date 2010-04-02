@@ -26,5 +26,10 @@ namespace opcspot_mgr
         {
             this.Close();
         }
+
+        private void portSettings1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

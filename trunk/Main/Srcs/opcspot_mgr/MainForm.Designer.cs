@@ -35,9 +35,9 @@
             // 
             // buttonApply
             // 
-            this.buttonApply.Location = new System.Drawing.Point(206, 289);
+            this.buttonApply.Location = new System.Drawing.Point(208, 378);
             this.buttonApply.Name = "buttonApply";
-            this.buttonApply.Size = new System.Drawing.Size(75, 23);
+            this.buttonApply.Size = new System.Drawing.Size(75, 25);
             this.buttonApply.TabIndex = 1;
             this.buttonApply.Text = "Apply";
             this.buttonApply.UseVisualStyleBackColor = true;
@@ -46,9 +46,9 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(287, 289);
+            this.buttonCancel.Location = new System.Drawing.Point(289, 378);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.Size = new System.Drawing.Size(75, 25);
             this.buttonCancel.TabIndex = 2;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
@@ -58,16 +58,16 @@
             // 
             this.portSettings1.Location = new System.Drawing.Point(0, 0);
             this.portSettings1.Name = "portSettings1";
-            this.portSettings1.Size = new System.Drawing.Size(376, 303);
+            this.portSettings1.Size = new System.Drawing.Size(376, 372);
             this.portSettings1.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AcceptButton = this.buttonApply;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(368, 317);
+            this.ClientSize = new System.Drawing.Size(368, 409);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonApply);
             this.Controls.Add(this.portSettings1);
@@ -75,6 +75,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Opcspot Mgr";
             this.ResumeLayout(false);
 
