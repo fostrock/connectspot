@@ -17,11 +17,13 @@
 
 static const loVendorInfo vendor = {
 	1 /*Major */ , 0 /*Minor */ , 1 /*Build */ , 0 /*Reserv */ ,
-	"ZongShi OPCDA Server"
+	"ZongShi OPC DA Server"
 };
 
 static void a_server_finished(void *arg, loService *b, loClient *c)
 {
+	DataService::UninitService();
+	_pAtlModule->m_nLockCnt = 1; // Decrease the reference count by force.
 	_pAtlModule->Unlock();
 }
 
