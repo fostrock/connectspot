@@ -87,7 +87,7 @@ void DataService::UninitService()
 	if (instance)
 	{
 		int ecode = loServiceDestroy(instance);
-		// add log here
+		UL_INFO((Log::Instance().get(), 0, "OPC service is closed."));
 		instance = NULL;
 	}
 }
