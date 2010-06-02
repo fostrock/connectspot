@@ -101,7 +101,6 @@ private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
 	static const loService* dataService;
 	static std::vector<loTagValue>* tags;
-	static std::map<unsigned/*tag ID*/, unsigned/*driver index*/>* tagID2Index;
 	static boost::shared_ptr<ZSSerialProtocol> protocol;
 	static boost::shared_ptr<boost::thread_group> threadGp;
 	static boost::shared_ptr<boost::mutex> mutex;
