@@ -18,7 +18,6 @@
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
 const loService* ZSDriver::dataService = NULL;
 std::vector<loTagValue>* ZSDriver::tags = NULL;
-std::map<unsigned, unsigned>* ZSDriver::tagID2Index = NULL;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
 boost::shared_ptr<boost::mutex> ZSDriver::mutex;
@@ -65,7 +64,6 @@ bool ZSDriver::Init(const std::string& protocolPath)
 	}
 
 	tags = new std::vector<loTagValue>(total);
-	tagID2Index = new std::map<unsigned, unsigned>;
 
 	return true;
 }
@@ -86,11 +84,6 @@ void ZSDriver::Destroy()
 	{
 		delete tags;
 		tags = NULL;
-	}
-	if (tagID2Index)
-	{
-		delete tagID2Index;
-		tagID2Index = NULL;
 	}
 }
 
@@ -237,7 +230,7 @@ loTrid ZSDriver::ReadTags(const loCaller *ca,
 
 void ZSDriver::AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex)
 {
-	_ASSERTE(tags != NULL && tagID2Index != NULL);
+	_ASSERTE(tags != NULL);
 	_ASSERTE(dataIndex < tags->size());
 	FILETIME ft;
 	GetSystemTimeAsFileTime(&ft);
@@ -246,7 +239,6 @@ void ZSDriver::AssignTagIDIndexMap(unsigned tagID, unsigned dataIndex)
 	(*tags).at(dataIndex).tvState.tsTime = ft;
 	(*tags).at(dataIndex).tvState.tsError = S_OK;
 	(*tags).at(dataIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
-	tagID2Index->insert(std::make_pair(tagID, dataIndex));
 }
 
 // Get the tag definitions for the outer data service
