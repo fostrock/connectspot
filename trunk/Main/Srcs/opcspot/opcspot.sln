@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opcspot_test", "..\..\Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "opcspot_mgr", "..\opcspot_mgr\opcspot_mgr.csproj", "{5994452B-8DD3-45E5-AA42-A28144224401}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zsdriver_test", "..\..\Tests\zsdriver_test\zsdriver_test.vcproj", "{7C23751B-8C56-4715-91E5-982892810269}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,16 @@ Global
 		{5994452B-8DD3-45E5-AA42-A28144224401}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5994452B-8DD3-45E5-AA42-A28144224401}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5994452B-8DD3-45E5-AA42-A28144224401}.Release|Win32.ActiveCfg = Release|Any CPU
+		{7C23751B-8C56-4715-91E5-982892810269}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Debug|Win32.Build.0 = Debug|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Release|Win32.ActiveCfg = Release|Win32
+		{7C23751B-8C56-4715-91E5-982892810269}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
