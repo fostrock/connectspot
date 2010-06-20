@@ -13,6 +13,7 @@
 #include "commonlib/stringstext.h"
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include "ULog.h"
 
 #pragma warning(disable:4996) // std::copy() unsafe iterator, _SCL_SECURE_NO_WARNINGS
@@ -124,6 +125,16 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 		_ASSERTE(!"Check data sum error");
 		return vec;
 	}
+
+#ifdef _TEST_
+	std::ostringstream oss;
+	for (std::size_t i = 0; i < dataStr.size(); ++i)
+	{
+		oss << std::showbase << std::hex << (int)dataStr.at(i);
+		oss << " ";
+	}
+	UL_MESSAGE((Log::Instance().get(), 0, "%s", oss.str().c_str()) );
+#endif
 
 	// Parse read data
 	return ParseReadData(group, dataStr);
