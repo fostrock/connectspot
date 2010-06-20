@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "opcspot/ZSSerial.h"
 #include "commonlib/BCDConvert.h"
+#include <ctime>
 
 const std::string zs_protocol_file = "D:\\zsdriver.xml";
 
@@ -150,6 +151,60 @@ BOOST_AUTO_TEST_CASE(zsserial_readdata_test)
 	for (std::size_t i = 0; i < items.size(); ++i)
 	{
 		std::cout << items.at(i).variant << std::endl;
+	}
+}
+
+BOOST_AUTO_TEST_CASE(zsserial_readdata_cycle_test)
+{
+	time_t now = time(0);
+
+	// Convert now to tm struct for local timezone
+	tm localtm;
+	localtime_s(&localtm, &now);
+	std::vector<char> timeBuff(255);
+	asctime_s(&(timeBuff.at(0)), 255, &localtm);
+	std::cout << "Start the pressure test on " << &(timeBuff.at(0)) << std::endl; 
+
+	unsigned int num = 10; //108000;
+	while (num--)
+	{
+		ZSSerial zs("COM3", protocol);
+		zs.SetTimeout(boost::posix_time::seconds(3));
+		std::vector<ZSDataItem> items;
+		try
+		{
+			items = zs.ReadData(ZSSerial::one, 1);
+		}
+		catch (std::exception& e)
+		{
+			time_t now = time(0);
+
+			// Convert now to tm struct for local timezone
+			tm localtm;
+			localtime_s(&localtm, &now);
+			std::vector<char> timeBuff(255);
+			asctime_s(&(timeBuff.at(0)), 255, &localtm);
+
+			std::cout << e.what() << " - " << &(timeBuff.at(0)) << std::endl;
+		}
+		
+		//BOOST_CHECK_EQUAL(items.size(), 12);
+
+		if (boost::get<double>(items.at(5).variant) > 84.0)
+		{
+			time_t now = time(0);
+
+			// Convert now to tm struct for local timezone
+			tm localtm;
+			localtime_s(&localtm, &now);
+			std::vector<char> timeBuff(255);
+			asctime_s(&(timeBuff.at(0)), 255, &localtm);
+			std::cout << "*** abnormal current flow rate reading value *** " << 
+				&(timeBuff.at(0)) << std::endl;
+			std::cout << items.at(5).variant << std::endl;
+		}
+
+		Sleep(50);
 	}
 }
 
