@@ -139,7 +139,7 @@ std::vector<ZSDataItem> ZSSerial::ReadData(DataGroup group, unsigned char statio
 #endif
 
 	// Parse read data
-	return ParseReadData(group, dataStr);
+	return ParseReadData(group, dataStr, station);
 }
 
 // Write data to the device
@@ -320,7 +320,7 @@ bool ZSSerial::CheckSumEqual(const std::vector<unsigned char>& bcdVec, unsigned 
 }
 
 // Parse the read data stream to ZSDataItem vector
-std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::string &dataStr)
+std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::string &dataStr, unsigned char station)
 {
 	std::vector<ZSDataItem> vec; 
 	std::size_t readCmdIndex = 0;;
@@ -349,7 +349,7 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 			double current = BCD2FloatR(
 				reinterpret_cast<const unsigned char*>( &(dataStr.at(2 + offset)) ), 
 				vecDataInfo.at(i).length);
-			DigitalFilter(current, vecDataInfo.at(i).changeLimit, item);
+			DigitalFilter(current, vecDataInfo.at(i).changeLimit, item, station);
 		}
 		else
 		{
@@ -363,9 +363,9 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 	return vec;
 }
 
-void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem)
+void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem, unsigned char station)
 {
-	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index);
+	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index + station * 100);
 	if (iter != dataCache.end())
 	{
 		if ( ((current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit)) )
@@ -388,7 +388,7 @@ void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dat
 			if (iter->second.size() > 1)
 			{
 				UL_MESSAGE((Log::Instance().get(), 0, 
-					"Abnormal value: index[%d] - value[%f]", dataItem.index, current) );
+					"Abnormal value: station[%d] - index[%d] - value[%f]", station, dataItem.index, current) );
 			}
 			iter->second.clear();
 			iter->second.push_back(current);
@@ -399,7 +399,7 @@ void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dat
 	{
 		std::vector<double> values;
 		values.push_back(current);
-		dataCache.insert(std::make_pair(dataItem.index, values));
+		dataCache.insert(std::make_pair(dataItem.index + station * 100, values));
 		dataItem.variant = current;
 	}
 }

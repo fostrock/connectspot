@@ -120,8 +120,9 @@ private:
 	// Parse the read data stream to ZSDataItem vector
 	// @param <group> the read data group
 	// @param <dataStr> the input read data stream
+	// @param <station> the RS485 station
 	// @return the ZSDataItem vector
-	std::vector<ZSDataItem> ParseReadData(DataGroup group, const std::string &dataStr);
+	std::vector<ZSDataItem> ParseReadData(DataGroup group, const std::string &dataStr, unsigned char station);
 
 	// Check the result of the send messages to confirm whether the writing data command or
 	// the writing common command is successful. 
@@ -141,7 +142,8 @@ private:
 	// @param <changeLimit> the data change limit.
 	// @param <dataItem> the dataItem's variant value will be updated.
 	//                   the reading data index is contained in dataItem.
-	void DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem);
+	// @param <station> the RS485 station
+	void DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem, unsigned char station);
 
 private:
 	static const unsigned char begin = 0xbb;
