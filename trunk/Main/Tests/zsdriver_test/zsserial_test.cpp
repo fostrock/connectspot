@@ -186,11 +186,12 @@ BOOST_AUTO_TEST_CASE(zsserial_readdata_cycle_test)
 			asctime_s(&(timeBuff.at(0)), 255, &localtm);
 
 			std::cout << e.what() << " - " << &(timeBuff.at(0)) << std::endl;
+			continue;
 		}
-		
-		//BOOST_CHECK_EQUAL(items.size(), 12);
 
-		if (boost::get<double>(items.at(5).variant) > 84.0)
+		BOOST_CHECK_EQUAL(items.size(), 12);
+
+		if (12 == items.size() && boost::get<double>(items.at(5).variant) > 84.0)
 		{
 			time_t now = time(0);
 

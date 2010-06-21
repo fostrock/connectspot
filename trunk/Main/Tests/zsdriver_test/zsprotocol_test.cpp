@@ -69,6 +69,15 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).isFloat, true);
 			break;
 		}
+		if (6 == readDataCmd.info.at(findIndex).index) // "当前流速"
+		{
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).hasFilter, true);
+			BOOST_CHECK_GT(readDataCmd.info.at(findIndex).changeLimit, 2.0);
+		}
+		if (1 == readDataCmd.info.at(findIndex).index)
+		{
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).hasFilter, false);
+		}
 	}
 	BOOST_CHECK(findIndex != readDataCmd.info.size());
 
