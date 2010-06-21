@@ -21,6 +21,8 @@
 using namespace boost;
 using namespace CommonLib;
 
+static const std::size_t FILTER_WINDOW_LEN = 3;
+
 ZSSerial::ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol) : 
 devName(devName), protocol(protocol)
 {
@@ -30,7 +32,7 @@ devName(devName), protocol(protocol)
 	}
 	catch (boost::system::system_error& e)
 	{
-		UL_MESSAGE((Log::Instance().get(), 0, "Open %s failed: ", 
+		UL_MESSAGE((Log::Instance().get(), 0, "Open %s failed: %s", 
 			devName.c_str(), e.what() ));
 	}
 }
@@ -336,11 +338,18 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 		ZSDataItem item;
 		item.index = vecDataInfo.at(i).index;
 		std::size_t offset = vecDataInfo.at(i).offset;
-		if (vecDataInfo.at(i).isFloat)
+		if (vecDataInfo.at(i).isFloat && !vecDataInfo.at(i).hasFilter)
 		{
 			item.variant = BCD2FloatR(
 				reinterpret_cast<const unsigned char*>( &(dataStr.at(2 + offset)) ), 
 				vecDataInfo.at(i).length);
+		}
+		else if (vecDataInfo.at(i).isFloat && vecDataInfo.at(i).hasFilter)	// Digit filtering
+		{
+			double current = BCD2FloatR(
+				reinterpret_cast<const unsigned char*>( &(dataStr.at(2 + offset)) ), 
+				vecDataInfo.at(i).length);
+			DigitalFilter(current, vecDataInfo.at(i).changeLimit, item);
 		}
 		else
 		{
@@ -352,6 +361,47 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 	}
 
 	return vec;
+}
+
+void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem)
+{
+	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index);
+	if (iter != dataCache.end())
+	{
+		if ( ((current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit)) )
+		{
+			if (iter->second.size() <= FILTER_WINDOW_LEN)
+			{
+				iter->second.push_back(current);
+				dataItem.variant = iter->second.at(0);
+			}
+			else
+			{
+				double temp = iter->second.at(1);
+				dataItem.variant = temp;
+				iter->second.clear();
+				iter->second.push_back(temp);
+			}
+		}
+		else
+		{
+			if (iter->second.size() > 1)
+			{
+				UL_MESSAGE((Log::Instance().get(), 0, 
+					"Abnormal value: index[%d] - value[%f]", dataItem.index, current) );
+			}
+			iter->second.clear();
+			iter->second.push_back(current);
+			dataItem.variant = current;
+		}
+	}
+	else
+	{
+		std::vector<double> values;
+		values.push_back(current);
+		dataCache.insert(std::make_pair(dataItem.index, values));
+		dataItem.variant = current;
+	}
 }
 
 

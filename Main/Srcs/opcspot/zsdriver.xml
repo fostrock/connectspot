@@ -52,12 +52,12 @@
 		<!-- refresh rate in ms -->
 		<!-- filter in float, 0 means no filter. For example, 2.1 means (current_read - previous_read) / previous_read > 2.1, the current read will be omitted -->
 		<read number="1" cmd="0x51" refresh="100">
-			<data match_id="1" offset="0" filter="0"/> 
+			<data match_id="1" offset="0" filter="2.1"/> 
 			<data match_id="2" offset="4" filter="0"/>
 			<data match_id="3" offset="6" filter="0"/>
 			<data match_id="4" offset="8" filter="0"/>
 			<data match_id="5" offset="11" filter="0"/>
-			<data match_id="6" offset="14" filter="0"/>
+			<data match_id="6" offset="14" filter="2.1"/>
 			<data match_id="7" offset="18" filter="0"/>
 			<data match_id="8" offset="23" filter="0"/>
 			<data match_id="9" offset="25" filter="0"/>
