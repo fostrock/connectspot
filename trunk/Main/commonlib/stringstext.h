@@ -13,6 +13,7 @@
 
 #include <string>
 #include <windows.h>
+#include <cmath>
 
 namespace CommonLib
 {
@@ -49,6 +50,12 @@ namespace CommonLib
 		// @return true if succeeded, otherwise false
 		static bool WCharToStr(LPCWSTR pWideCharStr, LPSTR* pMultiByteStr,
 			unsigned codePage = CP_UTF8);
+
+		// Comparing floating-point numbers with bounded accuracy
+		static bool DoubleEquals(double left, double right, double epsilon) 
+		{
+			return (fabs(left - right) < epsilon);
+		}
 	};
 }
 
