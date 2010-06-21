@@ -131,11 +131,24 @@ private:
 	// @return true if the writing data operation is successfully, otherwise false 
 	bool IsWrittenCmdOK(unsigned char station);
 
+	// Execute the digital filtering. If the current value comparing to the previous data
+	// (in cache) is larger than the given limit, the cached value will replace the current
+	// one.
+	// Filter window(length 3):  0             1               2               3
+	//                           currentValue  outRangeValue1  outRangeValue2  outRangeValue3
+	// @param <index> 
+	// @param <current> the current reading value.
+	// @param <changeLimit> the data change limit.
+	// @param <dataItem> the dataItem's variant value will be updated.
+	//                   the reading data index is contained in dataItem.
+	void DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem);
+
 private:
 	static const unsigned char begin = 0xbb;
 	static const unsigned char end = 0xee;
 	const std::string devName;
-
+	
 	const ZSSerialProtocol& protocol;
 	TimeoutSerial port;
+	std::map<int/* index */, std::vector<double>/* value window */> dataCache;
 };
