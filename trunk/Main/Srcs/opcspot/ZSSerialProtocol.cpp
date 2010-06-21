@@ -20,6 +20,7 @@ using namespace CommonLib;
 
 static const std::string LANG_CHS = "chs";
 static const std::string LANG_ENG = "eng";
+static const double EPSILON = .0001;
 
 ZSSerialProtocol::ZSSerialProtocol(const std::string& cfgFile) : parser(cfgFile)
 {
@@ -200,7 +201,10 @@ bool ZSSerialProtocol::Parse()
 				{
 					const xmlpp::Element* child = static_cast<const xmlpp::Element*>(*it);
 					int matchID = boost::lexical_cast<int>(child->get_attribute("match_id")->get_value());
-					unsigned short offset = boost::lexical_cast<unsigned short>(child->get_attribute("offset")->get_value());
+					double changeLimit = 
+						boost::lexical_cast<double>(child->get_attribute("filter")->get_value());
+					unsigned short offset = 
+						boost::lexical_cast<unsigned short>(child->get_attribute("offset")->get_value());
 					// search the parsed data set
 					DataSetDef::iterator itData = dataset.find(matchID);
 					_ASSERTE(itData != dataset.end());
@@ -211,6 +215,11 @@ bool ZSSerialProtocol::Parse()
 						readDataInfo.offset = offset;
 						readDataInfo.length = (*itData).second.get<ZS_DATA_LENGTH_INDEX>();
 						readDataInfo.isFloat = (*itData).second.get<ZS_DATA_TYPE_INDEX>();
+						if (readDataInfo.isFloat && !StringsText::DoubleEquals(changeLimit, 0.0, EPSILON))
+						{
+							readDataInfo.hasFilter = true;
+							readDataInfo.changeLimit = changeLimit;
+						}
 						vecReadDataCmd.at(i).info.push_back(readDataInfo);
 					}		
 				}

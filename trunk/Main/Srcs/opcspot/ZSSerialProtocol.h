@@ -48,10 +48,17 @@ struct ZSSerialSetting
 
 struct ZSReadDataInfo
 {
+	ZSReadDataInfo() : index(0), offset(0), length(0), 
+		isFloat(false), hasFilter(false), changeLimit(0.0)
+	{
+	}
 	int index;
 	unsigned short offset;
 	unsigned short length;
 	bool isFloat;
+	bool hasFilter;		// The digit filter sign. It will notify the serial reader to omit the abnormal "pulse" value.
+	double changeLimit; // Working with hasFilter. If the current reading exceeds the previous reading
+						// in "changeLimit" ratio, the current value will be omitted.
 };
 
 struct ZSReadDataCmd 

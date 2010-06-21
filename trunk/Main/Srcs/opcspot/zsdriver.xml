@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--  ZS driver description file, created by YunHua  on 2010.2.20 -->
+<!--  ZS driver description file, created by YunHua  on 2010.2.20
+    Add the read data up-limit filter parameter, YunHua on 2010.6.21
+ -->
 <zsdriver>
 	<serialport port="COM1" setting="9600,8,N,1" stations="1,Y,8,N"/>
 	<serialport port="COM3" setting="9600,8,N,1" stations="1,Y,8,N"/>
@@ -17,14 +19,16 @@
 			<data id="10" name_chs="PID开度" name_eng="a2" length="2" float="FALSE" access="r"/>
 			<data id="11" name_chs="最大瞬时流量" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="12" name_chs="速度系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
-			<data id="21" name_chs="@1" name_eng="a1" length="2" float="FALSE" access="r"/> <!-- 显示控制字 -->
+			<data id="21" name_chs="@1" name_eng="a1" length="2" float="FALSE" access="r"/>
+			<!-- 显示控制字 -->
 			<data id="22" name_chs="重量零点偏移" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="23" name_chs="重量零点阀值" name_eng="a2" length="3" float="FALSE" access="rw"/>
 			<data id="24" name_chs="重量标定系数" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="25" name_chs="重量标定值" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="26" name_chs="零延时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="27" name_chs="校量时间" name_eng="a2" length="2" float="FALSE" access="rw"/>
-			<data id="28" name_chs="@2" name_eng="a2" length="4" float="TRUE" access="r"/> <!-- 最大瞬时流量 -->
+			<data id="28" name_chs="@2" name_eng="a2" length="4" float="TRUE" access="r"/>
+			<!-- 最大瞬时流量 -->
 			<data id="29" name_chs="外给定零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="30" name_chs="外给定满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="31" name_chs="流量输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
@@ -32,7 +36,8 @@
 			<data id="33" name_chs="PID输出零点" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="34" name_chs="PID输出满度" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="35" name_chs="累计量脉冲数比率" name_eng="a2" length="4" float="TRUE" access="rw"/>
-			<data id="36" name_chs="@3" name_eng="a2" length="4" float="TRUE" access="r"/> <!-- 速度系数 -->
+			<data id="36" name_chs="@3" name_eng="a2" length="4" float="TRUE" access="r"/>
+			<!-- 速度系数 -->
 			<data id="37" name_chs="控制方式字" name_eng="a2" length="2" float="FALSE" access="rw"/>
 			<data id="38" name_chs="缺料报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
 			<data id="39" name_chs="超重报警阀值" name_eng="a2" length="4" float="TRUE" access="rw"/>
@@ -45,46 +50,48 @@
 			<data id="64" name_chs="启动挂码数据采集操作" name_eng="a2" length="0" float="FALSE" access="w"/>
 		</dataset>
 		<!-- refresh rate in ms -->
+		<!-- filter in float, 0 means no filter. For example, 2.1 means (current_read - previous_read) / previous_read > 2.1, the current read will be omitted -->
 		<read number="1" cmd="0x51" refresh="100">
-			<data match_id="1" offset="0"/>
-			<data match_id="2" offset="4"/>
-			<data match_id="3" offset="6"/>
-			<data match_id="4" offset="8"/>
-			<data match_id="5" offset="11"/>
-			<data match_id="6" offset="14"/>
-			<data match_id="7" offset="18"/>
-			<data match_id="8" offset="23"/>
-			<data match_id="9" offset="25"/>
-			<data match_id="10" offset="27"/>
-			<data match_id="11" offset="29"/>
-			<data match_id="12" offset="33"/>
+			<data match_id="1" offset="0" filter="0"/> 
+			<data match_id="2" offset="4" filter="0"/>
+			<data match_id="3" offset="6" filter="0"/>
+			<data match_id="4" offset="8" filter="0"/>
+			<data match_id="5" offset="11" filter="0"/>
+			<data match_id="6" offset="14" filter="0"/>
+			<data match_id="7" offset="18" filter="0"/>
+			<data match_id="8" offset="23" filter="0"/>
+			<data match_id="9" offset="25" filter="0"/>
+			<data match_id="10" offset="27" filter="0"/>
+			<data match_id="11" offset="29" filter="0"/>
+			<data match_id="12" offset="33" filter="0"/>
 		</read>
 		<read number="2" cmd="0x52" refresh="1000">
-			<data match_id="21" offset="0"/>
-			<data match_id="22" offset="2"/>
-			<data match_id="23" offset="5"/>
-			<data match_id="24" offset="8"/>
-			<data match_id="25" offset="12"/>
-			<data match_id="26" offset="16"/>
-			<data match_id="27" offset="18"/>
-			<data match_id="28" offset="20"/>
-			<data match_id="29" offset="24"/>
-			<data match_id="30" offset="26"/>
-			<data match_id="31" offset="28"/>
-			<data match_id="32" offset="30"/>
-			<data match_id="33" offset="32"/>
-			<data match_id="34" offset="34"/>
-			<data match_id="35" offset="36"/>
-			<data match_id="36" offset="40"/>
-			<data match_id="37" offset="44"/>
-			<data match_id="38" offset="46"/>
-			<data match_id="39" offset="50"/>
-			<data match_id="40" offset="54"/>
-			<data match_id="41" offset="58"/>
-			<data match_id="42" offset="62"/>
+			<data match_id="21" offset="0" filter="0"/>
+			<data match_id="22" offset="2" filter="0"/>
+			<data match_id="23" offset="5" filter="0"/>
+			<data match_id="24" offset="8" filter="0"/>
+			<data match_id="25" offset="12" filter="0"/>
+			<data match_id="26" offset="16" filter="0"/>
+			<data match_id="27" offset="18" filter="0"/>
+			<data match_id="28" offset="20" filter="0"/>
+			<data match_id="29" offset="24" filter="0"/>
+			<data match_id="30" offset="26" filter="0"/>
+			<data match_id="31" offset="28" filter="0"/>
+			<data match_id="32" offset="30" filter="0"/>
+			<data match_id="33" offset="32" filter="0"/>
+			<data match_id="34" offset="34" filter="0"/>
+			<data match_id="35" offset="36" filter="0"/>
+			<data match_id="36" offset="40" filter="0"/>
+			<data match_id="37" offset="44" filter="0"/>
+			<data match_id="38" offset="46" filter="0"/>
+			<data match_id="39" offset="50" filter="0"/>
+			<data match_id="40" offset="54" filter="0"/>
+			<data match_id="41" offset="58" filter="0"/>
+			<data match_id="42" offset="62" filter="0"/>
 		</read>
 		<write cmd="0x60">
-			<data match_id="1" param="1"/><!-- param needs to be converted to BCD -->
+			<data match_id="1" param="1"/>
+			<!-- param needs to be converted to BCD -->
 			<data match_id="2" param="2"/>
 			<data match_id="22" param="3"/>
 			<data match_id="23" param="4"/>
