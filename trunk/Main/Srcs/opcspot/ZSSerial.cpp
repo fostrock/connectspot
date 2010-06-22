@@ -22,6 +22,7 @@ using namespace boost;
 using namespace CommonLib;
 
 static const std::size_t FILTER_WINDOW_LEN = 3;
+static const int DATAPOINT_MAX = 100;
 
 ZSSerial::ZSSerial(const std::string& devName, const ZSSerialProtocol& protocol) : 
 devName(devName), protocol(protocol)
@@ -365,10 +366,16 @@ std::vector<ZSDataItem> ZSSerial::ParseReadData(DataGroup group, const std::stri
 
 void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dataItem, unsigned char station)
 {
-	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index + station * 100);
+	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index + station * DATAPOINT_MAX);
 	if (iter != dataCache.end())
 	{
-		if ( ((current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit)) )
+		if (StringsText::DoubleEquals(iter->second.at(0), 0.0, 0.0001))
+		{
+			iter->second.clear();
+			iter->second.push_back(current);
+			dataItem.variant = current;
+		}
+		else if ( fabs(current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit) )
 		{
 			if (iter->second.size() <= FILTER_WINDOW_LEN)
 			{
@@ -388,7 +395,7 @@ void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dat
 			if (iter->second.size() > 1)
 			{
 				UL_MESSAGE((Log::Instance().get(), 0, 
-					"Abnormal value: station[%d] - index[%d] - value[%f]", station, dataItem.index, current) );
+					"Filter abnormal value: station[%d] - index[%d] - value[%f]", station, dataItem.index, iter->second.at(1)) );
 			}
 			iter->second.clear();
 			iter->second.push_back(current);
@@ -399,7 +406,7 @@ void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dat
 	{
 		std::vector<double> values;
 		values.push_back(current);
-		dataCache.insert(std::make_pair(dataItem.index + station * 100, values));
+		dataCache.insert(std::make_pair(dataItem.index + station * DATAPOINT_MAX, values));
 		dataItem.variant = current;
 	}
 }
