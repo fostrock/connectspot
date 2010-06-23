@@ -53,6 +53,10 @@
             this.contextMenuStripPort = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removePortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listViewFilterSetting = new System.Windows.Forms.ListView();
+            this.colFilterName = new System.Windows.Forms.ColumnHeader();
+            this.colFilterValue = new System.Windows.Forms.ColumnHeader();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBoxRefresh.SuspendLayout();
             this.contextMenuStripStation.SuspendLayout();
@@ -62,15 +66,16 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.listViewFilterSetting);
             this.panel1.Controls.Add(this.groupBoxRefresh);
             this.panel1.Controls.Add(this.labelStations);
             this.panel1.Controls.Add(this.checkedListBoxStations);
             this.panel1.Controls.Add(this.groupBoxPortSettings);
             this.panel1.Controls.Add(this.listBoxPort);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(367, 375);
+            this.panel1.Size = new System.Drawing.Size(620, 375);
             this.panel1.TabIndex = 0;
             // 
             // groupBoxRefresh
@@ -159,20 +164,20 @@
             this.addStationToolStripMenuItem,
             this.removeStationToolStripMenuItem});
             this.contextMenuStripStation.Name = "contextMenuStripStation";
-            this.contextMenuStripStation.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStripStation.Size = new System.Drawing.Size(151, 48);
             this.contextMenuStripStation.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripStation_Opening);
             // 
             // addStationToolStripMenuItem
             // 
             this.addStationToolStripMenuItem.Name = "addStationToolStripMenuItem";
-            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.addStationToolStripMenuItem.Text = "Add Station...";
             this.addStationToolStripMenuItem.Click += new System.EventHandler(this.addStationToolStripMenuItem_Click);
             // 
             // removeStationToolStripMenuItem
             // 
             this.removeStationToolStripMenuItem.Name = "removeStationToolStripMenuItem";
-            this.removeStationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeStationToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.removeStationToolStripMenuItem.Text = "Remove Station";
             this.removeStationToolStripMenuItem.Click += new System.EventHandler(this.removeStationToolStripMenuItem_Click);
             // 
@@ -315,13 +320,43 @@
             this.removePortToolStripMenuItem.Text = "Remove Port";
             this.removePortToolStripMenuItem.Click += new System.EventHandler(this.removePortToolStripMenuItem_Click);
             // 
+            // listViewFilterSetting
+            // 
+            this.listViewFilterSetting.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colFilterName,
+            this.colFilterValue});
+            this.listViewFilterSetting.Location = new System.Drawing.Point(370, 19);
+            this.listViewFilterSetting.Name = "listViewFilterSetting";
+            this.listViewFilterSetting.Size = new System.Drawing.Size(234, 347);
+            this.listViewFilterSetting.TabIndex = 17;
+            this.listViewFilterSetting.UseCompatibleStateImageBehavior = false;
+            this.listViewFilterSetting.View = System.Windows.Forms.View.Details;
+            // 
+            // colFilterName
+            // 
+            this.colFilterName.Text = "Name";
+            this.colFilterName.Width = 150;
+            // 
+            // colFilterValue
+            // 
+            this.colFilterValue.Text = "Threshold";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(367, 3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(61, 13);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Digital Filter";
+            // 
             // PortSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
             this.Name = "PortSettings";
-            this.Size = new System.Drawing.Size(367, 375);
+            this.Size = new System.Drawing.Size(626, 375);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.groupBoxRefresh.ResumeLayout(false);
@@ -360,5 +395,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBoxMainRefresh;
         private System.Windows.Forms.GroupBox groupBoxRefresh;
+        private System.Windows.Forms.ListView listViewFilterSetting;
+        private System.Windows.Forms.ColumnHeader colFilterName;
+        private System.Windows.Forms.ColumnHeader colFilterValue;
+        private System.Windows.Forms.Label label3;
     }
 }
