@@ -369,13 +369,9 @@ void ZSSerial::DigitalFilter(double current, double changeLimit, ZSDataItem& dat
 	std::map<int, std::vector<double> >::iterator iter = dataCache.find(dataItem.index + station * DATAPOINT_MAX);
 	if (iter != dataCache.end())
 	{
-		if (StringsText::DoubleEquals(iter->second.at(0), 0.0, 0.0001))
-		{
-			iter->second.clear();
-			iter->second.push_back(current);
-			dataItem.variant = current;
-		}
-		else if ( fabs(current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit) )
+		if ( StringsText::DoubleEquals(iter->second.at(0), 0.0, 0.0001) ||
+			(fabs(current - iter->second.at(0)) / iter->second.at(0) > fabs(changeLimit))
+			)
 		{
 			if (iter->second.size() <= FILTER_WINDOW_LEN)
 			{
