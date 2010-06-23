@@ -34,6 +34,9 @@ namespace opcspot_mgr
         private readonly string ATTR_STATION = "stations";
         private readonly string ATTR_REFRESH = "refresh";
         private readonly string ATTR_NUMBER = "number";
+        private readonly string ATTR_ID = "id";
+        private readonly string ATTR_CHSNAME = "name_chs";
+        private readonly string ATTR_FLOAT = "float";
         private uint readDataInterval;
         private uint secReadDataInterval;
 
@@ -105,6 +108,36 @@ namespace opcspot_mgr
             // Fill the read data interval
             this.textBoxMainRefresh.Text = readDataInterval.ToString();
             this.comboBoxSecRatio.SelectedItem = (secReadDataInterval / readDataInterval).ToString();
+
+            // Fill the filter settings
+            InitFilterSetting(xmlDoc);
+        }
+
+        /// <summary>
+        /// Initialize the filter setting's list view control.
+        /// </summary>
+        private void InitFilterSetting(XmlDocument xmlDoc)
+        {
+            if (xmlDoc == null)
+            {
+                return;
+            }
+
+            listViewFilterSetting.Items.Clear();
+            XmlNodeList dataNodes = xmlDoc.SelectNodes("//zsdriver/protocol/dataset/data");
+            foreach (XmlNode node in dataNodes)
+            {
+                int dataID = Int32.Parse(node.Attributes[ATTR_ID].Value);
+                bool isFloat = Boolean.Parse(node.Attributes[ATTR_FLOAT].Value);
+                if (isFloat)
+                {
+                    string name = node.Attributes[ATTR_CHSNAME].Value;
+                    if (!name.StartsWith("@"))
+                    {
+                        listViewFilterSetting.Items.Add(name);
+                    }           
+                }
+            }
         }
 
         /// <summary>

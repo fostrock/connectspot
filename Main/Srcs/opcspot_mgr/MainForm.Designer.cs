@@ -58,7 +58,7 @@
             // 
             this.portSettings1.Location = new System.Drawing.Point(0, 0);
             this.portSettings1.Name = "portSettings1";
-            this.portSettings1.Size = new System.Drawing.Size(376, 372);
+            this.portSettings1.Size = new System.Drawing.Size(609, 372);
             this.portSettings1.TabIndex = 0;
             // 
             // MainForm
@@ -67,7 +67,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(368, 409);
+            this.ClientSize = new System.Drawing.Size(608, 409);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonApply);
             this.Controls.Add(this.portSettings1);
