@@ -35,7 +35,7 @@
             // 
             // buttonApply
             // 
-            this.buttonApply.Location = new System.Drawing.Point(208, 378);
+            this.buttonApply.Location = new System.Drawing.Point(425, 378);
             this.buttonApply.Name = "buttonApply";
             this.buttonApply.Size = new System.Drawing.Size(75, 25);
             this.buttonApply.TabIndex = 1;
@@ -46,7 +46,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(289, 378);
+            this.buttonCancel.Location = new System.Drawing.Point(506, 378);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 25);
             this.buttonCancel.TabIndex = 2;
@@ -67,7 +67,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(608, 409);
+            this.ClientSize = new System.Drawing.Size(593, 409);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonApply);
             this.Controls.Add(this.portSettings1);

@@ -41,5 +41,17 @@ namespace opcspot_mgr
         {
             return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         }
+
+        /// <summary>
+        /// Comparing floating-point numbers with bounded accuracy.
+        /// </summary>
+        /// <param name="left">The left value.</param>
+        /// <param name="right"></param>
+        /// <param name="epsilon"></param>
+        /// <returns></returns>
+        public static bool DoubleEqual(double left, double right, double epsilon)
+        {
+            return Math.Abs(left - right) < epsilon;
+        }
     }
 }
