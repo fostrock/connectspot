@@ -359,6 +359,7 @@
             // 
             this.comboBoxBaud.FormattingEnabled = true;
             this.comboBoxBaud.Items.AddRange(new object[] {
+            "4800",
             "9600",
             "19200"});
             this.comboBoxBaud.Location = new System.Drawing.Point(113, 13);
