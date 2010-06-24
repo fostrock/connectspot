@@ -30,6 +30,14 @@
         {
             this.components = new System.ComponentModel.Container();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.listViewFilterSetting = new System.Windows.Forms.ListView();
+            this.colFilterName = new System.Windows.Forms.ColumnHeader();
+            this.colFilterValue = new System.Windows.Forms.ColumnHeader();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxFilterThreshold = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.buttonUpdateFilter = new System.Windows.Forms.Button();
             this.groupBoxRefresh = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxSecRatio = new System.Windows.Forms.ComboBox();
@@ -53,11 +61,8 @@
             this.contextMenuStripPort = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removePortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.listViewFilterSetting = new System.Windows.Forms.ListView();
-            this.colFilterName = new System.Windows.Forms.ColumnHeader();
-            this.colFilterValue = new System.Windows.Forms.ColumnHeader();
-            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.groupBoxRefresh.SuspendLayout();
             this.contextMenuStripStation.SuspendLayout();
             this.groupBoxPortSettings.SuspendLayout();
@@ -66,17 +71,92 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.listViewFilterSetting);
+            this.panel1.Controls.Add(this.groupBox1);
             this.panel1.Controls.Add(this.groupBoxRefresh);
             this.panel1.Controls.Add(this.labelStations);
             this.panel1.Controls.Add(this.checkedListBoxStations);
             this.panel1.Controls.Add(this.groupBoxPortSettings);
             this.panel1.Controls.Add(this.listBoxPort);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(620, 375);
+            this.panel1.Size = new System.Drawing.Size(595, 375);
             this.panel1.TabIndex = 0;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.listViewFilterSetting);
+            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.textBoxFilterThreshold);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.buttonUpdateFilter);
+            this.groupBox1.Location = new System.Drawing.Point(367, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(226, 363);
+            this.groupBox1.TabIndex = 23;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Digital Filter";
+            // 
+            // listViewFilterSetting
+            // 
+            this.listViewFilterSetting.Activation = System.Windows.Forms.ItemActivation.OneClick;
+            this.listViewFilterSetting.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colFilterName,
+            this.colFilterValue});
+            this.listViewFilterSetting.HideSelection = false;
+            this.listViewFilterSetting.Location = new System.Drawing.Point(6, 19);
+            this.listViewFilterSetting.MultiSelect = false;
+            this.listViewFilterSetting.Name = "listViewFilterSetting";
+            this.listViewFilterSetting.Size = new System.Drawing.Size(214, 271);
+            this.listViewFilterSetting.TabIndex = 17;
+            this.listViewFilterSetting.UseCompatibleStateImageBehavior = false;
+            this.listViewFilterSetting.View = System.Windows.Forms.View.Details;
+            this.listViewFilterSetting.SelectedIndexChanged += new System.EventHandler(this.listViewFilterSetting_SelectedIndexChanged);
+            // 
+            // colFilterName
+            // 
+            this.colFilterName.Text = "Name";
+            this.colFilterName.Width = 150;
+            // 
+            // colFilterValue
+            // 
+            this.colFilterValue.Text = "Threshold";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 338);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(158, 13);
+            this.label5.TabIndex = 22;
+            this.label5.Text = "0 means No filter will be applied.";
+            // 
+            // textBoxFilterThreshold
+            // 
+            this.textBoxFilterThreshold.Location = new System.Drawing.Point(6, 298);
+            this.textBoxFilterThreshold.Name = "textBoxFilterThreshold";
+            this.textBoxFilterThreshold.Size = new System.Drawing.Size(124, 20);
+            this.textBoxFilterThreshold.TabIndex = 19;
+            this.textBoxFilterThreshold.TextChanged += new System.EventHandler(this.textBoxFilterThreshold_TextChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 322);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(221, 13);
+            this.label4.TabIndex = 21;
+            this.label4.Text = "The filter threshold shall in [0, 2] (0% ~ 200%),";
+            // 
+            // buttonUpdateFilter
+            // 
+            this.buttonUpdateFilter.Location = new System.Drawing.Point(145, 295);
+            this.buttonUpdateFilter.Name = "buttonUpdateFilter";
+            this.buttonUpdateFilter.Size = new System.Drawing.Size(75, 23);
+            this.buttonUpdateFilter.TabIndex = 20;
+            this.buttonUpdateFilter.Text = "Update";
+            this.buttonUpdateFilter.UseVisualStyleBackColor = true;
+            this.buttonUpdateFilter.Click += new System.EventHandler(this.buttonUpdateFilter_Click);
             // 
             // groupBoxRefresh
             // 
@@ -89,7 +169,7 @@
             this.groupBoxRefresh.Size = new System.Drawing.Size(358, 67);
             this.groupBoxRefresh.TabIndex = 16;
             this.groupBoxRefresh.TabStop = false;
-            this.groupBoxRefresh.Text = "Read Data Interval";
+            this.groupBoxRefresh.Text = "Data Scan Interval";
             // 
             // label1
             // 
@@ -97,9 +177,9 @@
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(52, 13);
+            this.label1.Size = new System.Drawing.Size(103, 13);
             this.label1.TabIndex = 13;
-            this.label1.Text = "Main (ms)";
+            this.label1.Text = "Main (20 - 10000ms)";
             // 
             // comboBoxSecRatio
             // 
@@ -141,7 +221,7 @@
             this.labelStations.AutoSize = true;
             this.labelStations.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelStations.ForeColor = System.Drawing.SystemColors.ActiveCaption;
-            this.labelStations.Location = new System.Drawing.Point(130, 135);
+            this.labelStations.Location = new System.Drawing.Point(130, 138);
             this.labelStations.Name = "labelStations";
             this.labelStations.Size = new System.Drawing.Size(84, 13);
             this.labelStations.TabIndex = 11;
@@ -191,11 +271,12 @@
             this.groupBoxPortSettings.Controls.Add(this.comboBoxDataBits);
             this.groupBoxPortSettings.Controls.Add(this.labelStopBits);
             this.groupBoxPortSettings.Controls.Add(this.comboBoxBaud);
-            this.groupBoxPortSettings.Location = new System.Drawing.Point(129, -3);
+            this.groupBoxPortSettings.Location = new System.Drawing.Point(129, 3);
             this.groupBoxPortSettings.Name = "groupBoxPortSettings";
-            this.groupBoxPortSettings.Size = new System.Drawing.Size(232, 128);
+            this.groupBoxPortSettings.Size = new System.Drawing.Size(232, 129);
             this.groupBoxPortSettings.TabIndex = 9;
             this.groupBoxPortSettings.TabStop = false;
+            this.groupBoxPortSettings.Text = "Port Settings";
             // 
             // labelBaud
             // 
@@ -320,45 +401,17 @@
             this.removePortToolStripMenuItem.Text = "Remove Port";
             this.removePortToolStripMenuItem.Click += new System.EventHandler(this.removePortToolStripMenuItem_Click);
             // 
-            // listViewFilterSetting
-            // 
-            this.listViewFilterSetting.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colFilterName,
-            this.colFilterValue});
-            this.listViewFilterSetting.Location = new System.Drawing.Point(370, 19);
-            this.listViewFilterSetting.Name = "listViewFilterSetting";
-            this.listViewFilterSetting.Size = new System.Drawing.Size(234, 347);
-            this.listViewFilterSetting.TabIndex = 17;
-            this.listViewFilterSetting.UseCompatibleStateImageBehavior = false;
-            this.listViewFilterSetting.View = System.Windows.Forms.View.Details;
-            // 
-            // colFilterName
-            // 
-            this.colFilterName.Text = "Name";
-            this.colFilterName.Width = 150;
-            // 
-            // colFilterValue
-            // 
-            this.colFilterValue.Text = "Threshold";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(367, 3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(61, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "Digital Filter";
-            // 
             // PortSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
             this.Name = "PortSettings";
-            this.Size = new System.Drawing.Size(626, 375);
+            this.Size = new System.Drawing.Size(595, 375);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBoxRefresh.ResumeLayout(false);
             this.groupBoxRefresh.PerformLayout();
             this.contextMenuStripStation.ResumeLayout(false);
@@ -398,6 +451,10 @@
         private System.Windows.Forms.ListView listViewFilterSetting;
         private System.Windows.Forms.ColumnHeader colFilterName;
         private System.Windows.Forms.ColumnHeader colFilterValue;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button buttonUpdateFilter;
+        private System.Windows.Forms.TextBox textBoxFilterThreshold;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }

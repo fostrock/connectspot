@@ -37,6 +37,8 @@ namespace opcspot_mgr
         private readonly string ATTR_ID = "id";
         private readonly string ATTR_CHSNAME = "name_chs";
         private readonly string ATTR_FLOAT = "float";
+        private readonly string ATTR_MATCH_ID = "match_id";
+        private readonly string ATTR_FILTER = "filter";
         private uint readDataInterval;
         private uint secReadDataInterval;
 
@@ -134,8 +136,24 @@ namespace opcspot_mgr
                     string name = node.Attributes[ATTR_CHSNAME].Value;
                     if (!name.StartsWith("@"))
                     {
-                        listViewFilterSetting.Items.Add(name);
+                        ListViewItem item = new ListViewItem(name);
+                        item.Tag = dataID;
+                        item.SubItems.Add("0");
+                        listViewFilterSetting.Items.Add(item);
                     }           
+                }
+            }
+
+            XmlNodeList readList = xmlDoc.SelectNodes("//zsdriver/protocol/read/data");
+            foreach (ListViewItem item in listViewFilterSetting.Items)
+            {
+                int id = (int)item.Tag;
+                foreach (XmlNode node in readList)
+                {
+                    if (id == Int32.Parse(node.Attributes[ATTR_MATCH_ID].Value))
+                    {
+                        item.SubItems[1].Text = node.Attributes[ATTR_FILTER].Value;
+                    }
                 }
             }
         }
@@ -143,7 +161,8 @@ namespace opcspot_mgr
         /// <summary>
         /// Save settings to XML file
         /// </summary>
-        private void SaveSettings()
+        /// <returns>True if it succeeded, otherwise false.</returns>
+        private bool SaveSettings()
         {
             XmlDocument xmlDoc = new XmlDocument();
             try
@@ -172,6 +191,11 @@ namespace opcspot_mgr
                     xmlDoc.DocumentElement.AppendChild(element);
                 }
 
+                if (this.comboBoxSecRatio.SelectedItem == null)
+                {
+                    throw new InvalidOperationException("Data scan ratio selection is empty.");
+                }
+
                 if (ValidateDataRefreshInput(this.textBoxMainRefresh.Text, out readDataInterval))
                 {
                     nodes = xmlDoc.SelectNodes("//zsdriver/protocol/read");
@@ -194,13 +218,33 @@ namespace opcspot_mgr
                         }
                     }
                 }
+                else
+                {
+                    throw new InvalidOperationException("Data scan main interval is invalid.");
+                }
+
+                nodes = xmlDoc.SelectNodes("//zsdriver/protocol/read/data");
+                foreach (ListViewItem item in listViewFilterSetting.Items)
+                {
+                    int id = (int)item.Tag;
+                    foreach (XmlNode node in nodes)
+                    {
+                        if (id == Int32.Parse(node.Attributes[ATTR_MATCH_ID].Value))
+                        {
+                            node.Attributes[ATTR_FILTER].Value = item.SubItems[1].Text;
+                        }
+                    }
+                }
 
                 xmlDoc.Save(xmlFile);
             }
-            catch
+            catch(Exception e)
             {
-                throw new InvalidOperationException("Parse the config file failed.");
+                MessageBox.Show(e.Message, "opcspot mgr", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
+
+            return true;
         }
 
         /// <summary>
@@ -272,16 +316,38 @@ namespace opcspot_mgr
         /// </summary>
         /// <param name="input">The input string representing the interval value.</param>
         /// <param name="val">The converted value if it succeeded.</param>
-        /// <returns></returns>
+        /// <returns>True if the validation passes, otherwise false.</returns>
         private bool ValidateDataRefreshInput(string input, out uint val)
         {
-            val = 50;
+            val = 50; // Default in ms
             if (!UInt32.TryParse(input, out val))
             {
                 return false;
             }
 
             if (val < 10 || val > 10000)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Validate the digital filter's threshold.
+        /// The input can be converted to Double and the value shall be in range [0, 10]
+        /// </summary>
+        /// <param name="input">The input string representing the threshold value.</param>
+        /// <param name="val">The converted value if it succeeded.</param>
+        /// <returns>True if the validation passes, otherwise false.</returns>
+        private bool ValidateFilterThreshold(string input, out double val)
+        {
+            val = 0.0;
+            if (!Double.TryParse(input, out val))
+            {
+                return false;
+            }
+
+            if (val < 0.0 || val > 2.0)
             {
                 return false;
             }
@@ -540,12 +606,61 @@ namespace opcspot_mgr
             uint val;
             if (!ValidateDataRefreshInput(this.textBoxMainRefresh.Text, out val))
             {
-                this.textBoxMainRefresh.ForeColor = Color.DarkRed;
+                this.textBoxMainRefresh.ForeColor = Color.Red;
             }
             else
             {
                 this.textBoxMainRefresh.ForeColor = Color.Black;
             }
+        }
+
+        /// <summary>
+        /// The change threshold for the digital filter.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void textBoxFilterThreshold_TextChanged(object sender, EventArgs e)
+        {
+            double val;
+            if (!ValidateFilterThreshold(this.textBoxFilterThreshold.Text, out val))
+            {
+                this.textBoxFilterThreshold.ForeColor = Color.Red;
+            }
+            else
+            {
+                this.textBoxFilterThreshold.ForeColor = Color.Black;
+            }
+        }
+
+        /// <summary>
+        /// Update the threshold for the digital filter.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments</param>
+        private void buttonUpdateFilter_Click(object sender, EventArgs e)
+        {
+            double val;
+            if (ValidateFilterThreshold(this.textBoxFilterThreshold.Text, out val))
+            {
+                if (listViewFilterSetting.SelectedItems.Count > 0)
+                {
+                    listViewFilterSetting.SelectedItems[0].SubItems[1].Text = val.ToString();
+                }             
+            }
+        }
+
+        /// <summary>
+        /// Update the filter threshold text box when the list view selection changed.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event argument.</param>
+        private void listViewFilterSetting_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listViewFilterSetting.SelectedItems.Count > 0)
+            {
+                this.textBoxFilterThreshold.Text = 
+                    listViewFilterSetting.SelectedItems[0].SubItems[1].Text;
+            }  
         }
 
         #region Public Methods
@@ -562,9 +677,10 @@ namespace opcspot_mgr
         /// <summary>
         /// Save settings.
         /// </summary>
-        public void SaveAll()
+        /// <returns>True if it succeeded, otherwise false.</returns>
+        public bool SaveAll()
         {
-            SaveSettings();
+            return SaveSettings();
         }
 
         #endregion
