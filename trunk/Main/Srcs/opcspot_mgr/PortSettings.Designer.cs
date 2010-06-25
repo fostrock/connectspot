@@ -116,11 +116,12 @@
             // colFilterName
             // 
             this.colFilterName.Text = "Name";
-            this.colFilterName.Width = 150;
+            this.colFilterName.Width = 147;
             // 
             // colFilterValue
             // 
             this.colFilterValue.Text = "Threshold";
+            this.colFilterValue.Width = 63;
             // 
             // label5
             // 
@@ -150,7 +151,7 @@
             // 
             // buttonUpdateFilter
             // 
-            this.buttonUpdateFilter.Location = new System.Drawing.Point(145, 295);
+            this.buttonUpdateFilter.Location = new System.Drawing.Point(145, 296);
             this.buttonUpdateFilter.Name = "buttonUpdateFilter";
             this.buttonUpdateFilter.Size = new System.Drawing.Size(75, 23);
             this.buttonUpdateFilter.TabIndex = 20;
