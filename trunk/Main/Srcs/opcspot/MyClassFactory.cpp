@@ -14,6 +14,7 @@
 #include "DataService.h"
 #include "opcda.h"
 #include "ULog.h"
+#include <boost/thread/thread.hpp>
 
 static const loVendorInfo vendor = {
 	1 /*Major */ , 0 /*Minor */ , 1 /*Build */ , 0 /*Reserv */ ,
@@ -25,6 +26,12 @@ static void a_server_finished(void *arg, loService *b, loClient *c)
 	DataService::UninitService();
 	_pAtlModule->m_nLockCnt = 1; // Decrease the reference count by force.
 	_pAtlModule->Unlock();
+}
+
+static void LicenseTimeout()
+{
+	Sleep(96 * 3600 * 1000);
+	DataService::UninitService();
 }
 
 MyClassFactory::MyClassFactory(void)
@@ -70,6 +77,10 @@ HRESULT MyClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** 
 		loSetState(DataService::Instance(), (loClient*)server,
 			loOP_OPERATE, (int)OPC_STATUS_RUNNING, "Finished by client");
 	}
+
+#ifdef __EVAL__
+	boost::shared_ptr<boost::thread> licThread(new boost::thread(LicenseTimeout)); 
+#endif
 
 	return hr;
 }
