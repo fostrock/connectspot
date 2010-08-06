@@ -332,10 +332,10 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 	interval = // at least ZSDRV_READDATA_GROUP_SWITCH_INTERVAL
 		(interval < ZSDRV_READDATA_GROUP_SWITCH_INTERVAL) ? ZSDRV_READDATA_GROUP_SWITCH_INTERVAL : interval;
 
-	std::size_t startOffset = 0;
+	std::size_t grpStartOffset = 0;
 	for (std::size_t i = 0; i < serialIndex; i++)
 	{
-		startOffset += 
+		grpStartOffset += 
 			dataTotalCount * protocol->GetPortSetting().at(i).stations.size();
 	}
 
@@ -344,7 +344,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 		for (std::size_t i = 0; i < stations.size(); ++i)
 		{
 			// the station is disabled
-			if (0 == stations.at(i).second)
+			if (ZSSerialProtocol::ZS_DEV_DISABLED == stations.at(i).second)
 			{
 				continue;
 			}
@@ -362,16 +362,19 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 			try // refresh data
 			{
 				RefreshDataSubJob(service, serial, stations.at(i).first, 
-					dataGroup, startOffset + i * dataTotalCount);
+					dataGroup, grpStartOffset + i * dataTotalCount);
 				::Sleep(refreshBase);
+				stations.at(i).second = ZSSerialProtocol::ZS_DEV_OK; // restore
 			}
 			catch (timeout_exception& e)
 			{
+				NotifyDevFault(service, serialIndex, i, grpStartOffset + i * dataTotalCount);
 				UL_ERROR((Log::Instance().get(), 0, "ReadData error: %s - %s", 
 					devName.c_str(), e.what() ));
 			}
 			catch (boost::system::system_error& e)
 			{
+				NotifyDevFault(service, serialIndex, i, grpStartOffset + i * dataTotalCount);
 				UL_ERROR((Log::Instance().get(), 0, "ReadData error: %s - %s", 
 					devName.c_str(), e.what() ));		
 			}
@@ -393,6 +396,7 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 								 std::size_t startOffset
 								 )
 {
+	_ASSERTE(service != NULL);
 	std::vector<ZSDataItem> items;
 	std::size_t curIndex;
 	std::size_t gpCount;
@@ -461,3 +465,42 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 }
 
 
+void ZSDriver::NotifyDevFault(loService* service, unsigned serialIndex, 
+						   unsigned char stationIndex, std::size_t startOffset)
+{
+	_ASSERTE(service != NULL);
+	std::vector<std::pair<unsigned char, unsigned short> > stations =
+		protocol->GetPortSetting().at(serialIndex).stations;
+	unsigned short runSign = stations.at(stationIndex).second;
+
+	// The station is already disabled
+	if (ZSSerialProtocol::ZS_DEV_DISABLED == runSign)
+	{
+		return;
+	}
+
+	// Not exceeds the maximum retry time
+	if (runSign >= ZSSerialProtocol::ZS_DEV_OK && 
+		runSign <=  ZSSerialProtocol::ZS_DEV_FAULT_MAX_TRY_TIMES)
+	{
+		stations.at(stationIndex).second = runSign + 1;
+		return;
+	}
+
+	// Fetal error occurred. The data refresh to the device shall be disabled.
+    stations.at(stationIndex).second = ZSSerialProtocol::ZS_DEV_DISABLED;
+
+	// Signal the error to the user.
+	std::size_t signalIndex = startOffset + protocol->GetFaultSignalDataIndex() - 1;
+	FILETIME ft;
+	GetSystemTimeAsFileTime(&ft);
+	CComVariant var((unsigned)1);
+
+	tags->at(signalIndex).tvState.tsTime = ft;
+	tags->at(signalIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
+	tags->at(signalIndex).tvValue = var;
+	{
+		boost::lock_guard<boost::mutex> guard(*mutex);
+		loCacheUpdate(service, 1, &(tags->at(signalIndex)), 0);
+	}
+}

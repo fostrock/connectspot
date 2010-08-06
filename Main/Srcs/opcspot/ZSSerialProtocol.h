@@ -75,6 +75,11 @@ struct ZSWriteDataCmd
 	ParamDef param;
 };
 
+struct ZSFaultNotify
+{
+	std::vector<unsigned short/*mapping id*/> notifier;
+};
+
 class ZSSerialProtocol : 
 	public boost::noncopyable
 {
@@ -124,11 +129,21 @@ public:
 		return commonCmd;
 	}
 
+	// Get the dataset index for the device fault signal.
+	const unsigned short GetFaultSignalDataIndex() const
+	{
+		return dataset.size() - 1;
+	}
+
 public:
 	static const unsigned short ZS_DATA_NAME_INDEX = 0;
 	static const unsigned short ZS_DATA_LENGTH_INDEX = 1;
 	static const unsigned short ZS_DATA_TYPE_INDEX = 2;
 	static const unsigned short ZS_DATA_ACCESS_INDEX = 3;
+
+	static const unsigned short ZS_DEV_FAULT_MAX_TRY_TIMES = 5;
+	static const unsigned short ZS_DEV_OK = 1;
+	static const unsigned short ZS_DEV_DISABLED = 0;
 
 private:
 	xmlpp::DomParser parser;
@@ -137,4 +152,5 @@ private:
 	ZSWriteDataCmd writeDataCmd;
 	CommonCmdDef commonCmd;
 	std::vector<ZSSerialSetting> vecSetting;
+	ZSFaultNotify faultNotify;
 };

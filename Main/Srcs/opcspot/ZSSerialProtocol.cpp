@@ -108,11 +108,11 @@ bool ZSSerialProtocol::Parse()
 					// Attention: boost::lexical_cast<unsigned char>(1) -> 0x31 or character '1'
 					unsigned char station = 
 						static_cast<unsigned char>(boost::lexical_cast<unsigned short>(*itStation));
-					unsigned short enable = 0;
+					unsigned short enable = ZS_DEV_DISABLED;
 					++itStation;
 					if (StringsText::CaseInsCompare("Y", *itStation))
 					{
-						enable = 1;
+						enable = ZS_DEV_OK;
 					}
 					setting.stations.push_back(std::make_pair(station, enable));
 				}
@@ -256,6 +256,18 @@ bool ZSSerialProtocol::Parse()
 				// cmd in HEX
 				long lCmd = strtol(dataItem->get_attribute("cmd")->get_value().c_str(), NULL, 0);
 				commonCmd.insert(std::make_pair(matchID, static_cast<unsigned char>(lCmd)));
+			}
+
+			// The device fault notify
+			set = root->find("//zsdriver/protocol/fault_notify/data");
+			for (std::size_t i = 0; i < set.size(); ++i)
+			{
+				const xmlpp::Element* dataItem = static_cast<const xmlpp::Element*>(set.at(i));
+				_ASSERTE(dataItem != NULL);
+
+				unsigned short matchID = 
+					boost::lexical_cast<unsigned short>(dataItem->get_attribute("match_id")->get_value());
+				faultNotify.notifier.push_back(matchID);
 			}
 
 			ret = true;
