@@ -48,6 +48,7 @@
 			<data id="62" name_chs="启动校零操作" name_eng="a2" length="0" float="FALSE" access="w"/>
 			<data id="63" name_chs="启动校增益操作" name_eng="a2" length="0" float="FALSE" access="w"/>
 			<data id="64" name_chs="启动挂码数据采集操作" name_eng="a2" length="0" float="FALSE" access="w"/>
+			<data id="91" name_chs="故障报警" name_eng="a2" length="0" float="FALSE" access="rw"/>
 		</dataset>
 		<!-- refresh rate in ms -->
 		<!-- filter in float, 0 means no filter. For example, 2.1 means (current_read - previous_read) / previous_read > 2.1, the current read will be omitted -->
@@ -121,5 +122,8 @@
 			<data match_id="63" cmd="0x12"/>
 			<data match_id="64" cmd="0x13"/>
 		</command>
+		<fault_notify>
+			<data match_id="91"/>
+		</fault_notify>
 	</protocol>
 </zsdriver>
