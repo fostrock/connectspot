@@ -264,8 +264,13 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 				TAG_DEF def;
 				def.dataID = inc;
 				std::wstringstream wss;
+
+				// Format: COM1_S3_02_ÏÔÊ¾¿ØÖÆ×Ö
 				wss << DRV_PREFIX << L"/" << ports.at(i).devName_w << L"/Station_" 
 					<< ports.at(i).stations.at(j).first << L"/" 
+					<< ports.at(i).devName_w << L"_S"
+					<< ports.at(i).stations.at(j).first << L"_"
+					<< std::setw(2) << std::setfill(L'0') << (*it).first << L"_"
 					<< (*it).second.get<ZSSerialProtocol::ZS_DATA_NAME_INDEX>();
 				def.name = wss.str();
 				def.type = (*it).second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>() ? VT_R8 : VT_UI4; 
@@ -331,7 +336,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 	for (std::size_t i = 0; i < serialIndex; i++)
 	{
 		startOffset += 
-			dataTotalCount * protocol->GetPortSetting().at(serialIndex).stations.size();
+			dataTotalCount * protocol->GetPortSetting().at(i).stations.size();
 	}
 
 	while (isKeepRunning)
