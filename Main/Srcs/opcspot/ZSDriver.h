@@ -110,7 +110,6 @@ private:
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
-	static const loService* dataService;
 	static std::vector<loTagValue>* tags;
 	static boost::shared_ptr<ZSSerialProtocol> protocol;
 	static boost::shared_ptr<boost::thread_group> threadGp;
