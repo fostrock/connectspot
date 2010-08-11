@@ -178,9 +178,9 @@
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 13);
+            this.label1.Size = new System.Drawing.Size(97, 13);
             this.label1.TabIndex = 13;
-            this.label1.Text = "Main (20 - 10000ms)";
+            this.label1.Text = "Main (10 - 2000ms)";
             // 
             // comboBoxSecRatio
             // 
@@ -193,7 +193,8 @@
             "6",
             "7",
             "8",
-            "9"});
+            "9",
+            "10"});
             this.comboBoxSecRatio.Location = new System.Drawing.Point(131, 32);
             this.comboBoxSecRatio.Name = "comboBoxSecRatio";
             this.comboBoxSecRatio.Size = new System.Drawing.Size(114, 21);
@@ -245,20 +246,20 @@
             this.addStationToolStripMenuItem,
             this.removeStationToolStripMenuItem});
             this.contextMenuStripStation.Name = "contextMenuStripStation";
-            this.contextMenuStripStation.Size = new System.Drawing.Size(151, 48);
+            this.contextMenuStripStation.Size = new System.Drawing.Size(167, 48);
             this.contextMenuStripStation.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripStation_Opening);
             // 
             // addStationToolStripMenuItem
             // 
             this.addStationToolStripMenuItem.Name = "addStationToolStripMenuItem";
-            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.addStationToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.addStationToolStripMenuItem.Text = "Add Station...";
             this.addStationToolStripMenuItem.Click += new System.EventHandler(this.addStationToolStripMenuItem_Click);
             // 
             // removeStationToolStripMenuItem
             // 
             this.removeStationToolStripMenuItem.Name = "removeStationToolStripMenuItem";
-            this.removeStationToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.removeStationToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.removeStationToolStripMenuItem.Text = "Remove Station";
             this.removeStationToolStripMenuItem.Click += new System.EventHandler(this.removeStationToolStripMenuItem_Click);
             // 
@@ -386,20 +387,20 @@
             this.addPortToolStripMenuItem,
             this.removePortToolStripMenuItem});
             this.contextMenuStripPort.Name = "contextMenuStripPort";
-            this.contextMenuStripPort.Size = new System.Drawing.Size(137, 48);
+            this.contextMenuStripPort.Size = new System.Drawing.Size(150, 48);
             this.contextMenuStripPort.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripPort_Opening);
             // 
             // addPortToolStripMenuItem
             // 
             this.addPortToolStripMenuItem.Name = "addPortToolStripMenuItem";
-            this.addPortToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.addPortToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.addPortToolStripMenuItem.Text = "Add Port...";
             this.addPortToolStripMenuItem.Click += new System.EventHandler(this.addPortToolStripMenuItem_Click);
             // 
             // removePortToolStripMenuItem
             // 
             this.removePortToolStripMenuItem.Name = "removePortToolStripMenuItem";
-            this.removePortToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.removePortToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.removePortToolStripMenuItem.Text = "Remove Port";
             this.removePortToolStripMenuItem.Click += new System.EventHandler(this.removePortToolStripMenuItem_Click);
             // 

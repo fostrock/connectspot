@@ -312,7 +312,7 @@ namespace opcspot_mgr
 
         /// <summary>
         /// Validate the input string which must match the refresh interval requirements.
-        /// The input can be converted to UInt32 and the value shall be in range [10, 10000] (ms)
+        /// The input can be converted to UInt32 and the value shall be in range [10, 2000] (ms)
         /// </summary>
         /// <param name="input">The input string representing the interval value.</param>
         /// <param name="val">The converted value if it succeeded.</param>
@@ -325,7 +325,7 @@ namespace opcspot_mgr
                 return false;
             }
 
-            if (val < 10 || val > 10000)
+            if (val < 10 || val > 2000)
             {
                 return false;
             }
