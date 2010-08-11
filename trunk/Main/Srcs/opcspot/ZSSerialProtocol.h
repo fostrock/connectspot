@@ -135,6 +135,16 @@ public:
 		return dataset.size() - 1;
 	}
 
+	// Set the station status like running, disabled.
+	// @param<serialIndex> The serial port setting index.
+	// @param<stationIndx> The stations array index.
+	// @param<status> The status of the device on the station, such as ZS_DEV_OK
+	void UpdateStationStatus(unsigned int serialIndex, 
+		unsigned int stationIndex, unsigned short status)
+	{
+		vecSetting.at(serialIndex).stations.at(stationIndex).second = status;
+	}
+
 public:
 	static const unsigned short ZS_DATA_NAME_INDEX = 0;
 	static const unsigned short ZS_DATA_LENGTH_INDEX = 1;

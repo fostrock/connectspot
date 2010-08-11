@@ -11,12 +11,14 @@
 #include "StdAfx.h"
 #include "ZSDriver.h"
 #include "ZSSerial.h"
-#include "opcda.h"
-#include <iostream>
+#include "DataService.h"
 #include "ULog.h"
 
+#include "opcda.h"
+#include <iostream>
+
+
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
-const loService* ZSDriver::dataService = NULL;
 std::vector<loTagValue>* ZSDriver::tags = NULL;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
@@ -141,34 +143,50 @@ int ZSDriver::WriteTags(const loCaller *ca,
 		}
 
 		// check whether the stations is enabled
-		if (0 == ports.at(whichPort).stations.at(whichStation).second)
+		if (ZSSerialProtocol::ZS_DEV_DISABLED == 
+			ports.at(whichPort).stations.at(whichStation).second && 
+			protocol->GetFaultSignalDataIndex() != index)
 		{
 			continue; // the station is disabled, jump to the next tag.
 		}
 
-		// write data or command
 		HRESULT hr;
 		CComVariant var = values[i];
-		boost::upgrade_lock<boost::shared_mutex> upLock(*rwMutex);
-		boost::upgrade_to_unique_lock<boost::shared_mutex> uniLock(upLock);
-
-		try
 		{
-			if (iter->first < ZSDRV_COMMON_CMD_START) // write data
+			// write data or command
+			boost::upgrade_lock<boost::shared_mutex> upLock(*rwMutex);
+			boost::upgrade_to_unique_lock<boost::shared_mutex> uniLock(upLock);
+
+			try
 			{
-				ZSDataItem dataItem;
-				dataItem.index = iter->first;
-				if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
+				if (iter->first < ZSDRV_COMMON_CMD_START) // write data
 				{
-					hr = var.ChangeType(VT_R8);
-					_ASSERTE(S_OK == hr);
-					if (S_OK != hr)
+					ZSDataItem dataItem;
+					dataItem.index = iter->first;
+					if (iter->second.get<ZSSerialProtocol::ZS_DATA_TYPE_INDEX>())
 					{
-						continue; // add log here
+						hr = var.ChangeType(VT_R8);
+						_ASSERTE(S_OK == hr);
+						if (S_OK != hr)
+						{
+							continue; // add log here
+						}
+						dataItem.variant = var.dblVal;
 					}
-					dataItem.variant = var.dblVal;
+					else
+					{
+						hr = var.ChangeType(VT_UI4);
+						_ASSERTE(S_OK == hr);
+						if (S_OK != hr)
+						{
+							continue; // add log here
+						}
+						dataItem.variant = var.uintVal;
+					}
+					serials->at(whichPort)->WriteData(dataItem, 
+						ports.at(whichPort).stations.at(whichStation).first);
 				}
-				else
+				else if (protocol->GetFaultSignalDataIndex() != index)// write the common command
 				{
 					hr = var.ChangeType(VT_UI4);
 					_ASSERTE(S_OK == hr);
@@ -176,33 +194,49 @@ int ZSDriver::WriteTags(const loCaller *ca,
 					{
 						continue; // add log here
 					}
-					dataItem.variant = var.uintVal;
+					if (var.uintVal > 0)
+					{
+						serials->at(whichPort)->WriteCommand(iter->first, 
+							ports.at(whichPort).stations.at(whichStation).first);
+					}
+					else
+					{
+						continue;
+					}
 				}
-				serials->at(whichPort)->WriteData(dataItem, 
-					ports.at(whichPort).stations.at(whichStation).first);
+				else  // check whether the restore the device healthy status is set.	
+				{
+					hr = var.ChangeType(VT_UI4);
+					_ASSERTE(S_OK == hr);
+					if (S_OK == hr && 0 == var.uintVal)
+					{
+						protocol->UpdateStationStatus(whichPort, whichStation, ZSSerialProtocol::ZS_DEV_OK);
+					}
+					else
+					{
+						continue;
+					}
+				}
 			}
-			else // write the common command
+			catch (timeout_exception& e)
 			{
-				hr = var.ChangeType(VT_UI4);
-				_ASSERTE(S_OK == hr);
-				if (S_OK != hr)
-				{
-					continue; // add log here
-				}
-				if (var.uintVal > 0)
-				{
-					serials->at(whichPort)->WriteCommand(iter->first, 
-						ports.at(whichPort).stations.at(whichStation).first);
-				}	
+				UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));		
 			}
+			catch (boost::system::system_error& e)
+			{
+				UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));
+			}
+
 		}
-		catch (timeout_exception& e)
+
+		FILETIME ft;
+		GetSystemTimeAsFileTime(&ft);
+		tags->at(drvIndex).tvState.tsTime = ft;
+		tags->at(drvIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
+		tags->at(drvIndex).tvValue = var;
 		{
-			UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));		
-		}
-		catch (boost::system::system_error& e)
-		{
-			UL_ERROR((Log::Instance().get(), 0, "WriteData() error: %s", e.what()));
+			boost::lock_guard<boost::mutex> guard(*mutex);
+			loCacheUpdate(DataService::Instance(), 1, &(tags->at(drvIndex)), 0);
 		}
 	}
 
@@ -318,7 +352,7 @@ void ZSDriver::RefreshData(loService* service)
 void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 {
 	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
-	std::vector<std::pair<unsigned char, unsigned short> > stations =
+	const std::vector<std::pair<unsigned char, unsigned short> >& stations =
 		protocol->GetPortSetting().at(serialIndex).stations;
 	std::string devName = protocol->GetPortSetting().at(serialIndex).devName;
 	std::size_t gpOneCount = protocol->GetReadDataCmd().at(0).info.size();
@@ -346,6 +380,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 			// the station is disabled
 			if (ZSSerialProtocol::ZS_DEV_DISABLED == stations.at(i).second)
 			{
+				::Sleep(REFRESH_MIN);
 				continue;
 			}
 
@@ -364,7 +399,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 				RefreshDataSubJob(service, serial, stations.at(i).first, 
 					dataGroup, grpStartOffset + i * dataTotalCount);
 				::Sleep(refreshBase);
-				stations.at(i).second = ZSSerialProtocol::ZS_DEV_OK; // restore
+				protocol->UpdateStationStatus(serialIndex, i, ZSSerialProtocol::ZS_DEV_OK); // restore
 			}
 			catch (timeout_exception& e)
 			{
@@ -469,9 +504,8 @@ void ZSDriver::NotifyDevFault(loService* service, unsigned serialIndex,
 						   unsigned char stationIndex, std::size_t startOffset)
 {
 	_ASSERTE(service != NULL);
-	std::vector<std::pair<unsigned char, unsigned short> > stations =
-		protocol->GetPortSetting().at(serialIndex).stations;
-	unsigned short runSign = stations.at(stationIndex).second;
+	unsigned short runSign = 
+		protocol->GetPortSetting().at(serialIndex).stations.at(stationIndex).second;
 
 	// The station is already disabled
 	if (ZSSerialProtocol::ZS_DEV_DISABLED == runSign)
@@ -483,15 +517,15 @@ void ZSDriver::NotifyDevFault(loService* service, unsigned serialIndex,
 	if (runSign >= ZSSerialProtocol::ZS_DEV_OK && 
 		runSign <=  ZSSerialProtocol::ZS_DEV_FAULT_MAX_TRY_TIMES)
 	{
-		stations.at(stationIndex).second = runSign + 1;
+		protocol->UpdateStationStatus(serialIndex, stationIndex, runSign + 1);
 		return;
 	}
 
 	// Fetal error occurred. The data refresh to the device shall be disabled.
-    stations.at(stationIndex).second = ZSSerialProtocol::ZS_DEV_DISABLED;
+	protocol->UpdateStationStatus(serialIndex, stationIndex, ZSSerialProtocol::ZS_DEV_DISABLED);
 
 	// Signal the error to the user.
-	std::size_t signalIndex = startOffset + protocol->GetFaultSignalDataIndex() - 1;
+	std::size_t signalIndex = startOffset + protocol->GetFaultSignalDataIndex();
 	FILETIME ft;
 	GetSystemTimeAsFileTime(&ft);
 	CComVariant var((unsigned)1);
