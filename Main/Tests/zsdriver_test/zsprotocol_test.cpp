@@ -72,11 +72,11 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 		if (6 == readDataCmd.info.at(findIndex).index) // "当前流速"
 		{
 			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).hasFilter, true);
-			BOOST_CHECK_GT(readDataCmd.info.at(findIndex).changeLimit, 2.0);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).changeLimit, 0.1);
 		}
-		if (1 == readDataCmd.info.at(findIndex).index)
+		if (1 == readDataCmd.info.at(findIndex).index) // "流速设定量"
 		{
-			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).hasFilter, false);
+			BOOST_CHECK_EQUAL(readDataCmd.info.at(findIndex).hasFilter, true);
 		}
 	}
 	BOOST_CHECK(findIndex != readDataCmd.info.size());
