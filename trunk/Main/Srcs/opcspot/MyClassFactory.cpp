@@ -54,7 +54,13 @@ HRESULT MyClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** 
 	HRESULT hr = S_OK;
 	IUnknown *server = NULL;
 	IUnknown *inner = NULL;
-	if (loClientCreate_agg(DataService::Instance(), (loClient**)&server, 
+
+	if (NULL == DataService::Instance())
+	{
+		return E_POINTER;
+	}
+
+	if (loClientCreate_agg(DataService::Instance().get(), (loClient**)&server, 
 		pUnkOuter, &inner,
 		0, &vendor, a_server_finished, NULL/*cuserid*/))
 	{
@@ -74,8 +80,9 @@ HRESULT MyClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** 
 
 	if (SUCCEEDED(hr))
 	{
-		loSetState(DataService::Instance(), (loClient*)server,
+		loSetState(DataService::Instance().get(), (loClient*)server,
 			loOP_OPERATE, (int)OPC_STATUS_RUNNING, "Finished by client");
+		UL_INFO((Log::Instance().get(), 0, "OPC service is started."));
 	}
 
 #ifdef __EVAL__

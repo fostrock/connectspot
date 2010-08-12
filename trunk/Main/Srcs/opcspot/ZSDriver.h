@@ -78,13 +78,13 @@ public:
 
 	// Tell the driver to refresh data
 	// @param <service> opc data service
-	static void RefreshData(loService* service);
+	static void RefreshData(boost::shared_ptr<loService> service);
 
 private:
 	// Refresh data worker function
 	// @param <service> opc data service
 	// @param <serialIndex> serial object index
-	static void RefreshDataTask(loService* service, unsigned serialIndex);
+	static void RefreshDataTask(boost::shared_ptr<loService> service, unsigned serialIndex);
 
 	// It is the real job body for RefreshDataTask
 	// @param <service> the opc data service
@@ -93,7 +93,7 @@ private:
 	// @param <group> data read group for zsserial, 
 	//                0 for readData group one, 1 for readData group two
 	// @param <startOffset> the start offset of tags
-	static void RefreshDataSubJob(loService* service, 
+	static void RefreshDataSubJob(boost::shared_ptr<loService> service, 
 		boost::shared_ptr<ZSSerial> serial, 
 		unsigned char station, unsigned group, 
 		std::size_t startOffset);
@@ -105,12 +105,13 @@ private:
 	// @param <group> data read group for zsserial, 
 	//                0 for readData group one, 1 for readData group two
 	// @param <startOffset> the start offset of tags
-	static void NotifyDevFault(loService* service, unsigned serialIndex, 
+	static void NotifyDevFault(boost::shared_ptr<loService> service, unsigned serialIndex, 
 		unsigned char stationIndex, std::size_t startOffset);
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;
 	static std::vector<loTagValue>* tags;
+	static boost::shared_ptr<loService> dataService;
 	static boost::shared_ptr<ZSSerialProtocol> protocol;
 	static boost::shared_ptr<boost::thread_group> threadGp;
 	static boost::shared_ptr<boost::mutex> mutex;
