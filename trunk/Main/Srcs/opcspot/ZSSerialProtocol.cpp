@@ -299,7 +299,10 @@ bool ZSSerialProtocol::ParseCommand(const xmlpp::Node* root)
 	{
 		const xmlpp::Element* child = static_cast<const xmlpp::Element*>(*it);
 		unsigned short matchID = boost::lexical_cast<unsigned short>(child->get_attribute("match_id")->get_value());
-		unsigned short param = boost::lexical_cast<unsigned short>(child->get_attribute("param")->get_value());;
+		// boost::lexical_cast<unsigned char> means parse ASCII character!
+		unsigned char param = static_cast<unsigned char>(
+			boost::lexical_cast<unsigned short>(child->get_attribute("param")->get_value())
+			);
 		writeDataCmd.param.insert(std::make_pair(matchID, param));
 	}
 
