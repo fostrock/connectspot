@@ -30,7 +30,8 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 
 	loDriver driver;
 	memset(&driver, 0, sizeof(loDriver));
-	ZSDriver::Init(path);
+	isOK = ZSDriver::Init(path);
+	BOOST_CHECK_EQUAL(isOK, true);
 	HeapFree(GetProcessHeap(), 0, path);
 	driver.ldSubscribe = ZSDriver::activation_monitor;
 
@@ -70,7 +71,8 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 		ZSDriver::AssignTagIDIndexMap(tagID, tagDef.at(i).dataID);
 	}
 
-	ZSDriver::RefreshData(instance);
+	boost::shared_ptr<loService> dataService(instance, loServiceDestroy);
+	ZSDriver::RefreshData(dataService);
 
 	loCaller *ca = NULL;
 	loTagPair taglist[1];
@@ -87,7 +89,4 @@ BOOST_AUTO_TEST_CASE(ZSDriver_refreshdata_test)
 
 
 	ZSDriver::Destroy();
-
-	ecode = loServiceDestroy(instance);
-	BOOST_CHECK_EQUAL(0, ecode);
 }
