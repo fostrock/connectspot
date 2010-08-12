@@ -71,7 +71,7 @@ struct ZSReadDataCmd
 struct ZSWriteDataCmd 
 {
 	unsigned char cmd;
-	typedef std::map<unsigned short/*mapping id*/, unsigned short/*param*/> ParamDef;
+	typedef std::map<unsigned short/*mapping id*/, unsigned char/*param*/> ParamDef;
 	ParamDef param;
 };
 
@@ -130,9 +130,11 @@ public:
 	}
 
 	// Get the dataset index for the device fault signal.
+	// Use the dataset.end() instead of dataset.begin() for more efficiency.
 	const unsigned short GetFaultSignalDataIndex() const
 	{
-		return dataset.size() - 1;
+		return dataset.size() - 
+			std::distance(dataset.find(faultNotify.notifier.at(0)), dataset.end());
 	}
 
 	// Set the station status like running, disabled.
