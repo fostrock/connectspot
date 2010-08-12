@@ -11,7 +11,6 @@
 #include "StdAfx.h"
 #include "ZSDriver.h"
 #include "ZSSerial.h"
-#include "DataService.h"
 #include "ULog.h"
 
 #include "opcda.h"
@@ -20,6 +19,7 @@
 
 std::vector<boost::shared_ptr<ZSSerial> >* ZSDriver::serials = NULL;
 std::vector<loTagValue>* ZSDriver::tags = NULL;
+boost::shared_ptr<loService> ZSDriver::dataService;
 boost::shared_ptr<ZSSerialProtocol> ZSDriver::protocol;
 boost::shared_ptr<boost::thread_group> ZSDriver::threadGp;
 boost::shared_ptr<boost::mutex> ZSDriver::mutex;
@@ -99,7 +99,7 @@ int ZSDriver::WriteTags(const loCaller *ca,
 						VARIANT values[], HRESULT error[], HRESULT *master, LCID lcid)
 {
 	// A guard but unsafe
-	if (!isKeepRunning)
+	if (!isKeepRunning || NULL == dataService)
 	{
 		return loDW_ALLDONE;
 	}
@@ -236,7 +236,7 @@ int ZSDriver::WriteTags(const loCaller *ca,
 		tags->at(drvIndex).tvValue = var;
 		{
 			boost::lock_guard<boost::mutex> guard(*mutex);
-			loCacheUpdate(DataService::Instance(), 1, &(tags->at(drvIndex)), 0);
+			loCacheUpdate(dataService.get(), 1, &(tags->at(drvIndex)), 0);
 		}
 	}
 
@@ -333,23 +333,24 @@ std::vector<ZSDriver::TAG_DEF> ZSDriver::GetTagDef()
 
 // Tell the driver to refresh data
 // @param <service> opc data service
-void ZSDriver::RefreshData(loService* service)
+void ZSDriver::RefreshData(boost::shared_ptr<loService> service)
 {
+	dataService = service;
 	boost::lock_guard<boost::mutex> guard(*mutex);
 	isKeepRunning = true;
 	for (std::size_t i = 0; i < serials->size(); ++i)
 	{
 		if (serials->at(i)->IsOpened())
 		{
-			// equal to: boost::thread(boost::bind(RefreshDataTask, service, i));
-			boost::thread* p = new boost::thread(RefreshDataTask, service, i);
+			// equal to: boost::thread(boost::bind(RefreshDataTask, dataService, i));
+			boost::thread* p = new boost::thread(RefreshDataTask, dataService, i);
 			threadGp->add_thread(p);
 		}
 	}
 }
 
 // Refresh data worker function
-void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
+void ZSDriver::RefreshDataTask(boost::shared_ptr<loService> service, unsigned serialIndex)
 {
 	boost::shared_ptr<ZSSerial> serial = serials->at(serialIndex);
 	const std::vector<std::pair<unsigned char, unsigned short> >& stations =
@@ -426,7 +427,7 @@ void ZSDriver::RefreshDataTask(loService* service, unsigned serialIndex)
 }
 
 // It is the real job body for RefreshDataTask
-void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial> serial, 
+void ZSDriver::RefreshDataSubJob(boost::shared_ptr<loService> service, boost::shared_ptr<ZSSerial> serial, 
 								 unsigned char station, unsigned group, 
 								 std::size_t startOffset
 								 )
@@ -495,12 +496,12 @@ void ZSDriver::RefreshDataSubJob(loService* service, boost::shared_ptr<ZSSerial>
 	// update the service cache
 	{
 		boost::lock_guard<boost::mutex> guard(*mutex);
-		loCacheUpdate(service, gpCount, &(tags->at(curIndex)), 0);
+		loCacheUpdate(service.get(), gpCount, &(tags->at(curIndex)), 0);
 	}
 }
 
 
-void ZSDriver::NotifyDevFault(loService* service, unsigned serialIndex, 
+void ZSDriver::NotifyDevFault(boost::shared_ptr<loService> service, unsigned serialIndex, 
 						   unsigned char stationIndex, std::size_t startOffset)
 {
 	_ASSERTE(service != NULL);
@@ -535,6 +536,6 @@ void ZSDriver::NotifyDevFault(loService* service, unsigned serialIndex,
 	tags->at(signalIndex).tvValue = var;
 	{
 		boost::lock_guard<boost::mutex> guard(*mutex);
-		loCacheUpdate(service, 1, &(tags->at(signalIndex)), 0);
+		loCacheUpdate(service.get(), 1, &(tags->at(signalIndex)), 0);
 	}
 }

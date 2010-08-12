@@ -17,7 +17,7 @@
 
 using namespace CommonLib;
 
-loService* DataService::instance = NULL;
+boost::shared_ptr<loService> DataService::instance;
 
 int DataService::InitService()
 {
@@ -34,7 +34,14 @@ int DataService::InitService()
 	{
 		return -1;
 	}
-	ZSDriver::Init(path);
+
+	isOK = ZSDriver::Init(path);
+	_ASSERTE(isOK);
+	if (!isOK)
+	{
+		return -1;
+	}
+
 	HeapFree(GetProcessHeap(), 0, path);
 
 	loDriver driver;
@@ -46,11 +53,13 @@ int DataService::InitService()
 
 	driver.ldBranchSep = '/'; // Hierarchical branch separator
 
-	int ecode = loServiceCreate(&instance, &driver, 4096 /* number of tags in the cache */);
+	loService* serv;
+	int ecode = loServiceCreate(&serv, &driver, 4096 /* number of tags in the cache */);
 	if (ecode)
 	{
 		return -1;
 	}
+	instance = boost::shared_ptr<loService>(serv, loServiceDestroy);
 
 	std::vector<ZSDriver::TAG_DEF> tagDef = ZSDriver::GetTagDef();
 	loTagId tagID = 0;
@@ -65,7 +74,7 @@ int DataService::InitService()
 		{
 			var = (unsigned)0;
 		}
-		ecode = loAddRealTagW(instance, &tagID, (loRealTag)(tagDef.at(i).dataID), 
+		ecode = loAddRealTagW(instance.get(), &tagID, (loRealTag)(tagDef.at(i).dataID), 
 			tagDef.at(i).name.c_str(), 0, tagDef.at(i).right, &var, 0, NULL);
 		if (ecode)
 		{
@@ -84,15 +93,10 @@ int DataService::InitService()
 void DataService::UninitService()
 {
 	ZSDriver::Destroy();
-	if (instance)
-	{
-		int ecode = loServiceDestroy(instance);
-		UL_INFO((Log::Instance().get(), 0, "OPC service is closed."));
-		instance = NULL;
-	}
+	UL_INFO((Log::Instance().get(), 0, "OPC service is closed."));
 }
 
-loService* DataService::Instance()
+boost::shared_ptr<loService> DataService::Instance()
 {
 	if (NULL == instance)
 	{
@@ -100,7 +104,7 @@ loService* DataService::Instance()
 		if (res)
 		{
 			UL_ERROR((Log::Instance().get(), 0, "Init the data service failed"));
-			return NULL;
+			return boost::shared_ptr<loService>();
 		}
 	}
 

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "lightopc.h"
+#include "boost/smart_ptr.hpp"
 
 class DataService
 {
@@ -29,8 +30,8 @@ public:
 
 	// Get the internal instance
 	// @return the service instance
-	static loService* Instance();
+	static boost::shared_ptr<loService> Instance();
 
 private:
-	static loService* instance;
+	static boost::shared_ptr<loService> instance;
 };
