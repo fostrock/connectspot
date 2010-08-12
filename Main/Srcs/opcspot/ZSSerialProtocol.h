@@ -145,6 +145,24 @@ public:
 		vecSetting.at(serialIndex).stations.at(stationIndex).second = status;
 	}
 
+private:
+
+	// Parse the serial port setting.
+	// @return true if it succeeded, otherwise false.
+	bool ParseSerialSetting(const xmlpp::Node* root);
+
+	// Parse the data set definition.
+	// @return true if it succeeded, otherwise false.
+	bool ParseDateSet(const xmlpp::Node* root);
+
+	// Parse the read, write and the general commands.
+	// @return true if it succeeded, otherwise false.
+	bool ParseCommand(const xmlpp::Node* root);
+
+	// Parse the device fault notifier.
+	// @return true if it succeeded, otherwise false.
+	bool ParseFaultNotifier(const xmlpp::Node* root);
+
 public:
 	static const unsigned short ZS_DATA_NAME_INDEX = 0;
 	static const unsigned short ZS_DATA_LENGTH_INDEX = 1;
