@@ -114,4 +114,7 @@ BOOST_AUTO_TEST_CASE(zsprotocol_parse_test)
 	itCmd = commonCmd.find(64);
 	BOOST_CHECK(itCmd != commonCmd.end());
 	BOOST_CHECK_EQUAL(itCmd->second, 0x13);
+
+	// test the device fault notifier
+	BOOST_CHECK_EQUAL(protocol.GetFaultSignalDataIndex(), 38);
 }
