@@ -106,7 +106,7 @@ private:
 	//                0 for readData group one, 1 for readData group two
 	// @param <startOffset> the start offset of tags
 	static void NotifyDevFault(boost::shared_ptr<loService> service, unsigned serialIndex, 
-		unsigned char stationIndex, std::size_t startOffset);
+		unsigned char stationIndex, unsigned int startOffset);
 
 private:
 	static std::vector<boost::shared_ptr<ZSSerial> >* serials;

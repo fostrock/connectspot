@@ -502,7 +502,7 @@ void ZSDriver::RefreshDataSubJob(boost::shared_ptr<loService> service, boost::sh
 
 
 void ZSDriver::NotifyDevFault(boost::shared_ptr<loService> service, unsigned serialIndex, 
-						   unsigned char stationIndex, std::size_t startOffset)
+						   unsigned char stationIndex, unsigned int startOffset)
 {
 	_ASSERTE(service != NULL);
 	unsigned short runSign = 
@@ -526,16 +526,26 @@ void ZSDriver::NotifyDevFault(boost::shared_ptr<loService> service, unsigned ser
 	protocol->UpdateStationStatus(serialIndex, stationIndex, ZSSerialProtocol::ZS_DEV_DISABLED);
 
 	// Signal the error to the user.
-	std::size_t signalIndex = startOffset + protocol->GetFaultSignalDataIndex();
+	unsigned int signalIndex = startOffset + protocol->GetFaultSignalDataIndex();
+	unsigned int gpCount = protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_I).info.size() + 
+		protocol->GetReadDataCmd().at(ZSDRV_READ_DATA_GROUP_II).info.size();
+
 	FILETIME ft;
 	GetSystemTimeAsFileTime(&ft);
 	CComVariant var((unsigned)1);
+
+	for (std::size_t i = startOffset; i < startOffset + gpCount; ++i)
+	{
+		tags->at(i).tvState.tsTime = ft;
+		tags->at(i).tvState.tsQuality = OPC_QUALITY_DEVICE_FAILURE;
+	}
 
 	tags->at(signalIndex).tvState.tsTime = ft;
 	tags->at(signalIndex).tvState.tsQuality = OPC_QUALITY_GOOD;
 	tags->at(signalIndex).tvValue = var;
 	{
 		boost::lock_guard<boost::mutex> guard(*mutex);
+		loCacheUpdate(service.get(), gpCount, &(tags->at(startOffset)), 0);
 		loCacheUpdate(service.get(), 1, &(tags->at(signalIndex)), 0);
 	}
 }
